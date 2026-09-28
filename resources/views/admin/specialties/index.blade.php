@@ -1,0 +1,4 @@
+@extends('admin.layout') @section('heading','Специальности и 3D-сцены') @section('content')
+<div class="admin-actions"><p>Для каждого направления используется собственный Three.js-пресет.</p><a class="btn-tech" href="{{ route('admin.specialties.create') }}">+ Добавить специальность</a></div>
+<div class="table-responsive"><table class="table tech-table"><thead><tr><th>Код</th><th>Название</th><th>3D-сцена</th><th>Цвет</th><th></th></tr></thead><tbody>@foreach($specialties as $s)<tr><td>{{ $s->code }}</td><td><b>{{ $s->title }}</b></td><td><code>{{ $s->scene_key }}</code></td><td><span class="color-dot" style="background:{{ $s->accent }}"></span>{{ $s->accent }}</td><td class="text-end"><a href="{{ route('admin.specialties.edit',$s) }}">Редактировать</a></td></tr>@endforeach</tbody></table></div>{{ $specialties->links() }}
+@endsection

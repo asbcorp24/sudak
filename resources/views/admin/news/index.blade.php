@@ -1,0 +1,4 @@
+@extends('admin.layout') @section('heading','Новости') @section('content')
+<div class="admin-actions"><p>Новости, события и объявления колледжа.</p><a class="btn-tech" href="{{ route('admin.news.create') }}">+ Добавить новость</a></div>
+<div class="table-responsive"><table class="table tech-table"><thead><tr><th>Дата</th><th>Заголовок</th><th>Статус</th><th></th></tr></thead><tbody>@foreach($posts as $p)<tr><td>{{ optional($p->published_at)->format('d.m.Y H:i') }}</td><td><b>{{ $p->title }}</b></td><td>{{ $p->is_published?'опубликовано':'черновик' }}</td><td class="text-end"><a href="{{ route('admin.news.edit',$p) }}">Редактировать</a></td></tr>@endforeach</tbody></table></div>{{ $posts->links() }}
+@endsection
