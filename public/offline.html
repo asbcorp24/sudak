@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#061019">
+<title>ЗСК · Нет сети</title>
+<style>
+*{box-sizing:border-box}body{margin:0;min-height:100svh;display:grid;place-items:center;padding:24px;background:radial-gradient(circle at 70% 10%,#123746 0,transparent 36%),#061019;color:#eefbff;font-family:Inter,Arial,sans-serif}.card{width:min(560px,100%);padding:34px;border:1px solid rgba(112,221,255,.2);background:rgba(7,22,31,.88)}.mark{width:64px;height:64px;display:grid;place-items:center;border:1px solid #49d9ff;color:#49d9ff;font-weight:900;margin-bottom:28px}h1{font-size:clamp(2.6rem,10vw,5rem);line-height:.92;letter-spacing:-.06em;margin:0 0 18px}p{color:#9bb5c0;line-height:1.6}.status{display:flex;align-items:center;gap:9px;margin:26px 0;color:#76ffd4;font-size:.75rem;letter-spacing:.12em;text-transform:uppercase}.status i{width:8px;height:8px;border-radius:50%;background:#76ffd4;box-shadow:0 0 16px #76ffd4}button{min-height:48px;padding:0 20px;background:#49d9ff;border:0;color:#031019;font-weight:800;text-transform:uppercase;cursor:pointer}
+</style>
+</head>
+<body>
+<div class="card">
+ <div class="mark">ЗСК</div>
+ <h1>Нет подключения к сети</h1>
+ <p>Некоторые ранее открытые страницы и файлы могут оставаться доступными. Когда соединение появится, сайт автоматически снова будет работать в обычном режиме.</p>
+ <div class="status"><i></i> PWA / offline mode</div>
+ <button onclick="location.reload()">Повторить</button>
+</div>
+</body>
+</html>
