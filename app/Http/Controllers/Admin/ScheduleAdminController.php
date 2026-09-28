@@ -7,6 +7,7 @@ use App\Models\Employee;
 use App\Models\ScheduleEntry;
 use App\Models\ScheduleGroup;
 use Illuminate\Http\Request;
+use App\Services\RectorCollegeScheduleImporter;
 
 class ScheduleAdminController extends Controller
 {
@@ -32,6 +33,30 @@ class ScheduleAdminController extends Controller
             'groupId'=>$groupId,
             'teacherId'=>$teacherId,
         ]);
+    }
+
+    public function importXml(Request $request, RectorCollegeScheduleImporter $importer)
+    {
+        $data=$request->validate([
+            'xml_file'=>['required','file','max:51200'],
+            'import_mode'=>['required','in:merge,replace'],
+        ]);
+
+        try {
+            $report=$importer->import(
+                $data['xml_file']->getRealPath(),
+                $data['import_mode']
+            );
+        } catch (\Throwable $e) {
+            return back()->withErrors([
+                'xml_file'=>'Не удалось импортировать расписание: '.$e->getMessage(),
+            ]);
+        }
+
+        return redirect()
+            ->route('admin.schedule.index')
+            ->with('ok','Расписание Rector-College импортировано')
+            ->with('schedule_import_report',$report);
     }
 
     public function create(Request $request)
