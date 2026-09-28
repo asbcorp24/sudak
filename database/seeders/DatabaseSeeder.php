@@ -147,5 +147,10 @@ class DatabaseSeeder extends Seeder
    'content'=>'<p>Портал построен как развиваемая цифровая платформа: специальности получили интерактивные 3D-сцены, а все информационные разделы управляются через CMS.</p>',
    'published_at'=>now(),'is_published'=>true
   ]);
+
+  $this->call([
+   CompetitionsSeeder::class,
+   QuizzesSeeder::class,
+  ]);
  }
 }
