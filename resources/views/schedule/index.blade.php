@@ -44,7 +44,7 @@
 
   <div class="schedule-date-nav">
    <a href="{{ route('schedule.index',array_filter(['date'=>$previousDate,'group_id'=>$groupId,'teacher_id'=>$teacherId])) }}">← Предыдущий день</a>
-   <strong>{{ CarbonCarbon::parse($date)->format('d.m.Y') }}</strong>
+   <strong>{{ $displayDate }}</strong>
    <a href="{{ route('schedule.index',array_filter(['date'=>$nextDate,'group_id'=>$groupId,'teacher_id'=>$teacherId])) }}">Следующий день →</a>
   </div>
 
