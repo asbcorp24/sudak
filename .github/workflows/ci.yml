@@ -8,6 +8,10 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: sudak-build-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -67,4 +71,6 @@ jobs:
             exit 0
           fi
           git commit -m "build: publish compiled frontend assets"
-          git push
+          git fetch origin main
+          git rebase origin/main
+          git push origin HEAD:main
