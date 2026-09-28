@@ -1,7 +1,9 @@
 <?php
 namespace App\Models;
+use App\Models\Concerns\HasMedia;
 use Illuminate\Database\Eloquent\Model;
 class Page extends Model{
+ use HasMedia;
  protected $fillable=['parent_id','title','menu_title','slug','excerpt','content','page_type','icon','cover','meta_title','meta_description','show_in_menu','is_published','sort'];
  protected $casts=['show_in_menu'=>'boolean','is_published'=>'boolean'];
  public function parent(){return $this->belongsTo(self::class,'parent_id');}
