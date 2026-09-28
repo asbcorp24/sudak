@@ -15,6 +15,226 @@ const A11Y_DEFAULTS={
 let deferredInstallPrompt=null;
 let a11yState=readAccessibility();
 
+function initRichEditors(){
+  const esc=value=>String(value??'')
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;')
+    .replace(/'/g,'&#039;');
+
+  document.querySelectorAll('[data-rich-editor]').forEach(editor=>{
+    const surface=editor.querySelector('[data-rich-surface]');
+    const source=editor.querySelector('[data-rich-source]');
+    const output=editor.querySelector('[data-rich-output]');
+    const toolbar=editor.querySelector('[data-rich-toolbar]');
+    const mediaPanel=editor.querySelector('[data-rich-media-panel]');
+    if(!surface||!source||!output) return;
+
+    let mode='visual';
+    let savedRange=null;
+
+    const syncOutput=()=>{
+      output.value=mode==='html' ? source.value : surface.innerHTML;
+    };
+
+    const saveSelection=()=>{
+      if(mode!=='visual') return;
+      const selection=window.getSelection();
+      if(!selection||!selection.rangeCount) return;
+      const range=selection.getRangeAt(0);
+      if(surface.contains(range.commonAncestorContainer)){
+        savedRange=range.cloneRange();
+      }
+    };
+
+    const restoreSelection=()=>{
+      if(!savedRange) return;
+      const selection=window.getSelection();
+      if(!selection) return;
+      selection.removeAllRanges();
+      selection.addRange(savedRange);
+    };
+
+    const insertHtml=html=>{
+      if(mode==='html'){
+        const start=source.selectionStart ?? source.value.length;
+        const end=source.selectionEnd ?? start;
+        source.setRangeText(html,start,end,'end');
+        source.dispatchEvent(new Event('input',{bubbles:true}));
+        source.focus();
+        return;
+      }
+
+      surface.focus();
+      restoreSelection();
+      document.execCommand('insertHTML',false,html);
+      saveSelection();
+      syncOutput();
+    };
+
+    const exec=(command,value=null)=>{
+      if(mode!=='visual') return;
+      surface.focus();
+      restoreSelection();
+      document.execCommand(command,false,value);
+      saveSelection();
+      syncOutput();
+    };
+
+    surface.addEventListener('mouseup',saveSelection);
+    surface.addEventListener('keyup',saveSelection);
+    surface.addEventListener('focus',saveSelection);
+    surface.addEventListener('input',syncOutput);
+    source.addEventListener('input',syncOutput);
+
+    toolbar?.querySelectorAll('button').forEach(button=>{
+      button.addEventListener('mousedown',event=>event.preventDefault());
+    });
+
+    editor.querySelectorAll('[data-rich-command]').forEach(button=>{
+      button.addEventListener('click',()=>exec(button.dataset.richCommand));
+    });
+
+    editor.querySelector('[data-rich-format]')?.addEventListener('change',event=>{
+      if(mode!=='visual') return;
+      exec('formatBlock','<'+event.target.value+'>');
+      event.target.value='p';
+    });
+
+    editor.querySelector('[data-rich-blockquote]')?.addEventListener('click',()=>{
+      exec('formatBlock','<blockquote>');
+    });
+
+    editor.querySelector('[data-rich-link]')?.addEventListener('click',()=>{
+      const url=window.prompt('Адрес ссылки (https://...)');
+      if(!url) return;
+
+      if(mode==='html'){
+        const text=window.prompt('Текст ссылки',url) || url;
+        insertHtml('<a href="'+esc(url)+'" target="_blank" rel="noopener">'+esc(text)+'</a>');
+        return;
+      }
+
+      restoreSelection();
+      const selection=window.getSelection();
+      const selected=selection?.toString()?.trim();
+      if(selected){
+        exec('createLink',url);
+        surface.querySelectorAll('a[href="'+CSS.escape(url)+'"]').forEach(a=>{
+          a.target='_blank';
+          a.rel='noopener';
+        });
+        syncOutput();
+      }else{
+        const text=window.prompt('Текст ссылки',url) || url;
+        insertHtml('<a href="'+esc(url)+'" target="_blank" rel="noopener">'+esc(text)+'</a>');
+      }
+    });
+
+    editor.querySelector('[data-rich-table]')?.addEventListener('click',()=>{
+      const rows=Math.max(1,Math.min(10,parseInt(window.prompt('Количество строк','3')||'0',10)));
+      const cols=Math.max(1,Math.min(8,parseInt(window.prompt('Количество столбцов','3')||'0',10)));
+      if(!rows||!cols) return;
+
+      let html='<div class="content-table-wrap"><table class="content-table"><tbody>';
+      for(let r=0;r<rows;r++){
+        html+='<tr>';
+        for(let col=0;col<cols;col++){
+          const tag=r===0?'th':'td';
+          html+='<'+tag+'>'+(r===0?'Заголовок':'Ячейка')+'</'+tag+'>';
+        }
+        html+='</tr>';
+      }
+      html+='</tbody></table></div><p><br></p>';
+      insertHtml(html);
+    });
+
+    editor.querySelector('[data-rich-rule]')?.addEventListener('click',()=>{
+      insertHtml('<hr><p><br></p>');
+    });
+
+    editor.querySelector('[data-rich-undo]')?.addEventListener('click',()=>exec('undo'));
+    editor.querySelector('[data-rich-redo]')?.addEventListener('click',()=>exec('redo'));
+
+    const setMode=nextMode=>{
+      if(nextMode===mode) return;
+
+      if(nextMode==='html'){
+        source.value=surface.innerHTML;
+        surface.hidden=true;
+        source.hidden=false;
+        toolbar?.classList.add('is-source-mode');
+      }else{
+        surface.innerHTML=source.value;
+        source.hidden=true;
+        surface.hidden=false;
+        toolbar?.classList.remove('is-source-mode');
+      }
+
+      mode=nextMode;
+      editor.querySelectorAll('[data-rich-mode]').forEach(button=>{
+        button.classList.toggle('active',button.dataset.richMode===mode);
+      });
+      syncOutput();
+    };
+
+    editor.querySelectorAll('[data-rich-mode]').forEach(button=>{
+      button.addEventListener('click',()=>setMode(button.dataset.richMode));
+    });
+
+    const closeMedia=()=>{
+      if(mediaPanel) mediaPanel.hidden=true;
+    };
+
+    editor.querySelector('[data-rich-media-open]')?.addEventListener('click',()=>{
+      saveSelection();
+      if(mediaPanel) mediaPanel.hidden=false;
+    });
+    editor.querySelector('[data-rich-media-close]')?.addEventListener('click',closeMedia);
+
+    editor.querySelector('[data-rich-media-search]')?.addEventListener('input',event=>{
+      const q=event.target.value.trim().toLowerCase();
+      editor.querySelectorAll('[data-rich-media-item]').forEach(item=>{
+        item.hidden=!!q && !(item.dataset.mediaSearch||'').includes(q);
+      });
+    });
+
+    editor.querySelectorAll('[data-rich-media-item]').forEach(item=>{
+      item.addEventListener('click',()=>{
+        const type=item.dataset.mediaType;
+        const url=item.dataset.mediaUrl||'';
+        const title=item.dataset.mediaTitle||'';
+        const alt=item.dataset.mediaAlt||title;
+
+        if(type==='image'){
+          insertHtml(
+            '<figure class="content-inline-media">'+
+            '<img src="'+esc(url)+'" alt="'+esc(alt)+'" loading="lazy">'+
+            (title?'<figcaption>'+esc(title)+'</figcaption>':'')+
+            '</figure><p><br></p>'
+          );
+        }else{
+          const label=type==='model_3d' ? 'Открыть 3D-модель' : 'Открыть документ';
+          insertHtml(
+            '<p class="content-file-link"><a href="'+esc(url)+'" target="_blank" rel="noopener">'+
+            esc(title||label)+' ↗</a></p>'
+          );
+        }
+
+        closeMedia();
+      });
+    });
+
+    editor.closest('form')?.addEventListener('submit',()=>{
+      syncOutput();
+    });
+
+    source.hidden=true;
+    syncOutput();
+  });
+}
+
 function readAccessibility(){
   try{
     return {...A11Y_DEFAULTS,...JSON.parse(localStorage.getItem(A11Y_KEY)||'{}')};
@@ -88,6 +308,7 @@ window.addEventListener('online',updateOnlineState);
 window.addEventListener('offline',updateOnlineState);
 
 document.addEventListener('DOMContentLoaded',()=>{
+  initRichEditors();
   applyAccessibility(true);
 
   if(!a11yState.motion){
