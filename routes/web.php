@@ -121,6 +121,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth','admin'])->group(func
  Route::delete('quizzes/{quiz}',[QuizAdminController::class,'destroy'])->name('quizzes.destroy');
 
  Route::get('schedule',[ScheduleAdminController::class,'index'])->name('schedule.index');
+ Route::post('schedule/import-xml',[ScheduleAdminController::class,'importXml'])->name('schedule.import-xml');
  Route::get('schedule/create',[ScheduleAdminController::class,'create'])->name('schedule.create');
  Route::post('schedule',[ScheduleAdminController::class,'store'])->name('schedule.store');
  Route::get('schedule/{schedule}/edit',[ScheduleAdminController::class,'edit'])->name('schedule.edit');
