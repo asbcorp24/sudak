@@ -68,8 +68,19 @@
    <div><span class="eyebrow">MEDIA LIBRARY</span><b>Вставить в текст</b></div>
    <button type="button" data-rich-media-close aria-label="Закрыть">×</button>
   </div>
+  <div class="inline-media-upload mb-3"
+       data-media-inline-upload
+       data-upload-url="{{ route('admin.media.store') }}"
+       data-csrf="{{ csrf_token() }}">
+   <div class="inline-media-upload-main">
+    <input type="file" class="form-control" data-media-upload-input multiple
+      accept=".jpg,.jpeg,.png,.webp,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.rtf,.csv,.zip,.rar,.7z,.glb,.gltf,.obj,.stl,.fbx,.dae,.3ds,.blend,.ply">
+    <button type="button" class="btn-tech" data-media-upload-button>Загрузить файл</button>
+   </div>
+   <small data-media-upload-status>Файл сразу появится в медиатеке и в этом окне.</small>
+  </div>
   <input type="search" class="form-control rich-media-search" data-rich-media-search placeholder="Найти файл в медиатеке">
-  <div class="rich-media-grid">
+  <div class="rich-media-grid" data-rich-media-grid>
    @forelse($editorMedia as $asset)
     <button
      type="button"
