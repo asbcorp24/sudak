@@ -114,12 +114,14 @@ function bindControls(el,api){
 
 function bindPointer(el,api){
  const s=api.state;
+ const surface=el.closest('.hero,.specialty-hero,.page-hero')||el;
  const down=e=>{
+  if(e.target.closest?.('a,button,input,select,textarea'))return;
   s.dragging=true;
   s.pointerX=e.clientX;
   s.pointerY=e.clientY;
-  el.classList.add('is-dragging');
-  el.setPointerCapture?.(e.pointerId);
+  surface.classList.add('is-dragging');
+  surface.setPointerCapture?.(e.pointerId);
  };
  const move=e=>{
   if(s.dragging){
@@ -131,7 +133,7 @@ function bindPointer(el,api){
    s.userRX+=dy*.004;
    s.userRX=Math.max(-.55,Math.min(.55,s.userRX));
   }else{
-   const r=el.getBoundingClientRect();
+   const r=surface.getBoundingClientRect();
    const nx=((e.clientX-r.left)/r.width-.5);
    const ny=((e.clientY-r.top)/r.height-.5);
    s.userRY+=(nx*.20-s.userRY)*.018;
@@ -140,14 +142,15 @@ function bindPointer(el,api){
  };
  const up=e=>{
   s.dragging=false;
-  el.classList.remove('is-dragging');
-  el.releasePointerCapture?.(e.pointerId);
+  surface.classList.remove('is-dragging');
+  surface.releasePointerCapture?.(e.pointerId);
  };
- el.addEventListener('pointerdown',down);
- el.addEventListener('pointermove',move,{passive:true});
- el.addEventListener('pointerup',up);
- el.addEventListener('pointercancel',up);
- el.addEventListener('wheel',e=>{
+ surface.addEventListener('pointerdown',down);
+ surface.addEventListener('pointermove',move,{passive:true});
+ surface.addEventListener('pointerup',up);
+ surface.addEventListener('pointercancel',up);
+ surface.addEventListener('wheel',e=>{
+  if(e.target.closest?.('input,select,textarea'))return;
   e.preventDefault();
   s.zoom=Math.max(6.2,Math.min(12.5,s.zoom+e.deltaY*.006));
  },{passive:false});
