@@ -630,3 +630,15 @@ html.a11y-high-contrast body{background:#000!important;color:#fff!important}
  .site-header{background:rgba(255,255,255,.95)}
  .tech-offcanvas{background:#fff;color:#0b2b55}
 }
+
+
+/* Three.js scrolling behavior */
+.hero,.specialty-hero,.page-hero{
+ touch-action:pan-y pinch-zoom;
+}
+.three-layer,.three-layer canvas{
+ touch-action:pan-y pinch-zoom;
+}
+@media(max-width:991.98px){
+ .hero,.specialty-hero,.page-hero{cursor:default}
+}
