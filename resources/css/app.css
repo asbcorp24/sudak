@@ -242,3 +242,16 @@ html.a11y-no-motion .hero-interact,html.a11y-no-motion .scene-controls{display:n
  content:"✓";position:absolute;color:#111;font-size:18px;font-weight:900;line-height:1
 }
 .a11y-backdrop{pointer-events:auto}
+
+
+/* Rector-College schedule XML import */
+.schedule-import-panel{position:relative;overflow:hidden}
+.schedule-import-panel:after{content:"XML";position:absolute;right:-8px;top:-22px;font-size:7rem;font-weight:900;letter-spacing:-.08em;color:rgba(73,217,255,.025);pointer-events:none}
+.schedule-import-badge{padding:7px 10px;border:1px solid rgba(73,217,255,.28);color:var(--cyan);font-size:.6rem;font-weight:900;letter-spacing:.11em}
+.schedule-import-form{display:grid;grid-template-columns:minmax(300px,1.5fr) minmax(280px,1fr) auto;gap:12px;align-items:end;position:relative;z-index:1}
+.schedule-import-action{padding-bottom:1px}.schedule-import-action .btn-tech{min-height:46px;white-space:nowrap}
+.schedule-import-stats{display:grid;grid-template-columns:repeat(7,minmax(100px,1fr));gap:8px;margin-top:16px}
+.schedule-import-stats>div{padding:14px;border:1px solid rgba(112,221,255,.12);background:rgba(4,16,24,.45)}
+.schedule-import-stats small,.schedule-import-stats b{display:block}.schedule-import-stats small{font-size:.58rem;color:#75929e;text-transform:uppercase;letter-spacing:.08em}.schedule-import-stats b{font-size:.86rem;margin-top:6px;color:#fff}
+@media(max-width:1199px){.schedule-import-form{grid-template-columns:1fr 1fr}.schedule-import-action{grid-column:1/-1}.schedule-import-stats{grid-template-columns:repeat(4,1fr)}}
+@media(max-width:650px){.schedule-import-form{grid-template-columns:1fr}.schedule-import-action{grid-column:auto}.schedule-import-action .btn-tech{width:100%;justify-content:center}.schedule-import-stats{grid-template-columns:1fr 1fr}}
