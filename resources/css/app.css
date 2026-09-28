@@ -642,3 +642,118 @@ html.a11y-high-contrast body{background:#000!important;color:#fff!important}
 @media(max-width:991.98px){
  .hero,.specialty-hero,.page-hero{cursor:default}
 }
+
+
+/* CMS visual rich text editor */
+.rich-editor{
+ border:1px solid rgba(23,105,210,.18);
+ background:#fff;
+ box-shadow:0 12px 34px rgba(31,76,136,.05);
+}
+.rich-editor-head{
+ display:flex;align-items:center;justify-content:space-between;gap:16px;
+ padding:14px 16px;border-bottom:1px solid rgba(23,105,210,.12);background:#f7faff;
+}
+.rich-editor-head b{display:block;color:#0b2b55;font-size:.9rem}
+.rich-editor-mode{display:flex;gap:6px}
+.rich-editor-mode button{
+ min-height:34px;padding:0 11px;border:1px solid rgba(23,105,210,.2);
+ background:#fff;color:#466887;font-size:.66rem;font-weight:800;text-transform:uppercase
+}
+.rich-editor-mode button.active{background:#1769d2;color:#fff;border-color:#1769d2}
+
+.rich-editor-toolbar{
+ position:sticky;top:0;z-index:5;
+ display:flex;flex-wrap:wrap;align-items:center;gap:7px;
+ padding:9px 10px;border-bottom:1px solid rgba(23,105,210,.13);background:rgba(255,255,255,.98);
+ box-shadow:0 7px 18px rgba(31,76,136,.04)
+}
+.rich-tool-group{display:flex;align-items:center;gap:4px;padding-right:7px;border-right:1px solid rgba(23,105,210,.12)}
+.rich-tool-group:last-child{border-right:0;padding-right:0}
+.rich-editor-toolbar button,.rich-format-select{
+ min-height:34px;border:1px solid rgba(23,105,210,.17);background:#fff;color:#214f80;
+ border-radius:4px;font-size:.72rem;font-weight:700
+}
+.rich-editor-toolbar button{min-width:34px;padding:0 9px}
+.rich-editor-toolbar button:hover{background:#eaf2ff;border-color:#1769d2;color:#0b3f86}
+.rich-format-select{min-width:148px;padding:0 9px}
+.rich-editor-toolbar.is-source-mode button:not([data-rich-media-open]),
+.rich-editor-toolbar.is-source-mode select{opacity:.45;pointer-events:none}
+
+.rich-editor-surface,.rich-editor-source{
+ width:100%;min-height:520px;padding:28px 30px;border:0;outline:0;background:#fff;color:#173858;
+ font:400 16px/1.75 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif
+}
+.rich-editor-surface:focus{box-shadow:inset 0 0 0 2px rgba(23,105,210,.13)}
+.rich-editor-surface h2{font-size:2rem;line-height:1.15;margin:1.5em 0 .55em;color:#0b2b55}
+.rich-editor-surface h3{font-size:1.55rem;line-height:1.2;margin:1.35em 0 .5em;color:#0b2b55}
+.rich-editor-surface h4{font-size:1.2rem;margin:1.2em 0 .45em;color:#0b2b55}
+.rich-editor-surface p{margin:.7em 0}
+.rich-editor-surface ul,.rich-editor-surface ol{padding-left:1.6rem}
+.rich-editor-surface blockquote{
+ margin:1.2rem 0;padding:16px 18px;border-left:4px solid #1769d2;background:#eef5ff;color:#294f79
+}
+.rich-editor-surface hr{border:0;border-top:1px solid rgba(23,105,210,.2);margin:2rem 0}
+.rich-editor-surface a{color:#1769d2;text-decoration:underline}
+.rich-editor-source{
+ display:block;resize:vertical;background:#0b1e36;color:#d9e9ff;
+ font:500 13px/1.65 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace
+}
+.rich-editor-source[hidden],.rich-editor-surface[hidden]{display:none!important}
+.rich-editor-hint{
+ display:flex;justify-content:space-between;gap:14px;padding:10px 14px;border-top:1px solid rgba(23,105,210,.1);
+ background:#f7faff;color:#71859b;font-size:.64rem
+}
+
+.rich-media-panel{
+ position:relative;z-index:8;margin:12px;border:1px solid rgba(23,105,210,.2);background:#f8fbff;padding:14px
+}
+.rich-media-panel[hidden]{display:none!important}
+.rich-media-panel-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:12px}
+.rich-media-panel-head b{display:block;color:#0b2b55}
+.rich-media-panel-head button{width:38px;height:38px;border:1px solid rgba(23,105,210,.2);background:#fff;color:#0b3f86;font-size:1.25rem}
+.rich-media-search{margin-bottom:12px}
+.rich-media-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;max-height:390px;overflow:auto}
+.rich-media-item{
+ border:1px solid rgba(23,105,210,.13);background:#fff;color:#214566;padding:9px;text-align:left;
+ display:flex;flex-direction:column;min-width:0
+}
+.rich-media-item:hover{border-color:#1769d2;background:#edf4ff}
+.rich-media-preview{height:92px;display:grid;place-items:center;background:#edf4ff;overflow:hidden;margin-bottom:8px}
+.rich-media-preview img{width:100%;height:100%;object-fit:cover}
+.rich-media-preview>span{font-size:1rem;font-weight:900;color:#1769d2}
+.rich-media-name{font-size:.72rem;font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rich-media-item small{font-size:.58rem;color:#7890a6;margin-top:3px}
+.rich-media-empty{grid-column:1/-1;padding:28px;text-align:center;color:#71859b}
+
+.rich-editor-surface .content-inline-media,
+.content-prose .content-inline-media{margin:24px 0}
+.rich-editor-surface .content-inline-media img,
+.content-prose .content-inline-media img{max-width:100%;height:auto;border-radius:6px}
+.rich-editor-surface .content-inline-media figcaption,
+.content-prose .content-inline-media figcaption{margin-top:7px;color:#6a8098;font-size:.78rem;text-align:center}
+.rich-editor-surface .content-table-wrap,
+.content-prose .content-table-wrap{overflow:auto;margin:24px 0}
+.rich-editor-surface .content-table,
+.content-prose .content-table{width:100%;border-collapse:collapse;background:#fff}
+.rich-editor-surface .content-table th,
+.rich-editor-surface .content-table td,
+.content-prose .content-table th,
+.content-prose .content-table td{border:1px solid rgba(23,105,210,.18);padding:10px 12px;vertical-align:top}
+.rich-editor-surface .content-table th,
+.content-prose .content-table th{background:#edf4ff;color:#0b2b55}
+.content-file-link a{display:inline-flex;padding:10px 13px;border:1px solid rgba(23,105,210,.24);background:#f7faff;text-decoration:none!important}
+
+@media(max-width:991px){
+ .rich-editor-surface,.rich-editor-source{min-height:430px;padding:22px}
+ .rich-media-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+@media(max-width:650px){
+ .rich-editor-head{align-items:flex-start;flex-direction:column}
+ .rich-editor-toolbar{position:static}
+ .rich-tool-group{border-right:0;padding-right:0}
+ .rich-format-select{min-width:130px}
+ .rich-editor-surface,.rich-editor-source{min-height:360px;padding:17px;font-size:15px}
+ .rich-media-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .rich-editor-hint{flex-direction:column}
+}
