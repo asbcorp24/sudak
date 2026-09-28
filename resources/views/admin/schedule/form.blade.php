@@ -26,7 +26,7 @@
   <div class="col-lg-4">
    <div class="glass-panel">
     <div class="field"><label>Группа</label><select class="form-select" name="group_id" required><option value="">Выберите группу</option>@foreach($groups as $group)<option value="{{ $group->id }}" @selected(old('group_id',$entry->group_id)==$group->id)>{{ $group->name }}</option>@endforeach</select></div>
-    <div class="field"><label>Преподаватель</label><select class="form-select" name="teacher_id"><option value="">— не указан —</option>@foreach($teachers as $teacher)<option value="{{ $teacher->id }}" @selected(old('teacher_id',$entry->teacher_id)==$teacher->id)>{{ $teacher->full_name }}</option>@endforeach</select></div>
+    <div class="field"><label>Преподаватель</label><select class="form-select" name="employee_id"><option value="">— не указан —</option>@foreach($teachers as $teacher)<option value="{{ $teacher->id }}" @selected(old('employee_id',$entry->employee_id)==$teacher->id)>{{ $teacher->full_name }}</option>@endforeach</select></div>
     <button class="btn-tech w-100 justify-content-center">Сохранить</button>
     <a class="btn-ghost w-100 justify-content-center mt-2" href="{{ route('admin.schedule.index',['date'=>$entry->lesson_date?->format('Y-m-d') ?: now()->format('Y-m-d')]) }}">Назад</a>
    </div>
