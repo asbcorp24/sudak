@@ -115,15 +115,21 @@ function bindControls(el,api){
 function bindPointer(el,api){
  const s=api.state;
  const surface=el.closest('.hero,.specialty-hero,.page-hero')||el;
+
  const down=e=>{
-  if(e.target.closest?.('a,button,input,select,textarea'))return;
+  if(e.pointerType==='touch') return;
+  if(e.target.closest?.('a,button,input,select,textarea')) return;
+
   s.dragging=true;
   s.pointerX=e.clientX;
   s.pointerY=e.clientY;
   surface.classList.add('is-dragging');
   surface.setPointerCapture?.(e.pointerId);
  };
+
  const move=e=>{
+  if(e.pointerType==='touch') return;
+
   if(s.dragging){
    const dx=e.clientX-s.pointerX;
    const dy=e.clientY-s.pointerY;
@@ -132,7 +138,7 @@ function bindPointer(el,api){
    s.userRY+=dx*.006;
    s.userRX+=dy*.004;
    s.userRX=Math.max(-.55,Math.min(.55,s.userRX));
-  }else{
+  }else if(e.pointerType==='mouse'){
    const r=surface.getBoundingClientRect();
    const nx=((e.clientX-r.left)/r.width-.5);
    const ny=((e.clientY-r.top)/r.height-.5);
@@ -140,17 +146,27 @@ function bindPointer(el,api){
    s.userRX+=(-ny*.08-s.userRX)*.018;
   }
  };
+
  const up=e=>{
+  if(e.pointerType==='touch') return;
   s.dragging=false;
   surface.classList.remove('is-dragging');
-  surface.releasePointerCapture?.(e.pointerId);
+  if(surface.hasPointerCapture?.(e.pointerId)){
+   surface.releasePointerCapture(e.pointerId);
+  }
  };
+
  surface.addEventListener('pointerdown',down);
  surface.addEventListener('pointermove',move,{passive:true});
  surface.addEventListener('pointerup',up);
  surface.addEventListener('pointercancel',up);
+
+ // Обычное колесо/тачпад всегда прокручивает страницу.
+ // Масштаб 3D доступен только с Ctrl/Command + колесо.
  surface.addEventListener('wheel',e=>{
-  if(e.target.closest?.('input,select,textarea'))return;
+  if(e.target.closest?.('input,select,textarea')) return;
+  if(!(e.ctrlKey||e.metaKey)) return;
+
   e.preventDefault();
   s.zoom=Math.max(6.2,Math.min(12.5,s.zoom+e.deltaY*.006));
  },{passive:false});
