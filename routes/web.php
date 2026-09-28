@@ -9,6 +9,9 @@ use App\Http\Controllers\ScheduleController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\AdmissionController;
 use App\Http\Controllers\CooperationController;
+use App\Http\Controllers\QuestionController;
+use App\Http\Controllers\CompetitionController;
+use App\Http\Controllers\QuizController;
 use App\Http\Controllers\Admin\AuthController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\PageAdminController;
@@ -21,8 +24,13 @@ use App\Http\Controllers\Admin\MediaAdminController;
 use App\Http\Controllers\Admin\ContactAdminController;
 use App\Http\Controllers\Admin\AdmissionAdminController;
 use App\Http\Controllers\Admin\CooperationAdminController;
+use App\Http\Controllers\Admin\QuestionAdminController;
+use App\Http\Controllers\Admin\CompetitionAdminController;
+use App\Http\Controllers\Admin\QuizAdminController;
+use App\Http\Controllers\Admin\SettingsAdminController;
 
 Route::get('/',HomeController::class)->name('home');
+
 Route::get('/specialties',[SpecialtyController::class,'index'])->name('specialties.index');
 Route::get('/specialties/{slug}',[SpecialtyController::class,'show'])->name('specialties.show');
 
@@ -34,6 +42,15 @@ Route::get('/apply',[AdmissionController::class,'create'])->name('admission.crea
 Route::post('/apply',[AdmissionController::class,'store'])->name('admission.store');
 Route::get('/cooperation',[CooperationController::class,'index'])->name('cooperation.index');
 Route::post('/cooperation',[CooperationController::class,'store'])->name('cooperation.store');
+Route::get('/question',[QuestionController::class,'create'])->name('questions.create');
+Route::post('/question',[QuestionController::class,'store'])->name('questions.store');
+
+Route::get('/competitions',[CompetitionController::class,'index'])->name('competitions.index');
+Route::get('/quizzes',[QuizController::class,'index'])->name('quizzes.index');
+Route::get('/quizzes/{quiz}',[QuizController::class,'show'])->name('quizzes.show');
+Route::post('/quizzes/{quiz}',[QuizController::class,'submit'])->name('quizzes.submit');
+Route::get('/quiz-results/{token}',[QuizController::class,'result'])->name('quizzes.result');
+Route::get('/certificates/{code}',[QuizController::class,'certificate'])->name('quizzes.certificate');
 
 Route::get('/news',[NewsController::class,'index'])->name('news.index');
 Route::get('/news/{slug}',[NewsController::class,'show'])->name('news.show');
@@ -50,6 +67,9 @@ Route::prefix('admin')->name('admin.')->middleware(['auth','admin'])->group(func
  Route::resource('news',NewsAdminController::class)->except('show');
  Route::resource('specialties',SpecialtyAdminController::class)->except('show');
 
+ Route::get('settings',[SettingsAdminController::class,'edit'])->name('settings');
+ Route::post('settings',[SettingsAdminController::class,'update'])->name('settings.update');
+
  Route::get('contacts',[ContactAdminController::class,'edit'])->name('contacts');
  Route::post('contacts',[ContactAdminController::class,'update'])->name('contacts.update');
 
@@ -63,6 +83,23 @@ Route::prefix('admin')->name('admin.')->middleware(['auth','admin'])->group(func
  Route::delete('cooperation/items/{item}',[CooperationAdminController::class,'destroyItem'])->name('cooperation.items.destroy');
  Route::patch('cooperation/applications/{application}',[CooperationAdminController::class,'updateApplication'])->name('cooperation.applications.update');
  Route::delete('cooperation/applications/{application}',[CooperationAdminController::class,'destroyApplication'])->name('cooperation.applications.destroy');
+
+ Route::get('questions',[QuestionAdminController::class,'index'])->name('questions.index');
+ Route::patch('questions/{question}',[QuestionAdminController::class,'update'])->name('questions.update');
+ Route::delete('questions/{question}',[QuestionAdminController::class,'destroy'])->name('questions.destroy');
+
+ Route::get('competitions',[CompetitionAdminController::class,'index'])->name('competitions.index');
+ Route::post('competitions',[CompetitionAdminController::class,'storeCompetition'])->name('competitions.store');
+ Route::put('competitions/{competition}',[CompetitionAdminController::class,'updateCompetition'])->name('competitions.update');
+ Route::delete('competitions/{competition}',[CompetitionAdminController::class,'destroyCompetition'])->name('competitions.destroy');
+ Route::post('achievements',[CompetitionAdminController::class,'storeAchievement'])->name('achievements.store');
+ Route::put('achievements/{achievement}',[CompetitionAdminController::class,'updateAchievement'])->name('achievements.update');
+ Route::delete('achievements/{achievement}',[CompetitionAdminController::class,'destroyAchievement'])->name('achievements.destroy');
+
+ Route::get('quizzes',[QuizAdminController::class,'index'])->name('quizzes.index');
+ Route::post('quizzes',[QuizAdminController::class,'store'])->name('quizzes.store');
+ Route::put('quizzes/{quiz}',[QuizAdminController::class,'update'])->name('quizzes.update');
+ Route::delete('quizzes/{quiz}',[QuizAdminController::class,'destroy'])->name('quizzes.destroy');
 
  Route::get('schedule',[ScheduleAdminController::class,'index'])->name('schedule.index');
  Route::get('schedule/create',[ScheduleAdminController::class,'create'])->name('schedule.create');
