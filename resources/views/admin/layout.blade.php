@@ -8,7 +8,9 @@
   <a href="{{ route('admin.specialties.index') }}">Специальности + 3D</a>
   <a href="{{ route('admin.news.index') }}">Новости</a>
   <a href="{{ route('admin.media.index') }}">Медиа</a>
+  <a href="{{ route('admin.employees.index') }}">Сотрудники</a>
   <a href="{{ route('admin.schedule.index') }}">Расписание</a>
+  <a href="{{ route('admin.official-documents.index') }}">Официальные документы</a>
 
   <span class="admin-nav-group">ОБРАТНАЯ СВЯЗЬ</span>
   <a href="{{ route('admin.contacts') }}">Контакты и карта</a>
