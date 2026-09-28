@@ -299,121 +299,283 @@ function shipyard(api){
 function shipbuilding(api){
  const {world:g,accent:a,tickers:t}=api;
  const ship=new THREE.Group();
- ship.rotation.y=-.34;
- ship.position.y=-.15;
+ ship.rotation.set(-.035,-.34,.015);
+ ship.position.set(.25,-.25,.15);
  g.add(ship);
 
- // Surface-vessel hull: flared bow, V-bottom and transom stern.
+ // Modern multipurpose surface vessel inspired by a real general-arrangement drawing.
+ // Geometry is built as a loft through naval-style transverse stations.
+ const stations=[
+  {x:-3.75,w:.92,deck:.46,chine:.70,keel:-.72},
+  {x:-3.10,w:1.08,deck:.50,chine:.84,keel:-.88},
+  {x:-2.20,w:1.18,deck:.54,chine:.94,keel:-1.02},
+  {x:-1.20,w:1.22,deck:.58,chine:.98,keel:-1.08},
+  {x:-.10,w:1.20,deck:.62,chine:.96,keel:-1.10},
+  {x:.90,w:1.12,deck:.68,chine:.88,keel:-1.08},
+  {x:1.75,w:.95,deck:.78,chine:.72,keel:-1.00},
+  {x:2.50,w:.72,deck:.90,chine:.52,keel:-.86},
+  {x:3.10,w:.42,deck:1.02,chine:.26,keel:-.62},
+  {x:3.55,w:.08,deck:1.10,chine:.05,keel:-.28}
+ ];
+
  const hullGeo=new THREE.BufferGeometry();
- const verts=[
-  // stern section x=-3.35
-  -3.35,.65,-1.05,  -3.35,.65,1.05,  -3.35,-.15,-.82,  -3.35,-.15,.82,  -3.35,-1.0,0,
-  // midship x=0
-  0,.72,-1.28,  0,.72,1.28,  0,-.2,-1.02,  0,-.2,1.02,  0,-1.12,0,
-  // bow x=3.55
-  3.55,.58,-.35,  3.55,.58,.35,  3.55,-.2,-.22,  3.55,-.2,.22,  3.72,-.72,0
- ];
- const idx=[
-  // port side
-  0,5,7, 0,7,2, 2,7,9, 2,9,4, 5,10,12, 5,12,7, 7,12,14, 7,14,9,
-  // starboard side
-  1,3,8, 1,8,6, 3,4,9, 3,9,8, 6,8,13, 6,13,11, 8,9,14, 8,14,13,
-  // deck edges / bow deck
-  0,1,6, 0,6,5, 5,6,11, 5,11,10, 10,11,13, 10,13,12,
-  // stern transom
-  0,2,3, 0,3,1, 2,4,3,
-  // bottom
-  4,9,7, 4,7,2, 4,3,8, 4,8,9, 9,14,12, 9,12,7, 9,8,13, 9,13,14
- ];
- hullGeo.setAttribute('position',new THREE.Float32BufferAttribute(verts,3));
- hullGeo.setIndex(idx);
+ const hp=[];
+ stations.forEach(s=>{
+  hp.push(
+   s.x,s.deck,-s.w,
+   s.x,-.10,-s.chine,
+   s.x,s.keel,0,
+   s.x,-.10,s.chine,
+   s.x,s.deck,s.w
+  );
+ });
+ const hi=[];
+ for(let i=0;i<stations.length-1;i++){
+  const p=i*5,n=(i+1)*5;
+  for(let k=0;k<4;k++){
+   hi.push(p+k,n+k,n+k+1,p+k,n+k+1,p+k+1);
+  }
+ }
+ // Close stern transom and bow.
+ hi.push(0,1,2,0,2,4,4,2,3);
+ const last=(stations.length-1)*5;
+ hi.push(last,last+2,last+1,last,last+4,last+2,last+4,last+3,last+2);
+
+ hullGeo.setAttribute('position',new THREE.Float32BufferAttribute(hp,3));
+ hullGeo.setIndex(hi);
  hullGeo.computeVertexNormals();
 
- const hull=markPart(api,new THREE.Mesh(hullGeo,solid(a,.28,.08)),[0,-.45,0],1.15);
+ const hullMat=new THREE.MeshStandardMaterial({
+  color:a,metalness:.72,roughness:.2,transparent:true,opacity:.31,
+  emissive:a,emissiveIntensity:.055,side:THREE.DoubleSide
+ });
+ const hull=markPart(api,new THREE.Mesh(hullGeo,hullMat),[0,-.8,0],1.15);
  ship.add(hull);
-
  const hullEdges=new THREE.LineSegments(
-  new THREE.EdgesGeometry(hullGeo,18),
-  new THREE.LineBasicMaterial({color:a,transparent:true,opacity:.82})
+  new THREE.EdgesGeometry(hullGeo,13),
+  new THREE.LineBasicMaterial({color:a,transparent:true,opacity:.72})
  );
  hull.add(hullEdges);
 
- // Waterline makes the silhouette unmistakably a surface ship.
- const waterline=new THREE.Mesh(new THREE.BoxGeometry(6.75,.035,2.08),glow(0xc8f7ff,.55));
- waterline.position.set(.05,-.18,0);
- ship.add(waterline);
-
- // Open structural frames above the hull.
- for(let i=0;i<13;i++){
-  const x=-2.85+i*.47;
-  const taper=x>2.1?Math.max(.35,1-(x-2.1)*.52):1;
-  const frame=new THREE.Group();
-  const beam=new THREE.Mesh(new THREE.BoxGeometry(.025,.025,2.16*taper),glow(a,.72));
-  beam.position.y=.48;
-  frame.add(beam);
-  [-1,1].forEach(side=>{
-   const stanchion=new THREE.Mesh(new THREE.BoxGeometry(.025,1.28,.025),glow(a,.58));
-   stanchion.position.set(0,-.1,side*.98*taper);
-   stanchion.rotation.x=side*.18;
-   frame.add(stanchion);
-  });
-  frame.position.x=x;
-  ship.add(frame);
+ // Deck follows the plan-form stations instead of being a rectangular slab.
+ const deckPos=[],deckIdx=[];
+ stations.forEach(s=>{
+  deckPos.push(s.x,s.deck+.018,-s.w*.96,s.x,s.deck+.018,s.w*.96);
+ });
+ for(let i=0;i<stations.length-1;i++){
+  const p=i*2,n=(i+1)*2;
+  deckIdx.push(p,n,n+1,p,n+1,p+1);
  }
-
- // Main deck.
- const deck=markPart(api,new THREE.Mesh(new THREE.BoxGeometry(5.9,.11,2.05),solid(0xd7f7ff,.16,.03)),[0,1,0],1.25);
- deck.position.set(-.15,.72,0);
- deck.userData.basePosition=deck.position.clone();
+ const deckGeo=new THREE.BufferGeometry();
+ deckGeo.setAttribute('position',new THREE.Float32BufferAttribute(deckPos,3));
+ deckGeo.setIndex(deckIdx);
+ deckGeo.computeVertexNormals();
+ const deck=markPart(api,new THREE.Mesh(deckGeo,solid(0xd9f7ff,.24,.035)),[0,1,0],1.18);
  ship.add(deck);
 
- // Forward deck narrows toward the bow.
- const foredeck=markPart(api,new THREE.Mesh(new THREE.BoxGeometry(1.7,.09,1.18),solid(a,.22,.05)),[1,.7,0],1.1);
- foredeck.position.set(2.6,.69,0);
- foredeck.rotation.y=0;
- foredeck.userData.basePosition=foredeck.position.clone();
- ship.add(foredeck);
+ // Glowing waterline, port and starboard.
+ [-1,1].forEach(side=>{
+  const pts=stations.slice(0,-1).map(s=>new THREE.Vector3(s.x,.03,side*(s.chine+(s.w-s.chine)*.28)));
+  const curve=new THREE.CatmullRomCurve3(pts);
+  const tube=new THREE.Mesh(new THREE.TubeGeometry(curve,70,.014,5,false),glow(0xc4f7ff,.72));
+  ship.add(tube);
+ });
 
- // Bridge / superstructure.
- const superstructure=markPart(api,new THREE.Group(),[0,1,.25],1.45);
- superstructure.position.set(-.55,1.18,0);
- superstructure.userData.basePosition=superstructure.position.clone();
- ship.add(superstructure);
+ // Visible structural frames below the deck, matching transverse ship sections.
+ const frames=new THREE.Group();
+ ship.add(frames);
+ stations.slice(1,-1).forEach((s,i)=>{
+  const shape=new THREE.BufferGeometry().setFromPoints([
+   new THREE.Vector3(s.x,s.deck,-s.w),
+   new THREE.Vector3(s.x,-.10,-s.chine),
+   new THREE.Vector3(s.x,s.keel,0),
+   new THREE.Vector3(s.x,-.10,s.chine),
+   new THREE.Vector3(s.x,s.deck,s.w)
+  ]);
+  const frame=new THREE.Line(shape,new THREE.LineBasicMaterial({color:a,transparent:true,opacity:i%2?.27:.48}));
+  frames.add(frame);
+ });
 
- const bridgeBase=new THREE.Mesh(new THREE.BoxGeometry(1.75,.68,1.45),solid(0xcfefff,.2,.04));
- superstructure.add(bridgeBase);
- const bridgeTop=new THREE.Mesh(new THREE.BoxGeometry(1.15,.48,1.18),solid(a,.22,.08));
- bridgeTop.position.y=.56;
- superstructure.add(bridgeTop);
+ // Open aft working deck from stern to the superstructure.
+ const workDeck=markPart(api,new THREE.Group(),[-.7,.7,0],1.05);
+ workDeck.position.set(-1.85,.66,0);
+ workDeck.userData.basePosition=workDeck.position.clone();
+ ship.add(workDeck);
 
- // Bridge windows.
- for(let z=-.42;z<=.42;z+=.28){
-  const w=new THREE.Mesh(new THREE.PlaneGeometry(.22,.16),glow(0x9ff3ff,.72));
-  w.position.set(.58,.58,z);
-  w.rotation.y=Math.PI/2;
-  superstructure.add(w);
+ const deckGrid=new THREE.GridHelper(3.35,10,a,0x22495c);
+ deckGrid.rotation.z=Math.PI/2;
+ deckGrid.rotation.y=Math.PI/2;
+ deckGrid.scale.z=.66;
+ deckGrid.material.transparent=true;
+ deckGrid.material.opacity=.28;
+ workDeck.add(deckGrid);
+
+ // Stern deck equipment: winch, bollards and compact crane.
+ const winch=new THREE.Group();
+ winch.position.set(-.45,.22,0);
+ workDeck.add(winch);
+ const drum=new THREE.Mesh(new THREE.CylinderGeometry(.24,.24,.72,22),solid(a,.58,.07));
+ drum.rotation.x=Math.PI/2;
+ winch.add(drum);
+ [-.4,.4].forEach(z=>{
+  const cheek=new THREE.Mesh(new THREE.CylinderGeometry(.31,.31,.08,22),wire(a,.62));
+  cheek.rotation.x=Math.PI/2;
+  cheek.position.z=z;
+  winch.add(cheek);
+ });
+
+ [-1,1].forEach(side=>{
+  for(let i=0;i<2;i++){
+   const bollard=new THREE.Mesh(new THREE.CylinderGeometry(.055,.075,.28,10),solid(0xd8f7ff,.65,.02));
+   bollard.position.set(-1.15+i*.55,.2,side*.68);
+   workDeck.add(bollard);
+  }
+ });
+
+ const crane=markPart(api,new THREE.Group(),[-.2,.9,-.35],1.2);
+ crane.position.set(-2.38,.92,-.72);
+ crane.userData.basePosition=crane.position.clone();
+ ship.add(crane);
+ const craneBase=new THREE.Mesh(new THREE.CylinderGeometry(.18,.26,.46,14),solid(a,.55,.06));
+ crane.add(craneBase);
+ const craneArm=new THREE.Mesh(new THREE.BoxGeometry(1.38,.11,.11),solid(a,.5,.08));
+ craneArm.position.set(.58,.45,0);
+ craneArm.rotation.z=.42;
+ crane.add(craneArm);
+
+ // Main forward superstructure.
+ const house=markPart(api,new THREE.Group(),[.3,1,.18],1.42);
+ house.position.set(.88,1.02,0);
+ house.userData.basePosition=house.position.clone();
+ ship.add(house);
+
+ const lowerHouse=new THREE.Mesh(new THREE.BoxGeometry(2.18,.82,1.72),solid(0xd8f3fa,.20,.018));
+ lowerHouse.position.set(-.1,.12,0);
+ house.add(lowerHouse);
+
+ // Tapered wheelhouse / bridge using a custom trapezoidal hull.
+ const bridgeGeo=new THREE.BufferGeometry();
+ const bv=[
+  -.92,0,-.76, -.92,0,.76, .80,0,-.63, .80,0,.63,
+  -.72,.62,-.66, -.72,.62,.66, .58,.62,-.52, .58,.62,.52
+ ];
+ const bi=[
+  0,2,3,0,3,1, 4,5,7,4,7,6,
+  0,4,6,0,6,2, 1,3,7,1,7,5,
+  0,1,5,0,5,4, 2,6,7,2,7,3
+ ];
+ bridgeGeo.setAttribute('position',new THREE.Float32BufferAttribute(bv,3));
+ bridgeGeo.setIndex(bi);
+ bridgeGeo.computeVertexNormals();
+ const bridge=new THREE.Mesh(bridgeGeo,solid(a,.25,.055));
+ bridge.position.y=.57;
+ house.add(bridge);
+
+ // Dark panoramic bridge windows across the forward face.
+ for(let z=-.44;z<=.44;z+=.22){
+  const glass=new THREE.Mesh(
+   new THREE.PlaneGeometry(.19,.20),
+   new THREE.MeshBasicMaterial({color:0xbdf7ff,transparent:true,opacity:.72,side:THREE.DoubleSide})
+  );
+  glass.position.set(.586,.88,z);
+  glass.rotation.y=Math.PI/2;
+  house.add(glass);
  }
 
- const mast=new THREE.Mesh(new THREE.CylinderGeometry(.025,.035,1.55,8),solid(a,.8,.08));
- mast.position.set(-.1,1.55,0);
- superstructure.add(mast);
- const radar=new THREE.Mesh(new THREE.BoxGeometry(.72,.055,.08),glow(a,.8));
- radar.position.set(-.1,2.22,0);
- superstructure.add(radar);
+ // Side bridge windows.
+ [-1,1].forEach(side=>{
+  for(let x=-.46;x<=.32;x+=.26){
+   const glass=new THREE.Mesh(new THREE.PlaneGeometry(.18,.18),glow(0xaef2ff,.52));
+   glass.position.set(x,.88,side*.525);
+   glass.rotation.y=side>0?0:Math.PI;
+   house.add(glass);
+  }
+ });
 
- // Stern machinery / deck equipment.
- for(let i=0;i<3;i++){
-  const capstan=markPart(api,new THREE.Mesh(new THREE.CylinderGeometry(.13,.17,.26,14),solid(a,.55,.08)),[-1,.3,(i-1)*.3],.85);
-  capstan.position.set(-2.25,.88,(i-1)*.52);
-  capstan.userData.basePosition=capstan.position.clone();
-  ship.add(capstan);
- }
+ // Funnel and exhausts aft of bridge.
+ const funnel=markPart(api,new THREE.Group(),[-.25,.8,0],.85);
+ funnel.position.set(.05,1.92,0);
+ funnel.userData.basePosition=funnel.position.clone();
+ ship.add(funnel);
+ const funnelBody=new THREE.Mesh(new THREE.CylinderGeometry(.22,.28,.72,12),solid(0x9dddeb,.35,.04));
+ funnel.add(funnelBody);
+ [-.09,.09].forEach(z=>{
+  const exhaust=new THREE.Mesh(new THREE.CylinderGeometry(.035,.045,.46,8),solid(a,.85,.08));
+  exhaust.position.set(0,.48,z);
+  funnel.add(exhaust);
+ });
 
- rings(g,a,4,2.35);
+ // Mast, radar and navigation sensors.
+ const mastGroup=markPart(api,new THREE.Group(),[0,1.2,0],1.28);
+ mastGroup.position.set(1.18,2.04,0);
+ mastGroup.userData.basePosition=mastGroup.position.clone();
+ ship.add(mastGroup);
+
+ const mast=new THREE.Mesh(new THREE.CylinderGeometry(.028,.055,1.55,8),solid(a,.78,.09));
+ mast.position.y=.55;
+ mastGroup.add(mast);
+ const yard=new THREE.Mesh(new THREE.BoxGeometry(1.05,.045,.05),glow(a,.8));
+ yard.position.y=.88;
+ mastGroup.add(yard);
+ const radarPivot=new THREE.Group();
+ radarPivot.position.y=1.22;
+ mastGroup.add(radarPivot);
+ const radar=new THREE.Mesh(new THREE.BoxGeometry(.92,.055,.12),glow(0xe7fbff,.9));
+ radarPivot.add(radar);
+ const dome=new THREE.Mesh(new THREE.SphereGeometry(.13,14,8),solid(a,.42,.12));
+ dome.position.y=1.49;
+ mastGroup.add(dome);
+
+ // Lifeboats / rescue craft on both sides.
+ [-1,1].forEach(side=>{
+  const boat=markPart(api,new THREE.Group(),[-.1,.35,side],.95);
+  boat.position.set(.25,1.22,side*1.05);
+  boat.userData.basePosition=boat.position.clone();
+  ship.add(boat);
+  const boatHull=new THREE.Mesh(new THREE.CapsuleGeometry(.18,.86,5,12),solid(0xdff8ff,.24,.035));
+  boatHull.rotation.z=Math.PI/2;
+  boat.add(boatHull);
+  const davit=line(new THREE.Vector3(-.48,.1,0),new THREE.Vector3(.48,.56,0),a,.42);
+  boat.add(davit);
+ });
+
+ // Railings emphasize the real deck edge and surface-vessel silhouette.
+ const rails=new THREE.Group();
+ ship.add(rails);
+ [-1,1].forEach(side=>{
+  const railPts=stations.slice(0,-1).map(s=>new THREE.Vector3(s.x,s.deck+.27,side*s.w*.94));
+  rails.add(new THREE.Line(
+   new THREE.BufferGeometry().setFromPoints(railPts),
+   new THREE.LineBasicMaterial({color:0xd8f8ff,transparent:true,opacity:.38})
+  ));
+  stations.slice(0,-1).forEach((s,i)=>{
+   if(i%2)return;
+   rails.add(line(
+    new THREE.Vector3(s.x,s.deck+.03,side*s.w*.94),
+    new THREE.Vector3(s.x,s.deck+.29,side*s.w*.94),
+    0xd8f8ff,.30
+   ));
+  });
+ });
+
+ // CAD station markers beneath the vessel.
+ stations.forEach((s,i)=>{
+  if(i===0||i===stations.length-1)return;
+  const marker=line(
+   new THREE.Vector3(s.x,-1.38,-1.48),
+   new THREE.Vector3(s.x,-1.38,1.48),
+   a,i%2?.10:.20
+  );
+  ship.add(marker);
+ });
+
+ rings(g,a,4,2.4);
  t.push((x,s)=>{
-  ship.rotation.y=-.34+Math.sin(x*.2)*.055;
-  ship.position.y=-.15+Math.sin(x*.68)*.045*(1-s.explode);
-  radar.rotation.y=x*1.8;
+  ship.rotation.y=-.34+Math.sin(x*.18)*.045;
+  ship.rotation.z=.015+Math.sin(x*.55)*.008*(1-s.explode);
+  ship.position.y=-.25+Math.sin(x*.62)*.035*(1-s.explode);
+  radarPivot.rotation.y=x*1.85;
+  crane.rotation.y=-.18+Math.sin(x*.32)*.08;
  });
 }
 function engine(api){
