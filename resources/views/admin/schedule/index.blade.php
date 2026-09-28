@@ -6,7 +6,7 @@
   <div class="d-flex flex-wrap gap-2 mt-2">
    <a href="{{ route('admin.schedule.groups') }}">Группы</a>
    <span class="text-secondary">·</span>
-   <a href="{{ route('admin.schedule.teachers') }}">Преподаватели</a>
+   <a href="{{ route('admin.employees.index',['type'=>'teacher']) }}">Преподаватели</a>
    <span class="text-secondary">·</span>
    <a target="_blank" href="{{ route('schedule.index') }}">Открыть расписание ↗</a>
   </div>
