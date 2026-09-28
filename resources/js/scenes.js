@@ -68,7 +68,8 @@ function initScene(el){
 
   applyExplode(api.parts,state.explode);
 
-  if(!state.paused&&!reduced){
+  const accessibilityMotionOff=document.documentElement.classList.contains('a11y-no-motion');
+  if(!state.paused&&!reduced&&!accessibilityMotionOff){
    api.tickers.forEach(fn=>fn(t,state));
   }
 
