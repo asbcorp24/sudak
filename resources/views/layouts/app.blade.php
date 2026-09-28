@@ -33,7 +33,7 @@
 <main>@yield('content')</main>
 <footer class="site-footer"><div class="container-xxl py-5"><div class="row g-4">
  <div class="col-lg-6"><div class="brand mb-3"><span class="brand-mark">ЗСК</span><span><b>Зеленодольский судостроительный колледж</b></span></div><p class="text-secondary mb-0">Инженерное образование. Цифровое производство. Судостроение будущего.</p></div>
- <div class="col-lg-3"><h6>Контакты</h6><p class="small text-secondary">422542, Республика Татарстан,<br>г. Зеленодольск, ул. Гастелло, 4<br>GAPOU.ZSK@tatar.ru</p></div>
+ <div class="col-lg-3"><h6>Контакты</h6><p class="small text-secondary">422542, Республика Татарстан,<br>г. Зеленодольск, ул. Гастелло, 4<br>+7 (84371) 4-26-17<br>GAPOU.ZSK@tatar.ru</p></div>
  <div class="col-lg-3"><h6>Быстрые ссылки</h6><a href="{{ route('pages.show','sveden') }}">Сведения об организации</a><br><a href="{{ route('pages.show','applicant') }}">Абитуриенту</a></div>
 </div></div></footer>
 </body></html>
