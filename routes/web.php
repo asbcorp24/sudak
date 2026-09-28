@@ -15,4 +15,8 @@ Route::prefix('admin')->name('admin.')->middleware(['auth','admin'])->group(func
  Route::resource('pages',PageAdminController::class)->except('show');
  Route::resource('news',NewsAdminController::class)->except('show');
  Route::resource('specialties',SpecialtyAdminController::class)->except('show');
+ Route::get('media',[MediaAdminController::class,'index'])->name('media.index');
+ Route::post('media',[MediaAdminController::class,'store'])->name('media.store');
+ Route::put('media/{media}',[MediaAdminController::class,'update'])->name('media.update');
+ Route::delete('media/{media}',[MediaAdminController::class,'destroy'])->name('media.destroy');
 });
