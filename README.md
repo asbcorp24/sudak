@@ -47,11 +47,11 @@ php artisan key:generate
 
 ```bash
 php artisan migrate --seed
-npm install
-npm run build
 php artisan storage:link
 php artisan serve
 ```
+
+Готовые frontend-файлы уже лежат в `public/build`. Node.js и npm на сервере не требуются.
 
 Сайт: `http://127.0.0.1:8000`
 
