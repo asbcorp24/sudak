@@ -8,7 +8,15 @@
    <div class="field"><label>Заголовок</label><input class="form-control" name="title" value="{{ old('title',$post->title) }}" required></div>
    <div class="field"><label>Slug</label><input class="form-control" name="slug" value="{{ old('slug',$post->slug) }}"></div>
    <div class="field"><label>Анонс</label><textarea class="form-control" rows="3" name="excerpt">{{ old('excerpt',$post->excerpt) }}</textarea></div>
-   <div class="field"><label>Текст (HTML)</label><textarea class="form-control code-area" rows="18" name="content">{{ old('content',$post->content) }}</textarea></div>
+   <div class="field">
+    <label>Текст новости</label>
+    @include('admin.partials.rich-editor',[
+     'editorId'=>'news-content-editor',
+     'name'=>'content',
+     'value'=>$post->content,
+     'media'=>$media,
+    ])
+   </div>
   </div>
   <div class="col-lg-4">
    <div class="glass-panel">
