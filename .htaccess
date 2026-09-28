@@ -1,11 +1,12 @@
-DirectoryIndex public/index.php
-
 <IfModule mod_rewrite.c>
     RewriteEngine On
 
-    # Never rewrite requests that are already inside /public.
+    # Do not rewrite a request that is already inside /public.
     RewriteRule ^public(?:/|$) - [L]
 
-    # Send all other requests to Laravel's public directory exactly once.
-    RewriteRule ^(.*)$ public/$1 [L]
+    # Root request goes straight to Laravel's front controller.
+    RewriteRule ^$ public/index.php [L]
+
+    # Static files and all other paths are resolved inside /public.
+    RewriteRule ^(.+)$ public/$1 [L]
 </IfModule>
