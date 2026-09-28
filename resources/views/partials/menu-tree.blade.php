@@ -1,4 +1,5 @@
 @foreach($items as $node)
+@continue($node->slug === 'schedule')
 <a class="{{ ($mobile ?? false) ? 'mobile-sub-link' : 'dropdown-item' }}" style="padding-left:{{ 12 + (($depth ?? 0) * 14) }}px" href="{{ route('pages.show',$node->slug) }}">
  @if(($depth ?? 0)>0)<span class="menu-branch">↳</span>@endif {{ $node->menu_title ?: $node->title }}
 </a>
