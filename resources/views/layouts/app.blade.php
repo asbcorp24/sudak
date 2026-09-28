@@ -17,7 +17,7 @@
    @foreach($mainMenu as $item)
     @if($item->childrenRecursive->count())
      <div class="dropdown"><a class="dropdown-toggle" data-bs-toggle="dropdown" href="{{ route('pages.show',$item->slug) }}">{{ $item->menu_title ?: $item->title }}</a>
-      <div class="dropdown-menu tech-dropdown">@foreach($item->childrenRecursive as $child)<a class="dropdown-item" href="{{ route('pages.show',$child->slug) }}">{{ $child->menu_title ?: $child->title }}</a>@endforeach</div>
+      <div class="dropdown-menu tech-dropdown">@include('partials.menu-tree',['items'=>$item->childrenRecursive,'depth'=>0,'mobile'=>false])</div>
      </div>
     @else <a href="{{ route('pages.show',$item->slug) }}">{{ $item->menu_title ?: $item->title }}</a> @endif
    @endforeach
@@ -27,7 +27,7 @@
 </header>
 <div class="offcanvas offcanvas-end tech-offcanvas" tabindex="-1" id="mobileNav"><div class="offcanvas-header"><b>Навигация</b><button class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button></div><div class="offcanvas-body">
  <a href="{{ route('home') }}">Главная</a><a href="{{ route('specialties.index') }}">Специальности</a>
- @foreach($mainMenu as $item)<a href="{{ route('pages.show',$item->slug) }}">{{ $item->menu_title ?: $item->title }}</a>@endforeach
+ @foreach($mainMenu as $item)<a href="{{ route('pages.show',$item->slug) }}">{{ $item->menu_title ?: $item->title }}</a>@if($item->childrenRecursive->count()) @include('partials.menu-tree',['items'=>$item->childrenRecursive,'depth'=>1,'mobile'=>true]) @endif @endforeach
  <a href="{{ route('news.index') }}">Новости</a>
 </div></div>
 <main>@yield('content')</main>
