@@ -1,7 +1,6 @@
 import * as THREE from 'three';
 
 const mount=document.getElementById('three-hero');
-if(mount) initScene(mount);
 
 function initScene(el){
  const scene=new THREE.Scene();
@@ -653,3 +652,5 @@ function blueprint(api){
   g.rotation.z=Math.sin(x*.2)*.05;
  });
 }
+
+if(mount) initScene(mount);
