@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class ScheduleEntry extends Model
 {
     protected $fillable = [
-        'lesson_date','group_id','teacher_id','lesson_number','starts_at','ends_at',
+        'lesson_date','group_id','employee_id','lesson_number','starts_at','ends_at',
         'subject','room','lesson_type','subgroup','notes'
     ];
 
@@ -23,6 +23,11 @@ class ScheduleEntry extends Model
 
     public function teacher()
     {
-        return $this->belongsTo(ScheduleTeacher::class, 'teacher_id');
+        return $this->belongsTo(Employee::class, 'employee_id');
+    }
+
+    public function employee()
+    {
+        return $this->belongsTo(Employee::class, 'employee_id');
     }
 }
