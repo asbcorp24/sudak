@@ -151,6 +151,7 @@ class DatabaseSeeder extends Seeder
   $this->call([
    CompetitionsSeeder::class,
    QuizzesSeeder::class,
+   OfficialDocumentCategoriesSeeder::class,
   ]);
  }
 }
