@@ -12,6 +12,8 @@ use App\Http\Controllers\CooperationController;
 use App\Http\Controllers\QuestionController;
 use App\Http\Controllers\CompetitionController;
 use App\Http\Controllers\QuizController;
+use App\Http\Controllers\EmployeeController;
+use App\Http\Controllers\OfficialDocumentController;
 use App\Http\Controllers\Admin\AuthController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\PageAdminController;
@@ -19,7 +21,6 @@ use App\Http\Controllers\Admin\NewsAdminController;
 use App\Http\Controllers\Admin\SpecialtyAdminController;
 use App\Http\Controllers\Admin\ScheduleAdminController;
 use App\Http\Controllers\Admin\ScheduleGroupAdminController;
-use App\Http\Controllers\Admin\ScheduleTeacherAdminController;
 use App\Http\Controllers\Admin\MediaAdminController;
 use App\Http\Controllers\Admin\ContactAdminController;
 use App\Http\Controllers\Admin\AdmissionAdminController;
@@ -28,6 +29,8 @@ use App\Http\Controllers\Admin\QuestionAdminController;
 use App\Http\Controllers\Admin\CompetitionAdminController;
 use App\Http\Controllers\Admin\QuizAdminController;
 use App\Http\Controllers\Admin\SettingsAdminController;
+use App\Http\Controllers\Admin\EmployeeAdminController;
+use App\Http\Controllers\Admin\OfficialDocumentAdminController;
 
 Route::get('/',HomeController::class)->name('home');
 
@@ -36,6 +39,13 @@ Route::get('/specialties/{slug}',[SpecialtyController::class,'show'])->name('spe
 
 Route::get('/schedule',[ScheduleController::class,'index'])->name('schedule.index');
 Route::redirect('/section/schedule','/schedule',301);
+
+Route::get('/employees',[EmployeeController::class,'index'])->name('employees.index');
+Route::get('/section/teachers',fn()=>redirect()->route('employees.index',['type'=>'teacher'],301));
+Route::get('/section/management',fn()=>redirect()->route('employees.index',['type'=>'leadership'],301));
+
+Route::get('/sveden/documents',[OfficialDocumentController::class,'index'])->name('official-documents.index');
+Route::get('/section/documents',fn()=>redirect()->route('official-documents.index',[],301));
 
 Route::get('/contacts',[ContactController::class,'index'])->name('contacts.index');
 Route::get('/apply',[AdmissionController::class,'create'])->name('admission.create');
@@ -66,6 +76,15 @@ Route::prefix('admin')->name('admin.')->middleware(['auth','admin'])->group(func
  Route::resource('pages',PageAdminController::class)->except('show');
  Route::resource('news',NewsAdminController::class)->except('show');
  Route::resource('specialties',SpecialtyAdminController::class)->except('show');
+ Route::resource('employees',EmployeeAdminController::class)->except('show');
+
+ Route::get('official-documents',[OfficialDocumentAdminController::class,'index'])->name('official-documents.index');
+ Route::post('official-document-categories',[OfficialDocumentAdminController::class,'storeCategory'])->name('official-documents.categories.store');
+ Route::put('official-document-categories/{category}',[OfficialDocumentAdminController::class,'updateCategory'])->name('official-documents.categories.update');
+ Route::delete('official-document-categories/{category}',[OfficialDocumentAdminController::class,'destroyCategory'])->name('official-documents.categories.destroy');
+ Route::post('official-documents',[OfficialDocumentAdminController::class,'storeDocument'])->name('official-documents.store');
+ Route::put('official-documents/{document}',[OfficialDocumentAdminController::class,'updateDocument'])->name('official-documents.update');
+ Route::delete('official-documents/{document}',[OfficialDocumentAdminController::class,'destroyDocument'])->name('official-documents.destroy');
 
  Route::get('settings',[SettingsAdminController::class,'edit'])->name('settings');
  Route::post('settings',[SettingsAdminController::class,'update'])->name('settings.update');
@@ -112,11 +131,6 @@ Route::prefix('admin')->name('admin.')->middleware(['auth','admin'])->group(func
  Route::post('schedule-groups',[ScheduleGroupAdminController::class,'store'])->name('schedule.groups.store');
  Route::put('schedule-groups/{group}',[ScheduleGroupAdminController::class,'update'])->name('schedule.groups.update');
  Route::delete('schedule-groups/{group}',[ScheduleGroupAdminController::class,'destroy'])->name('schedule.groups.destroy');
-
- Route::get('schedule-teachers',[ScheduleTeacherAdminController::class,'index'])->name('schedule.teachers');
- Route::post('schedule-teachers',[ScheduleTeacherAdminController::class,'store'])->name('schedule.teachers.store');
- Route::put('schedule-teachers/{teacher}',[ScheduleTeacherAdminController::class,'update'])->name('schedule.teachers.update');
- Route::delete('schedule-teachers/{teacher}',[ScheduleTeacherAdminController::class,'destroy'])->name('schedule.teachers.destroy');
 
  Route::get('media',[MediaAdminController::class,'index'])->name('media.index');
  Route::post('media',[MediaAdminController::class,'store'])->name('media.store');
