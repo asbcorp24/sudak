@@ -55,6 +55,7 @@ $meta=$sceneMeta[$specialty->scene_key] ?? ['DIGITAL ENGINEERING','Интера�
     <h2>{{ $meta[0] }}</h2>
     <p class="tech-intro">{{ $meta[1] }}</p>
     <div class="content-prose">{!! $specialty->details !!}</div>
+    @include('partials.media-block',['items'=>$specialty->getMedia('content')])
    </div>
    <div class="col-lg-5">
     <div class="system-card">
