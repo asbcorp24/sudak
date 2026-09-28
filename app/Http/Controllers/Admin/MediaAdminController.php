@@ -64,6 +64,7 @@ class MediaAdminController extends Controller
         }
 
         $created = 0;
+        $createdAssets = [];
 
         foreach ($data['files'] as $file) {
             $extension = strtolower($file->getClientOriginalExtension());
@@ -85,7 +86,7 @@ class MediaAdminController extends Controller
                 ];
             }
 
-            MediaAsset::create([
+            $asset = MediaAsset::create([
                 'name' => pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME),
                 'original_name' => $file->getClientOriginalName(),
                 'disk' => 'public',
@@ -99,7 +100,26 @@ class MediaAdminController extends Controller
                 'title' => pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME),
             ]);
 
+            $createdAssets[] = [
+                'id' => $asset->id,
+                'type' => $asset->type,
+                'url' => $asset->url,
+                'title' => $asset->title ?: $asset->original_name,
+                'alt' => $asset->alt ?: ($asset->title ?: $asset->original_name),
+                'extension' => $asset->extension,
+                'human_size' => $asset->human_size,
+                'is_image' => $asset->isImage(),
+            ];
+
             $created++;
+        }
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'ok' => true,
+                'message' => 'Добавлено файлов: ' . $created,
+                'assets' => $createdAssets,
+            ]);
         }
 
         return back()->with('ok', 'Добавлено файлов: ' . $created);
