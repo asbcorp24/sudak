@@ -14,6 +14,53 @@
  <a class="btn-tech" href="{{ route('admin.schedule.create',['date'=>$date,'group_id'=>$groupId,'teacher_id'=>$teacherId]) }}">+ Добавить занятие</a>
 </div>
 
+@if(session('schedule_import_report'))
+ @php($r=session('schedule_import_report'))
+ <div class="glass-panel mb-4 schedule-import-report">
+  <span class="eyebrow">IMPORT COMPLETE</span>
+  <h3 class="mt-2">Расписание импортировано</h3>
+  <div class="schedule-import-stats">
+   <div><small>Формат</small><b>{{ $r['format'] ?: 'Rector-College' }} {{ $r['format_version'] }}</b></div>
+   <div><small>Период</small><b>{{ $r['period_from'] }} — {{ $r['period_to'] }}</b></div>
+   <div><small>Группы</small><b>{{ $r['groups'] }}</b></div>
+   <div><small>Преподаватели</small><b>{{ $r['teachers'] }}</b></div>
+   <div><small>Создано занятий</small><b>{{ $r['created'] }}</b></div>
+   <div><small>Обновлено</small><b>{{ $r['updated'] }}</b></div>
+   <div><small>Пропущено</small><b>{{ $r['skipped'] }}</b></div>
+  </div>
+ </div>
+@endif
+
+<div class="glass-panel mb-4 schedule-import-panel">
+ <div class="d-flex justify-content-between align-items-start gap-3 flex-wrap">
+  <div>
+   <span class="eyebrow">RECTOR-COLLEGE XML</span>
+   <h3 class="mt-2 mb-1">Импорт расписания</h3>
+   <p class="text-secondary mb-0">Загрузите XML, выгруженный из «Ректор-Колледж». Группы и преподаватели создаются автоматически, спаренные академические часы объединяются в пары.</p>
+  </div>
+  <span class="schedule-import-badge">XML / WINDOWS-1251</span>
+ </div>
+
+ <form method="post" enctype="multipart/form-data" action="{{ route('admin.schedule.import-xml') }}" class="schedule-import-form mt-4">
+  @csrf
+  <div class="field">
+   <label>XML-файл расписания</label>
+   <input class="form-control" type="file" name="xml_file" accept=".xml,text/xml,application/xml" required>
+   <small class="text-secondary">Поддерживается экспорт Rector-College. Максимум 50 МБ.</small>
+  </div>
+  <div class="field">
+   <label>Режим импорта</label>
+   <select class="form-select" name="import_mode">
+    <option value="merge">Обновить / добавить, не удаляя другие занятия</option>
+    <option value="replace">Полностью заменить расписание импортируемых групп за период XML</option>
+   </select>
+  </div>
+  <div class="schedule-import-action">
+   <button class="btn-tech">Импортировать XML</button>
+  </div>
+ </form>
+</div>
+
 <form class="schedule-admin-filter mb-4" method="get">
  <input class="form-control" type="date" name="date" value="{{ $date }}">
  <select class="form-select" name="group_id"><option value="">Все группы</option>@foreach($groups as $group)<option value="{{ $group->id }}" @selected($groupId===$group->id)>{{ $group->name }}</option>@endforeach</select>
