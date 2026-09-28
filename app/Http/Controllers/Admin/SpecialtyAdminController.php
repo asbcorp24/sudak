@@ -89,7 +89,15 @@ class SpecialtyAdminController extends Controller
         $d['is_published']=$r->boolean('is_published');
         $d['sort']=(int)$r->input('sort',0);
         $raw=$r->input('scene_config');
-        $d['scene_config']=$raw&&json_last_error()===JSON_ERROR_NONE?json_decode($raw,true):($raw?json_decode($raw,true):null);
+        if ($raw) {
+            $json=json_decode($raw,true);
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                throw ValidationException::withMessages(['scene_config'=>'Некорректный JSON параметров 3D-сцены.']);
+            }
+            $d['scene_config']=$json;
+        } else {
+            $d['scene_config']=null;
+        }
 
         return [$d,$cover,$content];
     }
