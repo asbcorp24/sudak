@@ -11,16 +11,22 @@
  </div>
 </form>
 
+@foreach($teachers as $teacher)
+ <form id="teacher-edit-{{ $teacher->id }}" method="post" action="{{ route('admin.schedule.teachers.update',$teacher) }}">@csrf @method('PUT')</form>
+ <form id="teacher-delete-{{ $teacher->id }}" method="post" action="{{ route('admin.schedule.teachers.destroy',$teacher) }}">@csrf @method('DELETE')</form>
+@endforeach
+
 <div class="table-responsive"><table class="table tech-table align-middle"><thead><tr><th>ФИО</th><th>Должность</th><th>Занятий</th><th>Активен</th><th></th></tr></thead><tbody>
 @foreach($teachers as $teacher)
 <tr>
- <form method="post" action="{{ route('admin.schedule.teachers.update',$teacher) }}">@csrf @method('PUT')
- <td><input class="form-control" name="full_name" value="{{ $teacher->full_name }}" required></td>
- <td><input class="form-control" name="position" value="{{ $teacher->position }}"></td>
+ <td><input form="teacher-edit-{{ $teacher->id }}" class="form-control" name="full_name" value="{{ $teacher->full_name }}" required></td>
+ <td><input form="teacher-edit-{{ $teacher->id }}" class="form-control" name="position" value="{{ $teacher->position }}"></td>
  <td>{{ $teacher->entries_count }}</td>
- <td><label class="check"><input type="checkbox" name="is_active" value="1" @checked($teacher->is_active)> Да</label></td>
- <td class="text-end"><button class="btn-ghost">Сохранить</button></form>
- <form class="d-inline" method="post" action="{{ route('admin.schedule.teachers.destroy',$teacher) }}" onsubmit="return confirm('Удалить преподавателя?')">@csrf @method('DELETE')<button class="link-danger ms-2">×</button></form></td>
+ <td><label class="check"><input form="teacher-edit-{{ $teacher->id }}" type="checkbox" name="is_active" value="1" @checked($teacher->is_active)> Да</label></td>
+ <td class="text-end">
+  <button form="teacher-edit-{{ $teacher->id }}" class="btn-ghost">Сохранить</button>
+  <button form="teacher-delete-{{ $teacher->id }}" class="link-danger ms-2" onclick="return confirm('Удалить преподавателя?')">×</button>
+ </td>
 </tr>
 @endforeach
 </tbody></table></div>
