@@ -7,8 +7,8 @@
 <meta name="robots" content="{{ $siteSettings['seo_robots'] ?? 'index,follow' }}">
 @if(!empty($siteSettings['seo_canonical']))<link rel="canonical" href="{{ $siteSettings['seo_canonical'] }}">@endif
 <meta property="og:type" content="website">
-<meta property="og:title" content="@yield('title',$siteSettings['seo_og_title'] ?: ($siteSettings['seo_title'] ?? 'Зеленодольский судостроительный колледж'))">
-<meta property="og:description" content="@yield('description',$siteSettings['seo_og_description'] ?: ($siteSettings['seo_description'] ?? 'Инженерное и цифровое СПО в Зеленодольске.'))">
+<meta property="og:title" content="@yield('title',(($siteSettings['seo_og_title'] ?? null) ?: ($siteSettings['seo_title'] ?? 'Зеленодольский судостроительный колледж')))">
+<meta property="og:description" content="@yield('description',(($siteSettings['seo_og_description'] ?? null) ?: ($siteSettings['seo_description'] ?? 'Инженерное и цифровое СПО в Зеленодольске.')))">
 @if(!empty($siteSettings['seo_og_image']))<meta property="og:image" content="{{ $siteSettings['seo_og_image'] }}">@endif
 <meta name="twitter:card" content="{{ $siteSettings['seo_twitter_card'] ?? 'summary_large_image' }}">
 <meta name="theme-color" content="#061019">
