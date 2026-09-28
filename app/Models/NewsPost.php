@@ -1,7 +1,9 @@
 <?php
 namespace App\Models;
+use App\Models\Concerns\HasMedia;
 use Illuminate\Database\Eloquent\Model;
 class NewsPost extends Model{
+ use HasMedia;
  protected $fillable=['title','slug','excerpt','content','cover','published_at','is_published'];
  protected $casts=['published_at'=>'datetime','is_published'=>'boolean'];
  public function scopePublished($q){return $q->where('is_published',1)->whereNotNull('published_at')->where('published_at','<=',now());}
