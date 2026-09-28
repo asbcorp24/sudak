@@ -23,11 +23,60 @@
   </div>
 
   <div class="glass-panel mt-4">
-   <span class="eyebrow">HOME / SECTIONS</span>
-   <div class="row g-3 mt-1">
+   <span class="eyebrow">HOME / BLOCKS</span>
+   <h3 class="mt-2">Блоки главной страницы</h3>
+   <p class="text-secondary">Блок можно отключить. Чем меньше число «Порядок», тем выше блок располагается на главной.</p>
+   @php
+    $sectionLabels=[
+     'quick_actions'=>['Быстрые действия','Подать заявку / Расписание / Задать вопрос / Контакты'],
+     'schedule'=>['Расписание сегодня','Первые занятия текущего дня'],
+     'open_day'=>['День открытых дверей','Ближайшая дата и информация'],
+     'specialties'=>['Специальности','Инженерные направления подготовки'],
+     'admission'=>['Поступление','Большой блок приёмной кампании'],
+     'achievements'=>['Последние достижения','Победы и результаты студентов'],
+     'tech'=>['Цифровая верфь','Технологический имиджевый блок'],
+     'news'=>['Новости','Последние публикации колледжа'],
+    ];
+   @endphp
+   <div class="home-section-settings">
+    @foreach($homeSectionDefaults as $key=>$defaultOrder)
+     <div class="home-section-setting">
+      <div>
+       <b>{{ $sectionLabels[$key][0] }}</b>
+       <small>{{ $sectionLabels[$key][1] }}</small>
+      </div>
+      <label class="check mb-0">
+       <input type="checkbox" name="home_section_{{ $key }}_enabled" value="1" @checked(old('home_section_'.$key.'_enabled',($settings['home_section_'.$key.'_enabled'] ?? '1') !== '0'))>
+       Включён
+      </label>
+      <div class="home-section-order">
+       <label>Порядок</label>
+       <input class="form-control" type="number" min="1" max="999" name="home_section_{{ $key }}_order" value="{{ old('home_section_'.$key.'_order',$settings['home_section_'.$key.'_order'] ?? $defaultOrder) }}">
+      </div>
+     </div>
+    @endforeach
+   </div>
+  </div>
+
+  <div class="glass-panel mt-4">
+   <span class="eyebrow">HOME / CONTENT</span>
+   <h3 class="mt-2">Содержимое блоков</h3>
+   <div class="row g-3">
     <div class="col-md-4 field"><label>Надзаголовок специальностей</label><input class="form-control" name="home_specialties_eyebrow" value="{{ old('home_specialties_eyebrow',$settings['home_specialties_eyebrow'] ?? '01 / ПРОФЕССИИ БУДУЩЕГО') }}"></div>
     <div class="col-md-8 field"><label>Заголовок специальностей</label><input class="form-control" name="home_specialties_title" value="{{ old('home_specialties_title',$settings['home_specialties_title'] ?? 'Выбери свою инженерную траекторию') }}"></div>
     <div class="col-12 field"><label>Описание специальностей</label><textarea class="form-control" rows="3" name="home_specialties_text">{{ old('home_specialties_text',$settings['home_specialties_text'] ?? 'Каждая специальность — отдельная интерактивная 3D-среда и свой технологический маршрут.') }}</textarea></div>
+
+    <div class="col-md-6 field"><label>Заголовок расписания</label><input class="form-control" name="home_schedule_title" value="{{ old('home_schedule_title',$settings['home_schedule_title'] ?? 'Расписание на сегодня') }}"></div>
+    <div class="col-md-6 field"><label>Заголовок достижений</label><input class="form-control" name="home_achievements_title" value="{{ old('home_achievements_title',$settings['home_achievements_title'] ?? 'Последние достижения') }}"></div>
+
+    <div class="col-md-6 field"><label>Заголовок дня открытых дверей</label><input class="form-control" name="home_open_day_title" value="{{ old('home_open_day_title',$settings['home_open_day_title'] ?? 'Ближайший день открытых дверей') }}"></div>
+    <div class="col-md-3 field"><label>Дата</label><input class="form-control" type="date" name="home_open_day_date" value="{{ old('home_open_day_date',$settings['home_open_day_date'] ?? '') }}"></div>
+    <div class="col-md-3 field"><label>Время</label><input class="form-control" name="home_open_day_time" value="{{ old('home_open_day_time',$settings['home_open_day_time'] ?? '') }}" placeholder="10:00–14:00"></div>
+    <div class="col-12 field"><label>Описание дня открытых дверей</label><textarea class="form-control" rows="3" name="home_open_day_text">{{ old('home_open_day_text',$settings['home_open_day_text'] ?? 'Познакомьтесь со специальностями, лабораториями, преподавателями и условиями поступления.') }}</textarea></div>
+
+    <div class="col-md-6 field"><label>Заголовок поступления</label><input class="form-control" name="home_admission_title" value="{{ old('home_admission_title',$settings['home_admission_title'] ?? 'Поступай в инженерный колледж') }}"></div>
+    <div class="col-12 field"><label>Текст блока поступления</label><textarea class="form-control" rows="3" name="home_admission_text">{{ old('home_admission_text',$settings['home_admission_text'] ?? 'Выбери специальность, оставь заявку и получи консультацию приёмной комиссии по документам, срокам и условиям поступления.') }}</textarea></div>
+
     <div class="col-md-6 field"><label>Заголовок технологического блока</label><input class="form-control" name="home_tech_title" value="{{ old('home_tech_title',$settings['home_tech_title'] ?? 'Колледж как цифровая верфь') }}"></div>
     <div class="col-12 field"><label>Описание технологического блока</label><textarea class="form-control" rows="3" name="home_tech_text">{{ old('home_tech_text',$settings['home_tech_text'] ?? 'Учебные лаборатории, промышленная практика, инженерное проектирование, сетевые технологии и контроль качества — в одной системе подготовки.') }}</textarea></div>
     <div class="col-md-6 field"><label>Заголовок новостей</label><input class="form-control" name="home_news_title" value="{{ old('home_news_title',$settings['home_news_title'] ?? 'Жизнь колледжа') }}"></div>
