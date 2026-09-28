@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+<rect width="512" height="512" fill="#061019"/>
+<circle cx="256" cy="256" r="210" fill="#09212d" stroke="#49d9ff" stroke-width="8"/>
+<path d="M116 320c55-18 104-53 145-106 20-25 39-43 66-57 16-8 34-14 67-20-7 36-16 65-30 91-24 43-63 76-114 99-38 17-82 27-134 30z" fill="none" stroke="#49d9ff" stroke-width="14" stroke-linejoin="round"/>
+<path d="M137 313h226M164 291l37-56h75l36 56M202 235l18-42h38l18 42" fill="none" stroke="#e7fbff" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="256" y="410" text-anchor="middle" font-family="Arial,sans-serif" font-size="60" font-weight="900" fill="#eefbff">ЗСК</text>
+</svg>
