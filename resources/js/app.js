@@ -15,13 +15,116 @@ const A11Y_DEFAULTS={
 let deferredInstallPrompt=null;
 let a11yState=readAccessibility();
 
-function initRichEditors(){
-  const esc=value=>String(value??'')
+function escapeHtml(value){
+  return String(value??'')
     .replace(/&/g,'&amp;')
     .replace(/</g,'&lt;')
     .replace(/>/g,'&gt;')
     .replace(/"/g,'&quot;')
     .replace(/'/g,'&#039;');
+}
+
+function initInlineMediaUploads(){
+  document.querySelectorAll('[data-media-inline-upload]').forEach(box=>{
+    const input=box.querySelector('[data-media-upload-input]');
+    const button=box.querySelector('[data-media-upload-button]');
+    const status=box.querySelector('[data-media-upload-status]');
+    if(!input||!button) return;
+
+    button.addEventListener('click',async()=>{
+      const files=[...(input.files||[])];
+      if(!files.length){
+        if(status) status.textContent='Сначала выберите один или несколько файлов.';
+        input.focus();
+        return;
+      }
+
+      const formData=new FormData();
+      files.forEach(file=>formData.append('files[]',file));
+
+      button.disabled=true;
+      const initialText=button.textContent;
+      button.textContent='Загрузка…';
+      if(status) status.textContent='Загружаю в медиатеку…';
+
+      try{
+        const response=await fetch(box.dataset.uploadUrl,{
+          method:'POST',
+          headers:{
+            'Accept':'application/json',
+            'X-CSRF-TOKEN':box.dataset.csrf||''
+          },
+          body:formData
+        });
+
+        const data=await response.json().catch(()=>({}));
+
+        if(!response.ok){
+          const validation=data?.errors ? Object.values(data.errors).flat().join(' ') : null;
+          throw new Error(validation || data?.message || 'Не удалось загрузить файл.');
+        }
+
+        const assets=Array.isArray(data.assets)?data.assets:[];
+        input.value='';
+        if(status) status.textContent=data.message || ('Загружено файлов: '+assets.length);
+
+        window.dispatchEvent(new CustomEvent('zsk:media-uploaded',{
+          detail:{assets}
+        }));
+      }catch(error){
+        if(status) status.textContent=error?.message || 'Ошибка загрузки файла.';
+      }finally{
+        button.disabled=false;
+        button.textContent=initialText;
+      }
+    });
+  });
+
+  window.addEventListener('zsk:media-uploaded',event=>{
+    const assets=event.detail?.assets||[];
+
+    document.querySelectorAll('.media-picker').forEach(picker=>{
+      const coverGrid=picker.querySelector('[data-media-picker-grid="cover"]');
+      const contentGrid=picker.querySelector('[data-media-picker-grid="content"]');
+
+      assets.forEach(asset=>{
+        const title=asset.title||'Файл';
+        const search=(title+' '+(asset.extension||'')).toLowerCase();
+
+        if(asset.is_image && coverGrid && !coverGrid.querySelector('input[value="'+asset.id+'"]')){
+          const card=document.createElement('label');
+          card.className='media-pick-card';
+          card.dataset.mediaSearch=search;
+          card.innerHTML=
+            '<input type="radio" name="main_media_id" value="'+asset.id+'">'+
+            '<span class="media-pick-preview"><img src="'+escapeHtml(asset.url)+'" alt=""></span>'+
+            '<span class="media-pick-title">'+escapeHtml(title)+'</span>';
+          coverGrid.prepend(card);
+        }
+
+        if(contentGrid && !contentGrid.querySelector('input[value="'+asset.id+'"]')){
+          const card=document.createElement('label');
+          card.className='media-pick-card';
+          card.dataset.mediaSearch=search;
+          const preview=asset.is_image
+            ? '<img src="'+escapeHtml(asset.url)+'" alt="">'
+            : '<span class="media-file-symbol">'+escapeHtml(asset.type==='model_3d'?'3D':String(asset.extension||'FILE').toUpperCase())+'</span>';
+
+          card.innerHTML=
+            '<input type="checkbox" name="content_media_ids[]" value="'+asset.id+'">'+
+            '<span class="media-pick-preview">'+preview+'</span>'+
+            '<span class="media-pick-title">'+escapeHtml(title)+'</span>'+
+            '<small>'+escapeHtml(String(asset.extension||'').toUpperCase())+' · '+escapeHtml(asset.human_size||'')+'</small>';
+
+          contentGrid.prepend(card);
+        }
+      });
+    });
+  });
+}
+
+function initRichEditors(){
+  const esc=escapeHtml;
 
   document.querySelectorAll('[data-rich-editor]').forEach(editor=>{
     const surface=editor.querySelector('[data-rich-surface]');
@@ -200,29 +303,64 @@ function initRichEditors(){
       });
     });
 
-    editor.querySelectorAll('[data-rich-media-item]').forEach(item=>{
-      item.addEventListener('click',()=>{
-        const type=item.dataset.mediaType;
-        const url=item.dataset.mediaUrl||'';
-        const title=item.dataset.mediaTitle||'';
-        const alt=item.dataset.mediaAlt||title;
+    const insertMediaItem=item=>{
+      const type=item.dataset.mediaType;
+      const url=item.dataset.mediaUrl||'';
+      const title=item.dataset.mediaTitle||'';
+      const alt=item.dataset.mediaAlt||title;
 
-        if(type==='image'){
-          insertHtml(
-            '<figure class="content-inline-media">'+
-            '<img src="'+esc(url)+'" alt="'+esc(alt)+'" loading="lazy">'+
-            (title?'<figcaption>'+esc(title)+'</figcaption>':'')+
-            '</figure><p><br></p>'
-          );
-        }else{
-          const label=type==='model_3d' ? 'Открыть 3D-модель' : 'Открыть документ';
-          insertHtml(
-            '<p class="content-file-link"><a href="'+esc(url)+'" target="_blank" rel="noopener">'+
-            esc(title||label)+' ↗</a></p>'
-          );
-        }
+      if(type==='image'){
+        insertHtml(
+          '<figure class="content-inline-media">'+
+          '<img src="'+esc(url)+'" alt="'+esc(alt)+'" loading="lazy">'+
+          (title?'<figcaption>'+esc(title)+'</figcaption>':'')+
+          '</figure><p><br></p>'
+        );
+      }else{
+        const label=type==='model_3d' ? 'Открыть 3D-модель' : 'Открыть документ';
+        insertHtml(
+          '<p class="content-file-link"><a href="'+esc(url)+'" target="_blank" rel="noopener">'+
+          esc(title||label)+' ↗</a></p>'
+        );
+      }
 
-        closeMedia();
+      closeMedia();
+    };
+
+    editor.addEventListener('click',event=>{
+      const item=event.target.closest('[data-rich-media-item]');
+      if(!item||!editor.contains(item)) return;
+      insertMediaItem(item);
+    });
+
+    window.addEventListener('zsk:media-uploaded',event=>{
+      const grid=editor.querySelector('[data-rich-media-grid]');
+      if(!grid) return;
+
+      (event.detail?.assets||[]).forEach(asset=>{
+        if(grid.querySelector('[data-media-id="'+asset.id+'"]')) return;
+
+        const item=document.createElement('button');
+        item.type='button';
+        item.className='rich-media-item';
+        item.dataset.richMediaItem='';
+        item.dataset.mediaId=asset.id;
+        item.dataset.mediaType=asset.type||'document';
+        item.dataset.mediaUrl=asset.url||'';
+        item.dataset.mediaTitle=asset.title||'Файл';
+        item.dataset.mediaAlt=asset.alt||asset.title||'';
+        item.dataset.mediaSearch=((asset.title||'')+' '+(asset.extension||'')).toLowerCase();
+
+        const preview=asset.is_image
+          ? '<img src="'+esc(asset.url||'')+'" alt="">'
+          : '<span>'+esc(asset.type==='model_3d'?'3D':String(asset.extension||'FILE').toUpperCase())+'</span>';
+
+        item.innerHTML=
+          '<span class="rich-media-preview">'+preview+'</span>'+
+          '<span class="rich-media-name">'+esc(asset.title||'Файл')+'</span>'+
+          '<small>'+esc(String(asset.extension||'').toUpperCase())+' · '+esc(asset.human_size||'')+'</small>';
+
+        grid.prepend(item);
       });
     });
 
@@ -308,6 +446,7 @@ window.addEventListener('online',updateOnlineState);
 window.addEventListener('offline',updateOnlineState);
 
 document.addEventListener('DOMContentLoaded',()=>{
+  initInlineMediaUploads();
   initRichEditors();
   applyAccessibility(true);
 
