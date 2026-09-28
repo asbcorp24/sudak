@@ -14,6 +14,7 @@
   <button class="nav-toggle ms-auto d-lg-none" data-bs-toggle="offcanvas" data-bs-target="#mobileNav" aria-label="Меню">☰</button>
   <nav class="main-nav d-none d-lg-flex ms-auto align-items-center gap-1">
    <a href="{{ route('specialties.index') }}">Специальности</a>
+   <a href="{{ route('schedule.index') }}">Расписание</a>
    @foreach($mainMenu as $item)
     @if($item->childrenRecursive->count())
      <div class="dropdown"><a class="dropdown-toggle" data-bs-toggle="dropdown" href="{{ route('pages.show',$item->slug) }}">{{ $item->menu_title ?: $item->title }}</a>
@@ -26,7 +27,7 @@
  </div>
 </header>
 <div class="offcanvas offcanvas-end tech-offcanvas" tabindex="-1" id="mobileNav"><div class="offcanvas-header"><b>Навигация</b><button class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button></div><div class="offcanvas-body">
- <a href="{{ route('home') }}">Главная</a><a href="{{ route('specialties.index') }}">Специальности</a>
+ <a href="{{ route('home') }}">Главная</a><a href="{{ route('specialties.index') }}">Специальности</a><a href="{{ route('schedule.index') }}">Расписание</a>
  @foreach($mainMenu as $item)<a href="{{ route('pages.show',$item->slug) }}">{{ $item->menu_title ?: $item->title }}</a>@if($item->childrenRecursive->count()) @include('partials.menu-tree',['items'=>$item->childrenRecursive,'depth'=>1,'mobile'=>true]) @endif @endforeach
  <a href="{{ route('news.index') }}">Новости</a>
 </div></div>
