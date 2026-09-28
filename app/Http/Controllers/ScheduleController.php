@@ -27,6 +27,7 @@ class ScheduleController extends Controller
 
         return view('schedule.index', [
             'date' => $date,
+            'displayDate' => Carbon::parse($date)->format('d.m.Y'),
             'previousDate' => Carbon::parse($date)->subDay()->format('Y-m-d'),
             'nextDate' => Carbon::parse($date)->addDay()->format('Y-m-d'),
             'groupId' => $groupId,
