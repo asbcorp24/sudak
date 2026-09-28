@@ -20,15 +20,25 @@
 
  <div class="a11y-group">
   <b>Отображение</b>
-  <label class="a11y-switch"><input type="checkbox" data-a11y-toggle="contrast"><span>Высокий контраст</span></label>
-  <label class="a11y-switch"><input type="checkbox" data-a11y-toggle="grayscale"><span>Чёрно-белый режим</span></label>
-  <label class="a11y-switch"><input type="checkbox" data-a11y-toggle="spacing"><span>Увеличенные интервалы</span></label>
+  <button type="button" class="a11y-switch" data-a11y-toggle="contrast" role="switch" aria-checked="false">
+   <span class="a11y-switch-box" aria-hidden="true"></span><span>Высокий контраст</span>
+  </button>
+  <button type="button" class="a11y-switch" data-a11y-toggle="grayscale" role="switch" aria-checked="false">
+   <span class="a11y-switch-box" aria-hidden="true"></span><span>Чёрно-белый режим</span>
+  </button>
+  <button type="button" class="a11y-switch" data-a11y-toggle="spacing" role="switch" aria-checked="false">
+   <span class="a11y-switch-box" aria-hidden="true"></span><span>Увеличенные интервалы</span>
+  </button>
  </div>
 
  <div class="a11y-group">
   <b>Содержимое</b>
-  <label class="a11y-switch"><input type="checkbox" data-a11y-toggle="images"><span>Отключить изображения</span></label>
-  <label class="a11y-switch"><input type="checkbox" data-a11y-toggle="motion"><span>Отключить анимацию</span></label>
+  <button type="button" class="a11y-switch" data-a11y-toggle="images" role="switch" aria-checked="false">
+   <span class="a11y-switch-box" aria-hidden="true"></span><span>Отключить изображения</span>
+  </button>
+  <button type="button" class="a11y-switch" data-a11y-toggle="motion" role="switch" aria-checked="false">
+   <span class="a11y-switch-box" aria-hidden="true"></span><span>Отключить анимацию</span>
+  </button>
  </div>
 
  <button class="a11y-reset" type="button" data-a11y-reset>Вернуть обычную версию</button>
