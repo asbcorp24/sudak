@@ -13,6 +13,7 @@ $sceneMeta=[
 ];
 $meta=$sceneMeta[$specialty->scene_key] ?? ['DIGITAL ENGINEERING','Интерактивная инженерная сцена направления.'];
 @endphp
+@php($specialtyCover=$specialty->getMedia('cover')->first())
 
 <section class="specialty-hero" style="--accent:{{ $specialty->accent }}">
  <div id="three-hero" class="three-layer specialty-scene" data-scene="{{ $specialty->scene_key }}" data-accent="{{ $specialty->accent }}"></div>
@@ -54,6 +55,7 @@ $meta=$sceneMeta[$specialty->scene_key] ?? ['DIGITAL ENGINEERING','Интера�
     <span class="eyebrow">DIGITAL LAB / {{ strtoupper($specialty->scene_key) }}</span>
     <h2>{{ $meta[0] }}</h2>
     <p class="tech-intro">{{ $meta[1] }}</p>
+    @if($specialtyCover)<div class="specialty-cover"><img src="{{ $specialtyCover->url }}" alt="{{ $specialtyCover->alt ?: $specialty->title }}"></div>@endif
     <div class="content-prose">{!! $specialty->details !!}</div>
     @include('partials.media-block',['items'=>$specialty->getMedia('content')])
    </div>
