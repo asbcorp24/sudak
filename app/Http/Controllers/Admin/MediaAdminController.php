@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\MediaAsset;
 use App\Services\MediaImageProcessor;
+use App\Services\StorageQuota;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -53,6 +54,13 @@ class MediaAdminController extends Controller
 
         foreach ($data['files'] as $file) {
             $this->assertAllowed($file->getClientOriginalExtension());
+        }
+
+        $incomingBytes = array_sum(array_map(fn ($file) => (int) $file->getSize(), $data['files']));
+        if (!StorageQuota::canStore($incomingBytes)) {
+            throw ValidationException::withMessages([
+                'files' => 'Недостаточно выделенного места. Свободно: ' . StorageQuota::formatBytes(StorageQuota::remainingBytes()) . '. Удалите ненужные файлы или увеличьте лимит в «Главная / SEO / хранилище».',
+            ]);
         }
 
         $created = 0;
