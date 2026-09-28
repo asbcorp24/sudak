@@ -42,8 +42,10 @@ function applyAccessibility(sync=true){
     document.querySelectorAll('[data-a11y-font]').forEach(button=>{
       button.setAttribute('aria-pressed',String(button.dataset.a11yFont===a11yState.font));
     });
-    document.querySelectorAll('[data-a11y-toggle]').forEach(input=>{
-      input.checked=!!a11yState[input.dataset.a11yToggle];
+    document.querySelectorAll('[data-a11y-toggle]').forEach(control=>{
+      const active=!!a11yState[control.dataset.a11yToggle];
+      control.setAttribute('aria-checked',String(active));
+      control.classList.toggle('active',active);
     });
   }
 
@@ -132,9 +134,12 @@ document.addEventListener('DOMContentLoaded',()=>{
     });
   });
 
-  document.querySelectorAll('[data-a11y-toggle]').forEach(input=>{
-    input.addEventListener('change',()=>{
-      a11yState[input.dataset.a11yToggle]=input.checked;
+  document.querySelectorAll('[data-a11y-toggle]').forEach(control=>{
+    control.addEventListener('click',event=>{
+      event.preventDefault();
+      const key=control.dataset.a11yToggle;
+      if(!key) return;
+      a11yState[key]=!a11yState[key];
       saveAccessibility();
       applyAccessibility(true);
     });
