@@ -1,5 +1,6 @@
 <?php
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Admin\MediaAdminController;
 use App\Http\Controllers\HomeController; use App\Http\Controllers\PageController; use App\Http\Controllers\NewsController; use App\Http\Controllers\SpecialtyController; use App\Http\Controllers\Admin\AuthController; use App\Http\Controllers\Admin\DashboardController; use App\Http\Controllers\Admin\PageAdminController; use App\Http\Controllers\Admin\NewsAdminController; use App\Http\Controllers\Admin\SpecialtyAdminController;
 Route::get('/',HomeController::class)->name('home');
 Route::get('/specialties',[SpecialtyController::class,'index'])->name('specialties.index');
