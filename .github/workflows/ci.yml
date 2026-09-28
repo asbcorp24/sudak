@@ -33,6 +33,12 @@ jobs:
           DB_DATABASE: database/database.sqlite
         run: php artisan migrate --force
 
+      - name: Seed test content
+        env:
+          DB_CONNECTION: sqlite
+          DB_DATABASE: database/database.sqlite
+        run: ADMIN_PASSWORD=$(php -r 'echo bin2hex(random_bytes(16));') php artisan db:seed --force
+
       - name: Validate routes
         run: php artisan route:list
 
