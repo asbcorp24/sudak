@@ -1,0 +1,28 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+
+class OfficialDocument extends Model
+{
+    protected $fillable = [
+        'category_id','media_asset_id','title','description','document_date',
+        'version','document_number','sort','is_published',
+    ];
+
+    protected $casts = [
+        'document_date'=>'date',
+        'is_published'=>'boolean',
+    ];
+
+    public function category()
+    {
+        return $this->belongsTo(OfficialDocumentCategory::class, 'category_id');
+    }
+
+    public function media()
+    {
+        return $this->belongsTo(MediaAsset::class, 'media_asset_id');
+    }
+}
