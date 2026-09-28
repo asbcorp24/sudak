@@ -218,3 +218,27 @@ html.a11y-no-motion .hero-interact,html.a11y-no-motion .scene-controls{display:n
  .employee-card{grid-template-columns:1fr}.employee-photo{height:310px;min-height:0}.employee-content{padding:20px}
  .official-doc-row{grid-template-columns:54px 1fr}.official-doc-row>.btn-ghost,.official-doc-row>.text-secondary{grid-column:1/-1;justify-self:start}.official-doc-icon{width:48px;height:48px}
 }
+
+
+/* Accessibility switch interaction fix */
+.a11y-panel{pointer-events:auto!important}
+.a11y-panel *{pointer-events:auto}
+.a11y-switch{
+ width:100%;min-height:52px;padding:10px 12px!important;margin:10px 0!important;
+ border:2px solid #111!important;background:#fff!important;color:#111!important;
+ display:flex!important;align-items:center;gap:12px;text-align:left;
+ font-family:inherit!important;font-size:.95rem!important;font-weight:800!important;
+ text-transform:none!important;letter-spacing:0!important;cursor:pointer!important;
+ position:relative;z-index:1
+}
+.a11y-switch:hover,.a11y-switch:focus-visible{background:#ecece7!important;outline:3px solid #111;outline-offset:2px}
+.a11y-switch-box{
+ width:24px;height:24px;flex:0 0 24px;border:2px solid #111;background:#fff;
+ display:grid;place-items:center;position:relative
+}
+.a11y-switch[aria-checked="true"]{background:#111!important;color:#fff!important}
+.a11y-switch[aria-checked="true"] .a11y-switch-box{background:#fff;border-color:#fff}
+.a11y-switch[aria-checked="true"] .a11y-switch-box:after{
+ content:"✓";position:absolute;color:#111;font-size:18px;font-weight:900;line-height:1
+}
+.a11y-backdrop{pointer-events:auto}
