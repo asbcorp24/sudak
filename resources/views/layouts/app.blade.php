@@ -11,10 +11,10 @@
 <meta property="og:description" content="@yield('description',(($siteSettings['seo_og_description'] ?? null) ?: ($siteSettings['seo_description'] ?? 'Инженерное и цифровое СПО в Зеленодольске.')))">
 @if(!empty($siteSettings['seo_og_image']))<meta property="og:image" content="{{ $siteSettings['seo_og_image'] }}">@endif
 <meta name="twitter:card" content="{{ $siteSettings['seo_twitter_card'] ?? 'summary_large_image' }}">
-<meta name="theme-color" content="#061019">
+<meta name="theme-color" content="#1769d2">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="ЗСК">
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="icon" type="image/svg+xml" href="/pwa/icon.svg">
@@ -71,7 +71,7 @@ try{
 </header>
 
 <div class="offcanvas offcanvas-end tech-offcanvas" tabindex="-1" id="mobileNav">
- <div class="offcanvas-header"><b>Навигация</b><button class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button></div>
+ <div class="offcanvas-header"><b>Навигация</b><button class="btn-close" data-bs-dismiss="offcanvas"></button></div>
  <div class="offcanvas-body">
   <a href="{{ route('home') }}">Главная</a>
   <a href="{{ route('specialties.index') }}">Специальности</a>
