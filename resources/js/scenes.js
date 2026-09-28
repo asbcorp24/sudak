@@ -16,7 +16,7 @@ function initScene(el){
  renderer.toneMappingExposure=1.15;
  el.appendChild(renderer.domElement);
 
- const accent=new THREE.Color(el.dataset.accent||'#49d9ff');
+ const accent=new THREE.Color('#1769d2');
  const state={
   paused:false,
   explode:0,
@@ -31,11 +31,11 @@ function initScene(el){
   pointerY:0
  };
 
- scene.add(new THREE.HemisphereLight(0xbcecff,0x061019,1.15));
+ scene.add(new THREE.HemisphereLight(0xffffff,0x8fbfff,1.65));
  const key=new THREE.DirectionalLight(accent,4.4);
  key.position.set(5,7,6);
  scene.add(key);
- const rim=new THREE.PointLight(0x6f75ff,35,22);
+ const rim=new THREE.PointLight(0x4d8ff7,28,22);
  rim.position.set(-5,2,-1);
  scene.add(rim);
  const fill=new THREE.PointLight(accent,18,18);
@@ -157,7 +157,7 @@ function bindPointer(el,api){
 }
 
 function addEnvironment(scene,accent){
- const grid=new THREE.GridHelper(34,56,accent,0x173746);
+ const grid=new THREE.GridHelper(34,56,accent,0x9fc5f5);
  grid.position.y=-2.45;
  grid.material.opacity=.2;
  grid.material.transparent=true;
@@ -227,7 +227,7 @@ function shipyard(api){
 
  const water=new THREE.Mesh(
   new THREE.PlaneGeometry(18,9,32,16),
-  new THREE.MeshStandardMaterial({color:0x082738,metalness:.15,roughness:.4,transparent:true,opacity:.42,wireframe:true})
+  new THREE.MeshStandardMaterial({color:0x9cc8ff,metalness:.12,roughness:.42,transparent:true,opacity:.34,wireframe:true})
  );
  water.rotation.x=-Math.PI/2;
  water.position.set(1,-1.72,0);
