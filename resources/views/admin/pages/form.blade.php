@@ -11,7 +11,15 @@
     <div class="col-md-6 field"><label>Название в меню</label><input class="form-control" name="menu_title" value="{{ old('menu_title',$page->menu_title) }}"></div>
    </div>
    <div class="field"><label>Краткое описание</label><textarea class="form-control" rows="3" name="excerpt">{{ old('excerpt',$page->excerpt) }}</textarea></div>
-   <div class="field"><label>Содержимое страницы (HTML)</label><textarea class="form-control code-area" rows="18" name="content">{{ old('content',$page->content) }}</textarea></div>
+   <div class="field">
+    <label>Содержимое страницы</label>
+    @include('admin.partials.rich-editor',[
+     'editorId'=>'page-content-editor',
+     'name'=>'content',
+     'value'=>$page->content,
+     'media'=>$media,
+    ])
+   </div>
    <div class="row g-3">
     <div class="col-md-6 field"><label>SEO title</label><input class="form-control" name="meta_title" value="{{ old('meta_title',$page->meta_title) }}"></div>
     <div class="col-md-6 field"><label>SEO description</label><input class="form-control" name="meta_description" value="{{ old('meta_description',$page->meta_description) }}"></div>
