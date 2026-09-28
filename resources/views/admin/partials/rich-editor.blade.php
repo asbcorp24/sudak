@@ -86,6 +86,7 @@
      type="button"
      class="rich-media-item"
      data-rich-media-item
+     data-media-id="{{ $asset->id }}"
      data-media-type="{{ $asset->type }}"
      data-media-url="{{ $asset->url }}"
      data-media-title="{{ $asset->title ?: $asset->original_name }}"
