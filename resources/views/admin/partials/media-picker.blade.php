@@ -8,13 +8,26 @@
   <div><span class="eyebrow">MEDIA LIBRARY</span><h3>Медиа</h3></div>
   <a class="btn-ghost" target="_blank" href="{{ route('admin.media.index') }}">Открыть медиатеку ↗</a>
  </div>
+
+ <div class="inline-media-upload mb-3"
+      data-media-inline-upload
+      data-upload-url="{{ route('admin.media.store') }}"
+      data-csrf="{{ csrf_token() }}">
+  <div class="inline-media-upload-main">
+   <input type="file" class="form-control" data-media-upload-input multiple
+    accept=".jpg,.jpeg,.png,.webp,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.rtf,.csv,.zip,.rar,.7z,.glb,.gltf,.obj,.stl,.fbx,.dae,.3ds,.blend,.ply">
+   <button type="button" class="btn-tech" data-media-upload-button>Загрузить файл</button>
+  </div>
+  <small data-media-upload-status>Можно загрузить файл прямо здесь, не открывая медиатеку.</small>
+ </div>
+
  <input class="form-control media-picker-search" type="search" placeholder="Фильтр медиа в этой форме">
 
  @if(($allowCover ?? true))
  <div class="media-picker-section">
   <b>Главное изображение</b>
   <label class="media-none-option"><input type="radio" name="main_media_id" value="" @checked(!$selectedCover)> Без главного изображения</label>
-  <div class="media-picker-grid">
+  <div class="media-picker-grid" data-media-picker-grid="cover">
    @foreach($media->where('type','image') as $asset)
     <label class="media-pick-card" data-media-search="{{ strtolower($asset->title.' '.$asset->original_name) }}">
      <input type="radio" name="main_media_id" value="{{ $asset->id }}" @checked((int)$selectedCover===$asset->id)>
@@ -29,7 +42,7 @@
  <div class="media-picker-section">
   <b>Дополнительные материалы</b>
   <small>Можно выбрать изображения, документы и 3D-модели.</small>
-  <div class="media-picker-grid">
+  <div class="media-picker-grid" data-media-picker-grid="content">
    @foreach($media as $asset)
     <label class="media-pick-card" data-media-search="{{ strtolower($asset->title.' '.$asset->original_name.' '.$asset->extension) }}">
      <input type="checkbox" name="content_media_ids[]" value="{{ $asset->id }}" @checked(in_array($asset->id,$selectedContent,true))>
