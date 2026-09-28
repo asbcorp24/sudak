@@ -39,7 +39,6 @@ try{
   <nav class="main-nav d-none d-lg-flex ms-auto align-items-center gap-1">
    <a href="{{ route('specialties.index') }}">Специальности</a>
    <a href="{{ route('schedule.index') }}">Расписание</a>
-  <a href="{{ route('employees.index') }}">Сотрудники</a>
    <a href="{{ route('employees.index') }}">Сотрудники</a>
    @foreach($mainMenu as $item)
     @if($item->childrenRecursive->count())
