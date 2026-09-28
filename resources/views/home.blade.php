@@ -69,8 +69,10 @@
  </div>
  <div class="row g-4">
  @foreach($news as $post)
+  @php($cover=$post->getMedia('cover')->first())
   <div class="col-md-6 col-xl-4">
-   <a class="news-card" href="{{ route('news.show',$post->slug) }}">
+   <a class="news-card {{ $cover?'has-cover':'' }}" href="{{ route('news.show',$post->slug) }}">
+    @if($cover)<span class="news-card-cover"><img src="{{ $cover->url }}" alt="{{ $cover->alt ?: $post->title }}"></span>@endif
     <span>{{ optional($post->published_at)->format('d.m.Y') }}</span>
     <h3>{{ $post->title }}</h3>
     <p>{{ $post->excerpt }}</p>
