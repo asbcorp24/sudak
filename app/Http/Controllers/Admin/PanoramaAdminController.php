@@ -56,9 +56,18 @@ class PanoramaAdminController extends Controller
     {
         $panorama->load(['hotspots.targetPanorama']);
 
+        $builderHotspots=$panorama->hotspots->map(fn($hotspot)=>[
+            'id'=>'hs-'.$hotspot->id,
+            'pitch'=>(float)$hotspot->pitch,
+            'yaw'=>(float)$hotspot->yaw,
+            'type'=>'info',
+            'text'=>($hotspot->type==='scene'?'Переход → ':'').$hotspot->title,
+        ])->values()->all();
+
         return view('admin.panoramas.builder',[
             'panorama'=>$panorama,
             'targets'=>Panorama::where('id','!=',$panorama->id)->orderBy('sort')->orderBy('title')->get(),
+            'builderHotspots'=>$builderHotspots,
         ]);
     }
 
