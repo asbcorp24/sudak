@@ -6,9 +6,9 @@
  <div class="hero-grid"></div>
 
  <div class="hero-hud">
-  <div><span>SHIPYARD / 01</span><b>DIGITAL TWIN</b></div>
-  <div><span>ENGINEERING CORE</span><b>ONLINE</b></div>
-  <div><span>REALTIME 3D</span><b>THREE.JS</b></div>
+  <div><span>КОРАБЛЬ / STL</span><b>3D MODEL</b></div>
+  <div><span>ДЛИНА × ШИРИНА</span><b>37,19 × 5,32 М</b></div>
+  <div><span>ВЫСОТА</span><b>12,96 М</b></div>
  </div>
 
  <div class="hero-axis axis-x">X / 128.42</div>
@@ -22,7 +22,7 @@
    <a class="btn-tech" href="{{ route('specialties.index') }}">{{ $homeSettings['home_primary_button'] ?? 'Выбрать специальность' }} <span>↗</span></a>
    <a class="btn-ghost" href="{{ route('admission.create') }}">{{ $homeSettings['home_secondary_button'] ?? 'Поступление 2026' }}</a>
   </div>
-  <div class="hero-interact reveal"><i></i> Перетаскивай цифровую верфь мышью</div>
+  <div class="hero-interact reveal"><i></i> Перетаскивай 3D-корабль мышью · Ctrl + колесо — масштаб</div>
  </div>
 
  <div class="hero-stats">
