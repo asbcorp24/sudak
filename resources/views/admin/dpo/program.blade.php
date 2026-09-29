@@ -16,10 +16,20 @@
    </div>
    <div class="field"><label>Название</label><input class="form-control" name="title" value="{{ $program->title }}" required></div>
    <div class="field"><label>Slug</label><input class="form-control" name="slug" value="{{ $program->slug }}"></div>
+   <div class="field"><label>Квалификация</label><input class="form-control" name="qualification" value="{{ $program->qualification }}"></div>
+   <div class="field"><label>Вид выдаваемого документа</label><input class="form-control" name="document_type" value="{{ $program->document_type }}"></div>
    <div class="field"><label>Описание</label><textarea class="form-control" rows="5" name="description">{{ $program->description }}</textarea></div>
    <div class="field"><label>Результаты обучения</label><textarea class="form-control" rows="5" name="learning_outcomes">{{ $program->learning_outcomes }}</textarea></div>
    <div class="field"><label>Порядок</label><input type="number" min="0" class="form-control" name="sort" value="{{ $program->sort }}"></div>
-   <label class="check"><input type="checkbox" name="is_published" value="1" @checked($program->is_published)> Показывать слушателям</label>
+   <label class="check"><input type="checkbox" name="is_published" value="1" @checked($program->is_published)> Опубликовать программу</label>
+   <label class="check"><input type="checkbox" name="applications_open" value="1" @checked($program->applications_open)> Принимать заявки с сайта</label>
+   <div class="mt-3"><span class="eyebrow">КРИТЕРИИ АТТЕСТАЦИИ</span></div>
+   <div class="row g-2">
+    <div class="col-6 field"><label>Уроки, минимум %</label><input type="number" min="0" max="100" class="form-control" name="min_progress_percent" value="{{ $program->min_progress_percent }}"></div>
+    <div class="col-6 field"><label>Посещаемость, минимум %</label><input type="number" min="0" max="100" class="form-control" name="min_attendance_percent" value="{{ $program->min_attendance_percent }}"></div>
+    <div class="col-6 field"><label>Домашние работы, минимум %</label><input type="number" min="0" max="100" class="form-control" name="min_homework_percent" value="{{ $program->min_homework_percent }}"></div>
+    <div class="col-6 field"><label>SCORM / тест, минимум %</label><input type="number" min="0" max="100" class="form-control" name="min_scorm_percent" value="{{ $program->min_scorm_percent }}"></div>
+   </div>
    <button class="btn-tech w-100 justify-content-center">Сохранить программу</button>
   </form>
  </div>
