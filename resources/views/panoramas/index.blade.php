@@ -115,7 +115,7 @@ html.a11y-no-motion .pano360 .pano-card,html.a11y-no-motion .pano360 .pano-thumb
   document.body.style.overflow='hidden';
 
   const scenes=@json($pannellumScenes);
-  const sceneMeta=@json($panoramas->mapWithKeys(fn($p)=>[$p->slug=>['title'=>$p->title,'location'=>$p->location]]));
+  const sceneMeta=@json($pannellumSceneMeta);
   viewer=pannellum.viewer(stage,{
    default:{
     firstScene:button.dataset.scene,
