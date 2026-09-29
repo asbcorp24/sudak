@@ -2,6 +2,8 @@
 @section('heading','ДПО / LMS')
 @section('content')
 <div class="d-flex justify-content-end gap-2 flex-wrap mb-3">
+ <a class="btn-ghost" href="{{ route('admin.dpo.index') }}">Текущие программы</a>
+ <a class="btn-ghost" href="{{ route('admin.dpo.index',['archive'=>1]) }}">Архив программ</a>
  <a class="btn-ghost" target="_blank" href="{{ route('dpo.catalog') }}">Каталог ДПО ↗</a>
  <a class="btn-ghost" href="{{ route('admin.dpo.applications.index') }}">Заявки <b>{{ $pendingApplications }}</b></a>
  <a class="btn-ghost" href="{{ route('admin.dpo.documents.index') }}">Реестр документов <b>{{ $issuedDocuments }}</b></a>
