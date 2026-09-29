@@ -280,8 +280,11 @@ function shipyard(api){
 
  const ship=new THREE.Group();
  // Keep the vessel above the slipway and inside the unobstructed part of the hero.
- ship.position.set(1.35,.48,.3);
- ship.rotation.y=-.22;
+ const shipBaseY=.48;
+ const shipBaseRotationY=-.22;
+ ship.position.set(1.35,shipBaseY,.3);
+ ship.rotation.y=shipBaseRotationY;
+ ship.scale.setScalar(.94);
  dock.add(ship);
 
  const makeLabel=(text)=>{
@@ -357,14 +360,13 @@ function shipyard(api){
   const targetLength=5.45;
   const modelScale=targetLength/size.x;
 
-  const vesselMaterial=new THREE.MeshStandardMaterial({
-   color:0x1769d2,
-   metalness:.58,
-   roughness:.28,
+  // The real STL is rendered as a technical wireframe instead of a solid blue hull.
+  const vesselMaterial=new THREE.MeshBasicMaterial({
+   color:0x2f8cff,
+   wireframe:true,
    transparent:true,
-   opacity:.88,
-   emissive:0x1769d2,
-   emissiveIntensity:.035,
+   opacity:.20,
+   depthWrite:false,
    side:THREE.DoubleSide
   });
   const vessel=new THREE.Mesh(geometry,vesselMaterial);
@@ -375,7 +377,7 @@ function shipyard(api){
 
   const edges=new THREE.LineSegments(
    new THREE.EdgesGeometry(geometry,18),
-   new THREE.LineBasicMaterial({color:0xd7eaff,transparent:true,opacity:.58})
+   new THREE.LineBasicMaterial({color:0x1769d2,transparent:true,opacity:.92})
   );
   edges.scale.setScalar(modelScale);
   ship.add(edges);
@@ -453,6 +455,44 @@ function shipyard(api){
    'Высота 12,96 м',
    new THREE.Vector3(-.18,0,0)
   );
+
+  // CAD-style scanner: a luminous transverse slice slowly travels along the hull.
+  const scanner=new THREE.Group();
+  const scanPlane=new THREE.Mesh(
+   new THREE.PlaneGeometry(width*1.55,height*1.65),
+   new THREE.MeshBasicMaterial({
+    color:0x69b8ff,
+    transparent:true,
+    opacity:.075,
+    side:THREE.DoubleSide,
+    depthWrite:false,
+    blending:THREE.AdditiveBlending
+   })
+  );
+  scanPlane.rotation.y=Math.PI/2;
+  scanner.add(scanPlane);
+  const scanLine=new THREE.Mesh(
+   new THREE.BoxGeometry(.018,height*1.55,width*1.32),
+   new THREE.MeshBasicMaterial({
+    color:0xbfe3ff,
+    transparent:true,
+    opacity:.34,
+    depthWrite:false,
+    blending:THREE.AdditiveBlending
+   })
+  );
+  scanner.add(scanLine);
+  scanner.position.x=-halfL*.92;
+  scanner.renderOrder=14;
+  ship.add(scanner);
+
+  t.push(time=>{
+   const travel=(time*.22)%1;
+   scanner.position.x=THREE.MathUtils.lerp(-halfL*.92,halfL*.92,travel);
+   const pulse=.72+Math.sin(time*3.2)*.18;
+   scanPlane.material.opacity=.055*pulse;
+   scanLine.material.opacity=.28+.12*Math.sin(time*3.2);
+  });
  },undefined,error=>{
   console.error('Homepage ship STL failed to load',error);
   const fallback=new THREE.Mesh(
@@ -485,6 +525,16 @@ function shipyard(api){
  rings(dock,a,5,2.1);
  t.push((x)=>{
   water.position.z=Math.sin(x*.4)*.04;
+
+  // Subtle launch/float motion. The ship moves; the slipway and cranes stay fixed.
+  if(ship.userData.revealStart===undefined) ship.userData.revealStart=x;
+  const reveal=THREE.MathUtils.clamp((x-ship.userData.revealStart)/1.45,0,1);
+  const ease=1-Math.pow(1-reveal,3);
+  ship.scale.setScalar(.94+.06*ease);
+  ship.position.y=shipBaseY+Math.sin(x*.58)*.032;
+  ship.rotation.x=Math.sin(x*.43)*.006;
+  ship.rotation.y=shipBaseRotationY+Math.sin(x*.21)*.012;
+  ship.rotation.z=Math.sin(x*.51)*.012;
  });
 }
 
