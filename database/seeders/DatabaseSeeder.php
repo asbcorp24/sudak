@@ -152,6 +152,7 @@ class DatabaseSeeder extends Seeder
    CompetitionsSeeder::class,
    QuizzesSeeder::class,
    OfficialDocumentCategoriesSeeder::class,
+   DpoProgramsSeeder::class,
   ]);
  }
 }
