@@ -56,5 +56,18 @@
    </aside>
   </div>
  </div>
+  @if($issuedDocuments->count())
+  <div class="glass-panel mt-4">
+   <span class="eyebrow">DOCUMENTS</span><h3 class="mt-2">Мои документы ДПО</h3>
+   <div class="dpo-admin-simple-list">
+    @foreach($issuedDocuments as $document)
+     <a target="_blank" href="{{ route('dpo.document.verify',$document->verification_code) }}">
+      <span><b>{{ $document->document_type }} · {{ trim(($document->series ?: '').' '.$document->number) }}</b><small>{{ $document->program->title }} · {{ $document->issued_at->format('d.m.Y') }}</small></span>
+      <span>Проверить ↗</span>
+     </a>
+    @endforeach
+   </div>
+  </div>
+  @endif
 </section>
 @endsection
