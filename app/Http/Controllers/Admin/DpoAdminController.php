@@ -3,6 +3,9 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\DpoAnnouncement;
+use App\Models\DpoApplication;
+use App\Models\DpoAttestation;
+use App\Models\DpoIssuedDocument;
 use App\Models\DpoAssignment;
 use App\Models\DpoAttendance;
 use App\Models\DpoEnrollment;
@@ -19,8 +22,10 @@ use App\Models\DpoSubmission;
 use App\Models\MediaAsset;
 use App\Models\User;
 use App\Services\DpoScormImporter;
+use App\Services\DpoCompletionService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
@@ -36,6 +41,8 @@ class DpoAdminController extends Controller
             'teachers'=>DpoProfile::where('role','teacher')->count(),
             'activeGroups'=>DpoGroup::where('status','active')->count(),
             'submissionsToReview'=>DpoSubmission::where('status','submitted')->count(),
+            'pendingApplications'=>DpoApplication::where('status','pending')->count(),
+            'issuedDocuments'=>DpoIssuedDocument::where('status','issued')->count(),
         ]);
     }
 
@@ -87,13 +94,18 @@ class DpoAdminController extends Controller
         return back()->with('ok','Группа создана');
     }
 
-    public function showGroup(DpoGroup $group)
+    public function showGroup(DpoGroup $group,DpoCompletionService $completion)
     {
         $group->load([
             'program.modules.lessons',
             'enrollments.user.dpoProfile',
+            'enrollments.attestation.document',
             'scheduleEntries'=>fn($q)=>$q->with(['lesson','teacher','attendance'])->orderBy('starts_at'),
         ]);
+
+        $completionMetrics=$group->enrollments
+            ->where('role','student')
+            ->mapWithKeys(fn($enrollment)=>[$enrollment->id=>$completion->metrics($enrollment)]);
 
         $submissions=DpoSubmission::with(['assignment.lesson','user','media'])
             ->where('group_id',$group->id)
@@ -119,6 +131,7 @@ class DpoAdminController extends Controller
                 ->groupBy('user_id')
                 ->get()
                 ->keyBy('user_id'),
+            'completionMetrics'=>$completionMetrics,
         ]);
     }
 
@@ -654,6 +667,201 @@ class DpoAdminController extends Controller
         return back()->with('ok','Результат проверки сохранён');
     }
 
+    public function applications(Request $request)
+    {
+        $query=DpoApplication::with(['program','group','user','processor'])->latest();
+        if($status=$request->string('status')->toString()){
+            if(in_array($status,['pending','approved','rejected','enrolled','completed','archived'],true)) $query->where('status',$status);
+        }
+        if($search=trim($request->string('q')->toString())){
+            $query->where(fn($q)=>$q->where('name','like','%'.$search.'%')->orWhere('email','like','%'.$search.'%')->orWhere('phone','like','%'.$search.'%'));
+        }
+        return view('admin.dpo.applications',[
+            'applications'=>$query->paginate(40)->withQueryString(),
+            'groups'=>DpoGroup::with('program')->whereIn('status',['draft','active'])->orderByDesc('starts_on')->get(),
+            'status'=>$status??null,
+        ]);
+    }
+
+    public function approveApplication(Request $request,DpoApplication $application)
+    {
+        abort_unless(in_array($application->status,['pending','approved'],true),422);
+
+        $data=$request->validate([
+            'group_id'=>['required','exists:dpo_groups,id'],
+            'initial_password'=>['nullable','string','min:6','max:255'],
+            'admin_note'=>['nullable','string','max:3000'],
+        ]);
+
+        $group=DpoGroup::findOrFail($data['group_id']);
+        if($group->program_id!==$application->program_id){
+            throw ValidationException::withMessages(['group_id'=>'Выбранная группа относится к другой программе.']);
+        }
+
+        $generatedPassword=null;
+
+        DB::transaction(function() use($request,$application,$group,$data,&$generatedPassword){
+            $user=User::where('email',$application->email)->first();
+
+            if(!$user){
+                $generatedPassword=$data['initial_password'] ?: Str::random(10);
+                $user=User::create([
+                    'name'=>$application->name,
+                    'email'=>$application->email,
+                    'password'=>Hash::make($generatedPassword),
+                    'is_admin'=>false,
+                ]);
+            }
+
+            DpoProfile::updateOrCreate(
+                ['user_id'=>$user->id],
+                [
+                    'role'=>'student',
+                    'phone'=>$application->phone,
+                    'organization'=>$application->organization,
+                    'is_active'=>true,
+                ]
+            );
+
+            DpoEnrollment::updateOrCreate(
+                ['group_id'=>$group->id,'user_id'=>$user->id,'role'=>'student'],
+                ['status'=>'active','enrolled_at'=>now(),'completed_at'=>null]
+            );
+
+            $application->update([
+                'group_id'=>$group->id,
+                'user_id'=>$user->id,
+                'status'=>'enrolled',
+                'admin_note'=>$data['admin_note']??null,
+                'processed_by'=>$request->user()->id,
+                'processed_at'=>now(),
+                'enrolled_at'=>now(),
+            ]);
+        });
+
+        $response=back()->with('ok','Заявка подтверждена, слушатель зачислен в группу.');
+        if($generatedPassword){
+            $response->with('dpo_credentials',[
+                'name'=>$application->name,
+                'email'=>$application->email,
+                'password'=>$generatedPassword,
+            ]);
+        }
+        return $response;
+    }
+
+    public function rejectApplication(Request $request,DpoApplication $application)
+    {
+        $data=$request->validate(['admin_note'=>['nullable','string','max:3000']]);
+        $application->update([
+            'status'=>'rejected',
+            'admin_note'=>$data['admin_note']??null,
+            'processed_by'=>$request->user()->id,
+            'processed_at'=>now(),
+        ]);
+        return back()->with('ok','Заявка отклонена.');
+    }
+
+    public function attest(Request $request,DpoEnrollment $enrollment,DpoCompletionService $completion)
+    {
+        abort_unless($enrollment->role==='student',404);
+        $data=$request->validate([
+            'status'=>['required','in:passed,failed'],
+            'result_text'=>['nullable','string','max:255'],
+            'notes'=>['nullable','string','max:3000'],
+        ]);
+        $metrics=$completion->metrics($enrollment);
+
+        if($data['status']==='passed' && !$metrics['ready']){
+            throw ValidationException::withMessages(['status'=>'Нельзя завершить аттестацию: не выполнены установленные критерии программы.']);
+        }
+
+        $attestation=DpoAttestation::updateOrCreate(
+            ['enrollment_id'=>$enrollment->id],
+            array_merge($metrics,[
+                'status'=>$data['status'],
+                'result_text'=>$data['result_text']??($data['status']==='passed'?'Зачтено':'Не зачтено'),
+                'notes'=>$data['notes']??null,
+                'assessed_by'=>$request->user()->id,
+                'assessed_at'=>now(),
+            ])
+        );
+
+        if($attestation->status==='passed'){
+            $enrollment->update(['status'=>'completed','completed_at'=>now()]);
+            DpoApplication::where('user_id',$enrollment->user_id)
+                ->where('program_id',$enrollment->group->program_id)
+                ->whereIn('status',['approved','enrolled'])
+                ->update(['status'=>'completed']);
+        }
+
+        return back()->with('ok',$attestation->status==='passed'?'Аттестация пройдена. Можно выдать документ.':'Результат аттестации сохранён.');
+    }
+
+    public function issueDocument(Request $request,DpoAttestation $attestation)
+    {
+        $attestation->load('enrollment.group.program','enrollment.user','document');
+        abort_unless($attestation->status==='passed',422);
+        if($attestation->document) return back()->withErrors(['document'=>'Документ по этой аттестации уже выдан.']);
+
+        $data=$request->validate([
+            'series'=>['nullable','string','max:40'],
+            'number'=>['nullable','string','max:80',Rule::unique('dpo_issued_documents','number')],
+            'issued_at'=>['required','date'],
+            'note'=>['nullable','string','max:3000'],
+        ]);
+
+        $enrollment=$attestation->enrollment;
+        $program=$enrollment->group->program;
+        $number=$data['number'] ?: 'ДПО-'.date('Y').'-'.str_pad((string)$attestation->id,6,'0',STR_PAD_LEFT);
+
+        $document=DpoIssuedDocument::create([
+            'attestation_id'=>$attestation->id,
+            'enrollment_id'=>$enrollment->id,
+            'user_id'=>$enrollment->user_id,
+            'program_id'=>$program->id,
+            'group_id'=>$enrollment->group_id,
+            'document_type'=>$program->document_type,
+            'series'=>$data['series']??null,
+            'number'=>$number,
+            'issued_at'=>$data['issued_at'],
+            'hours'=>$program->hours,
+            'qualification'=>$program->qualification,
+            'verification_code'=>Str::upper(Str::random(12)),
+            'status'=>'issued',
+            'note'=>$data['note']??null,
+        ]);
+
+        DpoApplication::where('user_id',$enrollment->user_id)
+            ->where('program_id',$program->id)
+            ->where('status','completed')
+            ->update(['status'=>'archived']);
+
+        return back()->with('ok','Документ выдан. Код проверки: '.$document->verification_code);
+    }
+
+    public function documents(Request $request)
+    {
+        $query=DpoIssuedDocument::with(['user','program','group'])->latest('issued_at');
+        if($search=trim($request->string('q')->toString())){
+            $query->where(function($q) use($search){
+                $q->where('number','like','%'.$search.'%')
+                    ->orWhere('verification_code','like','%'.$search.'%')
+                    ->orWhereHas('user',fn($u)=>$u->where('name','like','%'.$search.'%')->orWhere('email','like','%'.$search.'%'));
+            });
+        }
+        return view('admin.dpo.documents',['documents'=>$query->paginate(50)->withQueryString()]);
+    }
+
+    public function archiveGroup(DpoGroup $group)
+    {
+        if($group->enrollments()->where('role','student')->where('status','active')->exists()){
+            return back()->withErrors(['group'=>'В группе ещё есть активные слушатели. Сначала завершите их обучение.']);
+        }
+        $group->update(['status'=>'archived']);
+        return back()->with('ok','Группа перенесена в архив.');
+    }
+
     private function programData(Request $request,?int $id=null): array
     {
         $data=$request->validate([
@@ -661,13 +869,26 @@ class DpoAdminController extends Controller
             'title'=>['required','string','max:255'],
             'slug'=>['nullable','string','max:191',Rule::unique('dpo_programs','slug')->ignore($id)],
             'hours'=>['required','integer','min:0','max:100000'],
+            'qualification'=>['nullable','string','max:255'],
+            'document_type'=>['nullable','string','max:255'],
             'description'=>['nullable','string','max:20000'],
             'learning_outcomes'=>['nullable','string','max:20000'],
             'sort'=>['nullable','integer','min:0','max:9999'],
             'is_published'=>['nullable','boolean'],
+            'applications_open'=>['nullable','boolean'],
+            'min_progress_percent'=>['nullable','integer','min:0','max:100'],
+            'min_attendance_percent'=>['nullable','integer','min:0','max:100'],
+            'min_homework_percent'=>['nullable','integer','min:0','max:100'],
+            'min_scorm_percent'=>['nullable','integer','min:0','max:100'],
         ]);
         $data['sort']=(int)$request->input('sort',0);
         $data['is_published']=$request->boolean('is_published');
+        $data['applications_open']=$request->boolean('applications_open');
+        $data['document_type']=$data['document_type'] ?: 'Удостоверение о повышении квалификации';
+        $data['min_progress_percent']=(int)$request->input('min_progress_percent',100);
+        $data['min_attendance_percent']=(int)$request->input('min_attendance_percent',0);
+        $data['min_homework_percent']=(int)$request->input('min_homework_percent',0);
+        $data['min_scorm_percent']=(int)$request->input('min_scorm_percent',70);
         return $data;
     }
 }
