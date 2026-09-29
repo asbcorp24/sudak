@@ -1,11 +1,13 @@
 @extends('admin.layout')
 @section('heading','Сотрудники')
 @section('content')
+@php($scheduleOnly=auth()->user()->adminScope()==='schedule')
 <div class="admin-actions">
  <div><p>Единый справочник руководства, преподавателей и сотрудников. Преподаватели из этого раздела используются в расписании.</p></div>
  <a class="btn-tech" href="{{ route('admin.employees.create') }}">+ Добавить сотрудника</a>
 </div>
 
+@unless($scheduleOnly)
 <div class="d-flex gap-2 flex-wrap mb-4">
  <a class="{{ !$activeType?'btn-tech':'btn-ghost' }}" href="{{ route('admin.employees.index') }}">Все</a>
  <a class="{{ $activeType==='leadership'?'btn-tech':'btn-ghost' }}" href="{{ route('admin.employees.index',['type'=>'leadership']) }}">Руководство</a>
@@ -13,6 +15,7 @@
  <a class="{{ $activeType==='staff'?'btn-tech':'btn-ghost' }}" href="{{ route('admin.employees.index',['type'=>'staff']) }}">Сотрудники</a>
  <a class="btn-ghost ms-auto" target="_blank" href="{{ route('employees.index') }}">Открыть раздел ↗</a>
 </div>
+@endunless
 
 <div class="table-responsive">
  <table class="table tech-table align-middle">
