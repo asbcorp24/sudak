@@ -861,3 +861,58 @@ html.a11y-high-contrast body{background:#000!important;color:#fff!important}
 .admin-scope-help b{color:#0b2b55;margin-bottom:4px}
 .admin-scope-help span{font-size:.7rem;color:#687f97;line-height:1.5}
 .admin-account-card{padding:16px;margin-bottom:8px;border:1px solid rgba(23,105,210,.12);background:#fff}
+
+
+/* Schedule admin: force blue-white form controls */
+.admin-body .schedule-edit-form,
+.admin-body .schedule-admin-filter{
+ color-scheme:light;
+}
+.admin-body .schedule-edit-form .glass-panel{
+ background:#fff!important;
+ border-color:rgba(23,105,210,.14)!important;
+ color:#0b2b55!important;
+ box-shadow:0 10px 30px rgba(31,76,136,.05)!important;
+}
+.admin-body .schedule-edit-form label{
+ color:#55708c!important;
+}
+.admin-body .schedule-edit-form .form-control,
+.admin-body .schedule-edit-form .form-select,
+.admin-body .schedule-admin-filter .form-control,
+.admin-body .schedule-admin-filter .form-select{
+ color-scheme:light!important;
+ background-color:#fff!important;
+ color:#0b2b55!important;
+ border:1px solid rgba(23,105,210,.22)!important;
+ -webkit-text-fill-color:#0b2b55!important;
+}
+.admin-body .schedule-edit-form .form-control:focus,
+.admin-body .schedule-edit-form .form-select:focus,
+.admin-body .schedule-admin-filter .form-control:focus,
+.admin-body .schedule-admin-filter .form-select:focus{
+ background-color:#fff!important;
+ color:#0b2b55!important;
+ border-color:#1769d2!important;
+ box-shadow:0 0 0 3px rgba(23,105,210,.1)!important;
+}
+.admin-body .schedule-edit-form .form-select option,
+.admin-body .schedule-admin-filter .form-select option{
+ background:#fff!important;
+ color:#0b2b55!important;
+}
+.admin-body .schedule-edit-form input[type="date"],
+.admin-body .schedule-edit-form input[type="time"],
+.admin-body .schedule-admin-filter input[type="date"],
+.admin-body .schedule-admin-filter input[type="time"]{
+ color-scheme:light!important;
+ background:#fff!important;
+ color:#0b2b55!important;
+}
+.admin-body .schedule-edit-form input[type="date"]::-webkit-calendar-picker-indicator,
+.admin-body .schedule-edit-form input[type="time"]::-webkit-calendar-picker-indicator,
+.admin-body .schedule-admin-filter input[type="date"]::-webkit-calendar-picker-indicator,
+.admin-body .schedule-admin-filter input[type="time"]::-webkit-calendar-picker-indicator{
+ opacity:.7;
+ filter:none!important;
+}
