@@ -61,7 +61,10 @@
   </article>
  @endforeach
 </div>
-<div class="mt-4">{{ $assets->links() }}</div>
+<div class="list-pagination mt-4">
+ <small>Показано {{ $assets->firstItem() }}–{{ $assets->lastItem() }} из {{ $assets->total() }}</small>
+ {{ $assets->links() }}
+</div>
 @else
 <div class="glass-panel">Медиатека пока пуста.</div>
 @endif
