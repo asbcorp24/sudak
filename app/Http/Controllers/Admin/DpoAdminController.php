@@ -1134,12 +1134,34 @@ class DpoAdminController extends Controller
             $group->update(['status'=>'archived']);
         }
 
+        app(StudentNotificationService::class)->notifyUsers(
+            User::whereKey($enrollment->user_id)->get(),
+            'dpo_document',
+            'Документ ДПО готов',
+            $document->document_type.' · '.trim(($document->series ?: '').' '.$document->number),
+            route('dpo.document.verify',$document->verification_code),
+            'dpo-document-'.$document->id
+        );
+
         return back()->with('ok','Документ выдан. Код проверки: '.$document->verification_code);
+    }
+
+    public function toggleDocument(DpoIssuedDocument $document)
+    {
+        if($document->status==='issued'){
+            $document->update(['status'=>'revoked','revoked_at'=>now()]);
+            return back()->with('ok','Документ перенесён в архив / отозван.');
+        }
+        $document->update(['status'=>'issued','revoked_at'=>null]);
+        return back()->with('ok','Документ восстановлен в реестре.');
     }
 
     public function documents(Request $request)
     {
         $query=DpoIssuedDocument::with(['user','program','group'])->latest('issued_at');
+        if(in_array($request->string('status')->toString(),['issued','revoked'],true)){
+            $query->where('status',$request->string('status')->toString());
+        }
         if($search=trim($request->string('q')->toString())){
             $query->where(function($q) use($search){
                 $q->where('number','like','%'.$search.'%')
