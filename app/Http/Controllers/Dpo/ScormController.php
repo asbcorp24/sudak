@@ -100,7 +100,7 @@ class ScormController extends Controller
 
     public function runtime(Request $request,DpoScormAttempt $attempt)
     {
-        abort_unless($request->user()->is_admin || $attempt->user_id===$request->user()->id,403);
+        abort_unless(($request->user()->is_admin && $request->user()->canAdmin('dpo')) || $attempt->user_id===$request->user()->id,403);
 
         $data=$request->validate([
             'values'=>['nullable','array','max:500'],
@@ -176,7 +176,7 @@ class ScormController extends Controller
 
     private function authorizeGroup(Request $request,DpoGroup $group): void
     {
-        if($request->user()->is_admin) return;
+        if($request->user()->is_admin && $request->user()->canAdmin('dpo')) return;
         abort_unless(
             $group->enrollments()->where('user_id',$request->user()->id)->where('status','active')->exists(),
             403
