@@ -160,6 +160,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth','admin'])->group(func
  Route::post('dpo/enrollments/{enrollment}/attest',[DpoAdminController::class,'attest'])->name('dpo.attestations.store');
  Route::post('dpo/attestations/{attestation}/document',[DpoAdminController::class,'issueDocument'])->name('dpo.documents.issue');
  Route::get('dpo/documents',[DpoAdminController::class,'documents'])->name('dpo.documents.index');
+ Route::post('dpo/documents/{document}/toggle',[DpoAdminController::class,'toggleDocument'])->name('dpo.documents.toggle');
  Route::post('dpo/groups/{group}/archive',[DpoAdminController::class,'archiveGroup'])->name('dpo.groups.archive');
 
  Route::post('dpo/programs',[DpoAdminController::class,'storeProgram'])->name('dpo.programs.store');
