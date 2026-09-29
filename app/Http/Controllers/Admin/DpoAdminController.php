@@ -13,6 +13,7 @@ use App\Models\DpoProfile;
 use App\Models\DpoProgram;
 use App\Models\DpoScheduleEntry;
 use App\Models\DpoScormPackage;
+use App\Models\DpoScormAttempt;
 use App\Models\DpoSubmission;
 use App\Models\MediaAsset;
 use App\Models\User;
@@ -98,6 +99,11 @@ class DpoAdminController extends Controller
             ->latest('submitted_at')
             ->get();
 
+        $scormAttempts=DpoScormAttempt::with(['package.lesson','user'])
+            ->where('group_id',$group->id)
+            ->latest('last_accessed_at')
+            ->get();
+
         return view('admin.dpo.group',[
             'group'=>$group,
             'users'=>User::with('dpoProfile')
@@ -105,6 +111,7 @@ class DpoAdminController extends Controller
                 ->orderBy('name')->get(),
             'teachers'=>User::whereHas('dpoProfile',fn($q)=>$q->where('role','teacher')->where('is_active',true))->orderBy('name')->get(),
             'submissions'=>$submissions,
+            'scormAttempts'=>$scormAttempts,
         ]);
     }
 
