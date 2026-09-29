@@ -67,7 +67,7 @@
        @php($submission=$submissions->get($assignment->id))
        @php($pivot=$assignment->groups->firstWhere('id',$group->id)?->pivot)
        <article class="dpo-homework-card">
-        <div class="d-flex justify-content-between gap-3 flex-wrap"><div><h3>{{ $assignment->title }}</h3><p>{{ $assignment->description }}</p></div><div class="dpo-homework-meta"><b>{{ $assignment->max_score }}</b><small>макс. балл</small>@if($pivot?->due_at)<strong>до {{ IlluminateSupportCarbon::parse($pivot->due_at)->format('d.m.Y H:i') }}</strong>@endif</div></div>
+        <div class="d-flex justify-content-between gap-3 flex-wrap"><div><h3>{{ $assignment->title }}</h3><p>{{ $assignment->description }}</p></div><div class="dpo-homework-meta"><b>{{ $assignment->max_score }}</b><small>макс. балл</small>@if($pivot?->due_at)<strong>до {{ \Illuminate\Support\Carbon::parse($pivot->due_at)->format('d.m.Y H:i') }}</strong>@endif</div></div>
         @if($submission)
          <div class="dpo-submission-state {{ $submission->status }}"><b>{{ ['draft'=>'Черновик','submitted'=>'Отправлено','reviewed'=>'Проверено','returned'=>'На доработку'][$submission->status] }}</b>@if($submission->score!==null)<span>{{ $submission->score }} / {{ $assignment->max_score }}</span>@endif @if($submission->feedback)<p>{{ $submission->feedback }}</p>@endif</div>
         @endif
