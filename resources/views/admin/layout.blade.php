@@ -35,6 +35,7 @@
    <a href="{{ route('admin.questions.index') }}">Вопросы и обращения</a>
 
    <span class="admin-nav-group">АКТИВНОСТИ</span>
+   <a href="{{ route('admin.calendar.index') }}">Календарь колледжа</a>
    <a href="{{ route('admin.competitions.index') }}">Конкурсы и достижения</a>
    <a href="{{ route('admin.quizzes.index') }}">Викторины</a>
 
