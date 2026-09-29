@@ -71,7 +71,9 @@ class OfficialDocumentAdminController extends Controller
         $data=$this->documentData($request,true);
 
         DB::transaction(function() use($data,$request){
-            $document=OfficialDocument::create($data);
+            $documentData=$data;
+            unset($documentData['change_note']);
+            $document=OfficialDocument::create($documentData);
             OfficialDocumentVersion::create([
                 'official_document_id'=>$document->id,
                 'media_asset_id'=>$data['media_asset_id'],
