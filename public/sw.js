@@ -1,4 +1,4 @@
-const VERSION='zsk-pwa-v1';
+const VERSION='zsk-pwa-v2';
 const STATIC_CACHE=VERSION+'-static';
 const RUNTIME_CACHE=VERSION+'-runtime';
 const OFFLINE_URL='/offline.html';
@@ -76,4 +76,36 @@ self.addEventListener('fetch',event=>{
 
 self.addEventListener('message',event=>{
   if(event.data==='SKIP_WAITING') self.skipWaiting();
+});
+
+
+self.addEventListener('push',event=>{
+  let data={};
+  try{ data=event.data ? event.data.json() : {}; }catch(e){ data={body:event.data?.text()||''}; }
+  const title=data.title||'ЗСК';
+  const options={
+    body:data.body||'',
+    icon:data.icon||'/pwa/icon.svg',
+    badge:data.badge||'/pwa/icon.svg',
+    data:{url:data.url||'/student/notifications'},
+    tag:data.tag||undefined,
+    renotify:false
+  };
+  event.waitUntil(self.registration.showNotification(title,options));
+});
+
+self.addEventListener('notificationclick',event=>{
+  event.notification.close();
+  const target=event.notification.data?.url||'/student/notifications';
+  event.waitUntil(
+    self.clients.matchAll({type:'window',includeUncontrolled:true}).then(clients=>{
+      for(const client of clients){
+        if('focus' in client){
+          client.navigate(target).catch(()=>{});
+          return client.focus();
+        }
+      }
+      return self.clients.openWindow ? self.clients.openWindow(target) : null;
+    })
+  );
 });
