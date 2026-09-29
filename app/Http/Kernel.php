@@ -25,6 +25,7 @@ class Kernel extends HttpKernel{
   'auth'=>\App\Http\Middleware\Authenticate::class,
   'guest'=>\App\Http\Middleware\RedirectIfAuthenticated::class,
   'admin'=>\App\Http\Middleware\AdminMiddleware::class,
+  'dpo'=>\App\Http\Middleware\DpoMiddleware::class,
   'throttle'=>\Illuminate\Routing\Middleware\ThrottleRequests::class,
   'verified'=>\Illuminate\Auth\Middleware\RequirePassword::class,
  ];
