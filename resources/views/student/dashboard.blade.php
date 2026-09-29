@@ -1,6 +1,7 @@
 @extends('layouts.app')
 @section('title','Личный кабинет студента — ЗСК')
 @section('content')
+<div class="student-dashboard-light">
 <section class="student-dashboard-hero"><div class="container-xxl">
  <div><span class="eyebrow">STUDENT / DASHBOARD</span><h1>{{ $user->name }}</h1><p>{{ $user->scheduleGroup?->name ? 'Группа '.$user->scheduleGroup->name : 'Учебная группа не выбрана' }}</p></div>
  <div class="student-hero-actions"><a class="btn-ghost" href="{{ route('student.notifications') }}">Уведомления @if($unread)<span class="student-notification-badge">{{ $unread }}</span>@endif</a><form method="post" action="{{ route('student.logout') }}">@csrf<button class="btn-ghost">Выйти</button></form></div>
@@ -54,4 +55,5 @@
   </aside>
  </div>
 </div></section>
+</div>
 @endsection
