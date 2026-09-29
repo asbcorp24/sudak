@@ -85,4 +85,11 @@ class PublicController extends Controller
             ->where('verification_code',$code)->firstOrFail();
         return view('dpo-public.document',compact('document'));
     }
+
+    public function printDocument(string $code)
+    {
+        $document=DpoIssuedDocument::with(['user','program','group'])
+            ->where('verification_code',$code)->where('status','issued')->firstOrFail();
+        return view('dpo-public.document-print',compact('document'));
+    }
 }
