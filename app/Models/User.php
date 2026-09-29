@@ -9,11 +9,12 @@ class User extends Authenticatable
 {
     use HasFactory,Notifiable;
 
-    protected $fillable=['name','email','password','is_admin','admin_scope','user_type','schedule_group_id','student_number','notify_schedule','notify_news','notify_events'];
+    protected $fillable=['name','email','password','is_admin','admin_scope','user_type','schedule_group_id','student_number','student_approval_status','student_approved_at','student_approved_by','notify_schedule','notify_news','notify_events'];
     protected $hidden=['password','remember_token'];
-    protected $casts=['email_verified_at'=>'datetime','is_admin'=>'boolean','notify_schedule'=>'boolean','notify_news'=>'boolean','notify_events'=>'boolean'];
+    protected $casts=['email_verified_at'=>'datetime','student_approved_at'=>'datetime','is_admin'=>'boolean','notify_schedule'=>'boolean','notify_news'=>'boolean','notify_events'=>'boolean'];
 
     public function scheduleGroup(){return $this->belongsTo(ScheduleGroup::class,'schedule_group_id');}
+    public function studentApprovedBy(){return $this->belongsTo(User::class,'student_approved_by');}
     public function eventRegistrations(){return $this->hasMany(EventRegistration::class);}
     public function userNotifications(){return $this->hasMany(UserNotification::class);}
     public function pushSubscriptions(){return $this->hasMany(PushSubscription::class);}
