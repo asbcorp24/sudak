@@ -14,6 +14,11 @@ use App\Http\Controllers\CompetitionController;
 use App\Http\Controllers\QuizController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\OfficialDocumentController;
+use App\Http\Controllers\Dpo\AuthController as DpoAuthController;
+use App\Http\Controllers\Dpo\DashboardController as DpoDashboardController;
+use App\Http\Controllers\Dpo\CourseController as DpoCourseController;
+use App\Http\Controllers\Dpo\AssignmentController as DpoAssignmentController;
+use App\Http\Controllers\Dpo\ScormController as DpoScormController;
 use App\Http\Controllers\Admin\AuthController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\PageAdminController;
@@ -31,6 +36,7 @@ use App\Http\Controllers\Admin\QuizAdminController;
 use App\Http\Controllers\Admin\SettingsAdminController;
 use App\Http\Controllers\Admin\EmployeeAdminController;
 use App\Http\Controllers\Admin\OfficialDocumentAdminController;
+use App\Http\Controllers\Admin\DpoAdminController;
 
 Route::get('/',HomeController::class)->name('home');
 
@@ -62,6 +68,21 @@ Route::post('/quizzes/{quiz}',[QuizController::class,'submit'])->name('quizzes.s
 Route::get('/quiz-results/{token}',[QuizController::class,'result'])->name('quizzes.result');
 Route::get('/certificates/{code}',[QuizController::class,'certificate'])->name('quizzes.certificate');
 
+Route::get('/dpo/login',[DpoAuthController::class,'show'])->name('dpo.login');
+Route::post('/dpo/login',[DpoAuthController::class,'login'])->name('dpo.login.post');
+
+Route::prefix('dpo')->name('dpo.')->middleware(['auth','dpo'])->group(function(){
+ Route::get('/',[DpoDashboardController::class,'index'])->name('dashboard');
+ Route::post('/logout',[DpoAuthController::class,'logout'])->name('logout');
+ Route::get('/schedule',[DpoCourseController::class,'schedule'])->name('schedule');
+ Route::get('/groups/{group}',[DpoCourseController::class,'group'])->name('groups.show');
+ Route::get('/groups/{group}/lessons/{lesson}',[DpoCourseController::class,'lesson'])->name('lessons.show');
+ Route::post('/groups/{group}/lessons/{lesson}/complete',[DpoCourseController::class,'complete'])->name('lessons.complete');
+ Route::post('/groups/{group}/assignments/{assignment}',[DpoAssignmentController::class,'submit'])->name('assignments.submit');
+ Route::get('/scorm/{package}/launch',[DpoScormController::class,'launch'])->name('scorm.launch');
+ Route::post('/scorm/attempts/{attempt}/runtime',[DpoScormController::class,'runtime'])->name('scorm.runtime');
+});
+
 Route::get('/news',[NewsController::class,'index'])->name('news.index');
 Route::get('/news/{slug}',[NewsController::class,'show'])->name('news.show');
 Route::get('/section/{slug}',[PageController::class,'show'])->name('pages.show');
@@ -77,6 +98,33 @@ Route::prefix('admin')->name('admin.')->middleware(['auth','admin'])->group(func
  Route::resource('news',NewsAdminController::class)->except('show');
  Route::resource('specialties',SpecialtyAdminController::class)->except('show');
  Route::resource('employees',EmployeeAdminController::class)->except('show');
+
+ Route::get('dpo',[DpoAdminController::class,'index'])->name('dpo.index');
+ Route::post('dpo/programs',[DpoAdminController::class,'storeProgram'])->name('dpo.programs.store');
+ Route::get('dpo/programs/{program}',[DpoAdminController::class,'showProgram'])->name('dpo.programs.show');
+ Route::put('dpo/programs/{program}',[DpoAdminController::class,'updateProgram'])->name('dpo.programs.update');
+ Route::delete('dpo/programs/{program}',[DpoAdminController::class,'destroyProgram'])->name('dpo.programs.destroy');
+ Route::post('dpo/programs/{program}/groups',[DpoAdminController::class,'storeGroup'])->name('dpo.groups.store');
+ Route::get('dpo/groups/{group}',[DpoAdminController::class,'showGroup'])->name('dpo.groups.show');
+ Route::put('dpo/groups/{group}',[DpoAdminController::class,'updateGroup'])->name('dpo.groups.update');
+ Route::post('dpo/users',[DpoAdminController::class,'storeUser'])->name('dpo.users.store');
+ Route::post('dpo/groups/{group}/enroll',[DpoAdminController::class,'enroll'])->name('dpo.enroll');
+ Route::delete('dpo/enrollments/{enrollment}',[DpoAdminController::class,'destroyEnrollment'])->name('dpo.enrollments.destroy');
+ Route::post('dpo/programs/{program}/modules',[DpoAdminController::class,'storeModule'])->name('dpo.modules.store');
+ Route::post('dpo/modules/{module}/lessons',[DpoAdminController::class,'storeLesson'])->name('dpo.lessons.store');
+ Route::get('dpo/lessons/{lesson}/edit',[DpoAdminController::class,'editLesson'])->name('dpo.lessons.edit');
+ Route::put('dpo/lessons/{lesson}',[DpoAdminController::class,'updateLesson'])->name('dpo.lessons.update');
+ Route::delete('dpo/lessons/{lesson}',[DpoAdminController::class,'destroyLesson'])->name('dpo.lessons.destroy');
+ Route::post('dpo/lessons/{lesson}/resources',[DpoAdminController::class,'storeResource'])->name('dpo.resources.store');
+ Route::delete('dpo/resources/{resource}',[DpoAdminController::class,'destroyResource'])->name('dpo.resources.destroy');
+ Route::post('dpo/lessons/{lesson}/assignments',[DpoAdminController::class,'storeAssignment'])->name('dpo.assignments.store');
+ Route::post('dpo/assignments/{assignment}/groups/{group}',[DpoAdminController::class,'updateAssignmentGroup'])->name('dpo.assignments.group');
+ Route::post('dpo/groups/{group}/schedule',[DpoAdminController::class,'storeSchedule'])->name('dpo.schedule.store');
+ Route::delete('dpo/schedule/{entry}',[DpoAdminController::class,'destroySchedule'])->name('dpo.schedule.destroy');
+ Route::post('dpo/groups/{group}/announcements',[DpoAdminController::class,'storeAnnouncement'])->name('dpo.announcements.store');
+ Route::post('dpo/lessons/{lesson}/scorm',[DpoAdminController::class,'uploadScorm'])->name('dpo.scorm.store');
+ Route::delete('dpo/scorm/{package}',[DpoAdminController::class,'destroyScorm'])->name('dpo.scorm.destroy');
+ Route::post('dpo/submissions/{submission}/review',[DpoAdminController::class,'reviewSubmission'])->name('dpo.submissions.review');
 
  Route::get('official-documents',[OfficialDocumentAdminController::class,'index'])->name('official-documents.index');
  Route::post('official-document-categories',[OfficialDocumentAdminController::class,'storeCategory'])->name('official-documents.categories.store');
