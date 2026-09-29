@@ -178,4 +178,14 @@ try{
  <div class="col-lg-2"><h6>Колледж</h6><a href="{{ route('employees.index') }}">Сотрудники</a><br><a href="{{ route('calendar.index') }}">Календарь</a><br><a href="{{ route('official-documents.index') }}">Документы</a><br><a href="{{ route('cooperation.index') }}">Сотрудничество</a><br><a href="{{ route('competitions.index') }}">Достижения</a><br><a href="{{ route('pages.show','sveden') }}">Сведения</a></div>
 </div></div></footer>
 @stack('scripts')
+<script>
+document.querySelectorAll('.public-mobile-menu details').forEach(function(section){
+ section.addEventListener('toggle',function(){
+  if(!section.open) return;
+  document.querySelectorAll('.public-mobile-menu details').forEach(function(other){
+   if(other!==section) other.open=false;
+  });
+ });
+});
+</script>
 </body></html>
