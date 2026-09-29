@@ -43,27 +43,41 @@ class AuthController extends Controller
             'schedule_group_id'=>$data['schedule_group_id'],
             'student_number'=>$data['student_number']??null,
             'user_type'=>'student',
+            'student_approval_status'=>'pending',
+            'student_approved_at'=>null,
+            'student_approved_by'=>null,
             'password'=>Hash::make($data['password']),
         ]);
 
-        Auth::login($user);
-        $request->session()->regenerate();
-        return redirect()->intended(route('student.dashboard'))->with('ok','Личный кабинет создан');
+        return redirect()->route('student.login')->with('registration_pending',
+            'Регистрация отправлена администратору. Войти в личный кабинет можно будет после подтверждения учётной записи.'
+        );
     }
 
     public function login(Request $request)
     {
         $credentials=$request->validate(['email'=>['required','email'],'password'=>['required','string']]);
 
-        if(!Auth::attempt($credentials,$request->boolean('remember'))){
+        $user=User::where('email',$credentials['email'])->first();
+
+        if(!$user || !Hash::check($credentials['password'],$user->password)){
             return back()->withErrors(['email'=>'Неверный email или пароль'])->onlyInput('email');
         }
 
-        $request->session()->regenerate();
-        if(Auth::user()->user_type!=='student'){
-            Auth::logout();
-            return back()->withErrors(['email'=>'Эта учётная запись не является кабинетом студента.']);
+        if($user->user_type!=='student'){
+            return back()->withErrors(['email'=>'Эта учётная запись не является кабинетом студента.'])->onlyInput('email');
         }
+
+        if($user->student_approval_status==='pending'){
+            return back()->withErrors(['email'=>'Регистрация ещё не подтверждена администратором. После подтверждения вы сможете войти.'])->onlyInput('email');
+        }
+
+        if($user->student_approval_status==='rejected'){
+            return back()->withErrors(['email'=>'Регистрация отклонена администратором. Обратитесь в колледж для уточнения данных.'])->onlyInput('email');
+        }
+
+        Auth::login($user,$request->boolean('remember'));
+        $request->session()->regenerate();
 
         return redirect()->intended(route('student.dashboard'));
     }
