@@ -7,6 +7,7 @@ use App\Models\DpoLesson;
 use App\Models\DpoLessonProgress;
 use App\Models\DpoScheduleEntry;
 use App\Models\DpoSubmission;
+use App\Models\DpoIssuedDocument;
 use Illuminate\Http\Request;
 
 class DashboardController extends Controller
@@ -53,6 +54,12 @@ class DashboardController extends Controller
             ];
         }
 
-        return view('dpo.dashboard',compact('enrollments','todaySchedule','pendingSubmissions','progress'));
+        $issuedDocuments=DpoIssuedDocument::with(['program','group'])
+            ->where('user_id',$user->id)
+            ->where('status','issued')
+            ->latest('issued_at')
+            ->get();
+
+        return view('dpo.dashboard',compact('enrollments','todaySchedule','pendingSubmissions','progress','issuedDocuments'));
     }
 }
