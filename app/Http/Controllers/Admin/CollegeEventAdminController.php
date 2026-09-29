@@ -51,6 +51,19 @@ class CollegeEventAdminController extends Controller
         $data=$this->data($request,$calendar->id);
         $data['slug']=$data['slug']?:Str::slug($data['title']).'-'.$calendar->id;
         $calendar->update($data);
+
+        if($wasPublished && $calendar->is_published && $calendar->wasChanged(['title','starts_at','ends_at','location'])){
+            $participants=$calendar->registrations()->where('status','registered')->with('user')->get()->pluck('user')->filter()->values();
+            if($participants->isNotEmpty()){
+                $notifications->notifyUsers(
+                    $participants,'event','Изменилось мероприятие',
+                    $calendar->title.' · '.$calendar->starts_at->translatedFormat('d F, H:i').($calendar->location?' · '.$calendar->location:''),
+                    route('calendar.show',$calendar->slug),
+                    'event-change:'.$calendar->id.':'.$calendar->updated_at->timestamp
+                );
+            }
+        }
+
         if($calendar->is_published && $calendar->registration_enabled && (!$wasPublished || !$wasRegistrationEnabled)){
             $notifications->notifyAllStudents('event','Открыта регистрация',$calendar->title,route('calendar.show',$calendar->slug),'event-open:'.$calendar->id);
         }
