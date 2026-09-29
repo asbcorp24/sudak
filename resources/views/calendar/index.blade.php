@@ -21,7 +21,7 @@
    </div>
   </div>
 
-  <div class="calendar-grid">
+  <div class="calendar-grid-scroll"><div class="calendar-grid">
    @foreach(['ПН','ВТ','СР','ЧТ','ПТ','СБ','ВС'] as $weekday)<div class="calendar-weekday">{{ $weekday }}</div>@endforeach
    @foreach($days as $day)
     @php($dayEvents=$eventsByDate->get($day->format('Y-m-d'),collect()))
@@ -34,7 +34,7 @@
      </div>
     </div>
    @endforeach
-  </div>
+  </div></div>
 
   <div class="calendar-list-head"><span class="eyebrow">EVENTS / {{ $cursor->format('m.Y') }}</span><h2>События месяца</h2></div>
   <div class="calendar-event-list">
