@@ -14,6 +14,7 @@ use App\Http\Controllers\CompetitionController;
 use App\Http\Controllers\QuizController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\OfficialDocumentController;
+use App\Http\Controllers\CollegeCalendarController;
 use App\Http\Controllers\Dpo\AuthController as DpoAuthController;
 use App\Http\Controllers\Dpo\DashboardController as DpoDashboardController;
 use App\Http\Controllers\Dpo\CourseController as DpoCourseController;
@@ -38,8 +39,12 @@ use App\Http\Controllers\Admin\EmployeeAdminController;
 use App\Http\Controllers\Admin\OfficialDocumentAdminController;
 use App\Http\Controllers\Admin\DpoAdminController;
 use App\Http\Controllers\Admin\AdminUserController;
+use App\Http\Controllers\Admin\CollegeEventAdminController;
 
 Route::get('/',HomeController::class)->name('home');
+
+Route::get('/calendar',[CollegeCalendarController::class,'index'])->name('calendar.index');
+Route::get('/calendar/{slug}',[CollegeCalendarController::class,'show'])->name('calendar.show');
 
 Route::get('/specialties',[SpecialtyController::class,'index'])->name('specialties.index');
 Route::get('/specialties/{slug}',[SpecialtyController::class,'show'])->name('specialties.show');
@@ -106,6 +111,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth','admin'])->group(func
  Route::resource('news',NewsAdminController::class)->except('show');
  Route::resource('specialties',SpecialtyAdminController::class)->except('show');
  Route::resource('employees',EmployeeAdminController::class)->except('show');
+ Route::resource('calendar',CollegeEventAdminController::class)->except('show');
 
  Route::get('dpo',[DpoAdminController::class,'index'])->name('dpo.index');
  Route::post('dpo/programs',[DpoAdminController::class,'storeProgram'])->name('dpo.programs.store');
