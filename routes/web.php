@@ -113,6 +113,7 @@ Route::prefix('dpo')->name('dpo.')->middleware(['auth','dpo'])->group(function()
  Route::get('/',[DpoDashboardController::class,'index'])->name('dashboard');
  Route::post('/logout',[DpoAuthController::class,'logout'])->name('logout');
  Route::get('/schedule',[DpoCourseController::class,'schedule'])->name('schedule');
+ Route::get('/calendar',[DpoDashboardController::class,'calendar'])->name('calendar');
  Route::get('/profile',[DpoAuthController::class,'profile'])->name('profile');
  Route::put('/profile',[DpoAuthController::class,'updateProfile'])->name('profile.update');
  Route::get('/groups/{group}',[DpoCourseController::class,'group'])->name('groups.show');
@@ -171,6 +172,10 @@ Route::prefix('admin')->name('admin.')->middleware(['auth','admin'])->group(func
  Route::get('dpo/groups/{group}',[DpoAdminController::class,'showGroup'])->name('dpo.groups.show');
  Route::get('dpo/groups/{group}/journal',[DpoAdminController::class,'journal'])->name('dpo.groups.journal');
  Route::put('dpo/groups/{group}',[DpoAdminController::class,'updateGroup'])->name('dpo.groups.update');
+ Route::post('dpo/import-students',[DpoAdminController::class,'importStudents'])->name('dpo.import.students');
+ Route::get('dpo/groups/{group}/report/excel',[DpoAdminController::class,'groupReportExcel'])->name('dpo.groups.report.excel');
+ Route::get('dpo/groups/{group}/report/print',[DpoAdminController::class,'groupReportPrint'])->name('dpo.groups.report.print');
+ Route::get('dpo/groups/{group}/scorm-analytics',[DpoAdminController::class,'scormAnalytics'])->name('dpo.groups.scorm');
  Route::get('dpo/users',[DpoAdminController::class,'users'])->name('dpo.users.index');
  Route::post('dpo/users',[DpoAdminController::class,'storeUser'])->name('dpo.users.store');
  Route::put('dpo/users/{user}',[DpoAdminController::class,'updateUser'])->name('dpo.users.update');
