@@ -250,6 +250,10 @@ Route::prefix('admin')->name('admin.')->middleware(['auth','admin'])->group(func
 
  Route::get('panoramas',[PanoramaAdminController::class,'index'])->name('panoramas.index');
  Route::post('panoramas',[PanoramaAdminController::class,'store'])->name('panoramas.store');
+ Route::get('panoramas/{panorama}/builder',[PanoramaAdminController::class,'builder'])->name('panoramas.builder');
+ Route::post('panoramas/{panorama}/hotspots',[PanoramaAdminController::class,'storeHotspot'])->name('panoramas.hotspots.store');
+ Route::put('panorama-hotspots/{hotspot}',[PanoramaAdminController::class,'updateHotspot'])->name('panoramas.hotspots.update');
+ Route::delete('panorama-hotspots/{hotspot}',[PanoramaAdminController::class,'destroyHotspot'])->name('panoramas.hotspots.destroy');
  Route::put('panoramas/{panorama}',[PanoramaAdminController::class,'update'])->name('panoramas.update');
  Route::delete('panoramas/{panorama}',[PanoramaAdminController::class,'destroy'])->name('panoramas.destroy');
 
