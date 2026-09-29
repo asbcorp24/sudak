@@ -279,7 +279,8 @@ function shipyard(api){
  }
 
  const ship=new THREE.Group();
- ship.position.set(1.1,-.55,.3);
+ // Keep the vessel above the slipway and inside the unobstructed part of the hero.
+ ship.position.set(1.35,.48,.3);
  ship.rotation.y=-.22;
  dock.add(ship);
 
@@ -304,7 +305,7 @@ function shipyard(api){
   const texture=new THREE.CanvasTexture(canvas);
   texture.colorSpace=THREE.SRGBColorSpace;
   const sprite=new THREE.Sprite(new THREE.SpriteMaterial({map:texture,transparent:true,depthTest:false}));
-  sprite.scale.set(1.55,.39,1);
+  sprite.scale.set(1.28,.32,1);
   sprite.renderOrder=20;
   return sprite;
  };
@@ -352,7 +353,8 @@ function shipyard(api){
   geometry.translate(-center.x,-center.y,-center.z);
   geometry.rotateX(-Math.PI/2);
 
-  const targetLength=7.1;
+  // A slightly smaller model leaves breathing room around the hull and dimensions.
+  const targetLength=5.45;
   const modelScale=targetLength/size.x;
 
   const vesselMaterial=new THREE.MeshStandardMaterial({
@@ -383,6 +385,55 @@ function shipyard(api){
   const width=size.y*modelScale;
   const height=size.z*modelScale;
   const halfL=length/2,halfW=width/2,halfH=height/2;
+
+  // Transverse frames (шпангоуты). They form a light technical skeleton around
+  // the hull without replacing or hiding the STL surface.
+  const frames=new THREE.Group();
+  frames.name='ship-frames';
+  const frameMaterial=new THREE.LineBasicMaterial({
+   color:0x4aa3ff,
+   transparent:true,
+   opacity:.78,
+   depthTest:false
+  });
+  const frameCount=15;
+  for(let i=0;i<frameCount;i++){
+   const ratio=i/(frameCount-1);
+   const x=-halfL*.88+ratio*(halfL*1.76);
+   const longitudinal=Math.abs(x)/(halfL*.88);
+   const taper=Math.max(.34,1-Math.pow(longitudinal,2)*.64);
+   const beam=halfW*taper;
+   const deckY=-halfH*.03;
+   const bilgeY=-halfH*.52;
+   const keelY=-halfH*.79;
+   const points=[
+    new THREE.Vector3(x,deckY,-beam*.92),
+    new THREE.Vector3(x,bilgeY,-beam),
+    new THREE.Vector3(x,keelY,-beam*.40),
+    new THREE.Vector3(x,-halfH*.88,0),
+    new THREE.Vector3(x,keelY,beam*.40),
+    new THREE.Vector3(x,bilgeY,beam),
+    new THREE.Vector3(x,deckY,beam*.92)
+   ];
+   const frame=new THREE.Line(
+    new THREE.BufferGeometry().setFromPoints(points),
+    frameMaterial
+   );
+   frame.renderOrder=12;
+   frames.add(frame);
+
+   // Short deck beam makes every frame read as a real transverse section.
+   const deckBeam=new THREE.Line(
+    new THREE.BufferGeometry().setFromPoints([
+     new THREE.Vector3(x,deckY,-beam*.92),
+     new THREE.Vector3(x,deckY,beam*.92)
+    ]),
+    frameMaterial
+   );
+   deckBeam.renderOrder=12;
+   frames.add(deckBeam);
+  }
+  ship.add(frames);
 
   addDimension(
    new THREE.Vector3(-halfL,-halfH-.30,halfW+.34),
