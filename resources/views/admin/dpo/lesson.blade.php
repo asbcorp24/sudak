@@ -98,7 +98,7 @@
       @php($pivot=$assignment->groups->firstWhere('id',$group->id)?->pivot)
       <form method="post" action="{{ route('admin.dpo.assignments.group',[$assignment,$group]) }}" class="mt-2">@csrf
        <small>{{ $group->name }}</small>
-       <div class="row g-1"><div class="col-6"><input type="datetime-local" class="form-control form-control-sm" name="available_from" value="{{ $pivot?->available_from ? IlluminateSupportCarbon::parse($pivot->available_from)->format('Y-m-d\TH:i') : '' }}"></div><div class="col-6"><input type="datetime-local" class="form-control form-control-sm" name="due_at" value="{{ $pivot?->due_at ? IlluminateSupportCarbon::parse($pivot->due_at)->format('Y-m-d\TH:i') : '' }}"></div></div>
+       <div class="row g-1"><div class="col-6"><input type="datetime-local" class="form-control form-control-sm" name="available_from" value="{{ $pivot?->available_from ? \Illuminate\Support\Carbon::parse($pivot->available_from)->format('Y-m-d\TH:i') : '' }}"></div><div class="col-6"><input type="datetime-local" class="form-control form-control-sm" name="due_at" value="{{ $pivot?->due_at ? \Illuminate\Support\Carbon::parse($pivot->due_at)->format('Y-m-d\TH:i') : '' }}"></div></div>
        <button class="btn-ghost mt-1">Сроки</button>
       </form>
      @endforeach
