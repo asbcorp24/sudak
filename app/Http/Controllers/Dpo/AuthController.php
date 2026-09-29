@@ -2,6 +2,7 @@
 namespace App\Http\Controllers\Dpo;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -11,8 +12,18 @@ class AuthController extends Controller
 {
     public function show()
     {
-        if (Auth::check()) return redirect()->route('dpo.dashboard');
-        return view('dpo.login');
+        $user=Auth::user();
+
+        if ($user) {
+            $adminHasDpoAccess=$user->is_admin && $user->canAdmin('dpo');
+            $hasDpoAccess=$adminHasDpoAccess || ($user->dpoProfile && $user->dpoProfile->is_active);
+
+            if ($hasDpoAccess) {
+                return redirect()->route('dpo.dashboard');
+            }
+        }
+
+        return view('dpo.login',['currentUser'=>$user]);
     }
 
     public function login(Request $request)
@@ -22,21 +33,24 @@ class AuthController extends Controller
             'password'=>['required','string'],
         ]);
 
-        if (!Auth::attempt($credentials,$request->boolean('remember'))) {
+        $user=User::where('email',$credentials['email'])->first();
+
+        if (!$user || !Hash::check($credentials['password'],$user->password)) {
             return back()->withErrors(['email'=>'Неверный логин или пароль'])->onlyInput('email');
         }
-
-        $request->session()->regenerate();
-        $user=Auth::user();
 
         $adminHasDpoAccess=$user->is_admin && $user->canAdmin('dpo');
 
         if (!$adminHasDpoAccess && (!$user->dpoProfile || !$user->dpoProfile->is_active)) {
-            Auth::logout();
-            return back()->withErrors(['email'=>'Для этой учётной записи доступ к ДПО не активирован.']);
+            return back()
+                ->withErrors(['email'=>'Для этой учётной записи доступ к ДПО не активирован. Если вы слушатель ДПО, используйте выданную вам учётную запись ДПО.'])
+                ->onlyInput('email');
         }
 
-        return redirect()->intended(route('dpo.dashboard'));
+        Auth::login($user,$request->boolean('remember'));
+        $request->session()->regenerate();
+
+        return redirect()->route('dpo.dashboard');
     }
 
     public function profile(Request $request)
