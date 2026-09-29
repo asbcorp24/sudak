@@ -25,4 +25,24 @@ class OfficialDocument extends Model
     {
         return $this->belongsTo(MediaAsset::class, 'media_asset_id');
     }
+
+    public function versions()
+    {
+        return $this->hasMany(OfficialDocumentVersion::class)->orderByDesc('is_current')->orderByDesc('effective_date')->orderByDesc('id');
+    }
+
+    public function publishedVersions()
+    {
+        return $this->versions()->where('is_published',true);
+    }
+
+    public function currentVersion()
+    {
+        return $this->hasOne(OfficialDocumentVersion::class)->where('is_current',true);
+    }
+
+    public function scopePublished($query)
+    {
+        return $query->where('is_published',true);
+    }
 }
