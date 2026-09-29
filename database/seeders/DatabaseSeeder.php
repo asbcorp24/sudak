@@ -20,7 +20,7 @@ class DatabaseSeeder extends Seeder
 
   User::updateOrCreate(
    ['email'=>env('ADMIN_EMAIL','admin@zsk.local')],
-   ['name'=>'Администратор','password'=>Hash::make($adminPassword),'is_admin'=>true]
+   ['name'=>'Администратор','password'=>Hash::make($adminPassword),'is_admin'=>true,'admin_scope'=>'full']
   );
 
   foreach([
