@@ -1,4 +1,4 @@
-const VERSION='zsk-pwa-v3';
+const VERSION='zsk-pwa-v4';
 const STATIC_CACHE=VERSION+'-static';
 const RUNTIME_CACHE=VERSION+'-runtime';
 const OFFLINE_URL='/offline.html';
