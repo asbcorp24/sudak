@@ -93,13 +93,7 @@
 <script>
 (()=>{
  if(typeof pannellum==='undefined')return;
- const existing=@json($panorama->hotspots->map(fn($h)=>[
-  'id'=>'hs-'.$h->id,
-  'pitch'=>(float)$h->pitch,
-  'yaw'=>(float)$h->yaw,
-  'type'=>'info',
-  'text'=>($h->type==='scene'?'Переход → ':'').$h->title,
- ]));
+ const existing=@json($builderHotspots);
  const viewer=pannellum.viewer('hotspotPanorama',{
   type:'equirectangular',
   panorama:@json($panorama->image_url),
