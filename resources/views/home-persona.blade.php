@@ -1,3 +1,18 @@
+<style>
+/* Critical light palette: kept inline so an old PWA stylesheet cannot darken this block. */
+.home-persona{background:linear-gradient(180deg,#f5faff 0%,#edf6fd 100%)!important;color:#17364d!important;border-color:#d5e5f0!important}
+.home-persona .home-persona-shell{background:#fff!important;border-color:#cfe0ec!important;box-shadow:0 18px 55px rgba(27,74,109,.10)!important}
+.home-persona .home-persona-heading{background:linear-gradient(135deg,#fff 0%,#f5faff 100%)!important;border-color:#dbe8f1!important}
+.home-persona .home-persona-heading h2,.home-persona .home-persona-result-copy h3,.home-persona .home-persona-switch b,.home-persona .home-persona-actions a>b{color:#123a5a!important}
+.home-persona .home-persona-heading p,.home-persona .home-persona-result-copy p,.home-persona .home-persona-switch small,.home-persona .home-persona-actions a>small{color:#647e91!important}
+.home-persona .eyebrow,.home-persona .home-persona-switch button.active>span,.home-persona .home-persona-actions a>span{color:#1769d2!important}
+.home-persona .home-persona-switch,.home-persona .home-persona-result,.home-persona .home-persona-actions{background:#d7e5ef!important}
+.home-persona .home-persona-switch button,.home-persona .home-persona-actions a{background:#fff!important;color:#17364d!important}
+.home-persona .home-persona-switch button:hover,.home-persona .home-persona-actions a:hover{background:#f0f7fd!important;color:#0d4f91!important}
+.home-persona .home-persona-switch button.active{background:linear-gradient(145deg,#e8f4ff,#f8fbff)!important;box-shadow:inset 0 -4px 0 #1769d2!important}
+.home-persona .home-persona-result-copy{background:#f5faff!important}
+.home-persona .home-persona-reset{background:#fff!important;color:#527087!important;border-color:#c9dce9!important}
+</style>
 <section class="home-persona" data-home-persona @if(auth()->check() && auth()->user()->user_type==='student') data-default-persona="student" @endif>
  <div class="container-xxl">
   <div class="home-persona-shell">
