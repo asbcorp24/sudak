@@ -48,7 +48,7 @@ class NewsAdminController extends Controller
         $post->syncMediaCollection('cover', $cover ? [$cover] : []);
         $post->syncMediaCollection('content', $content);
 
-        if($post->is_published){
+        if($post->is_published && $post->published_at && $post->published_at->lte(now())){
             $notifications->notifyAllStudents('news','Опубликована новость',$post->title,route('news.show',$post->slug),'news-published:'.$post->id);
         }
 
@@ -71,7 +71,7 @@ class NewsAdminController extends Controller
         $news->syncMediaCollection('cover', $cover ? [$cover] : []);
         $news->syncMediaCollection('content', $content);
 
-        if(!$wasPublished && $news->is_published){
+        if(!$wasPublished && $news->is_published && $news->published_at && $news->published_at->lte(now())){
             $notifications->notifyAllStudents('news','Опубликована новость',$news->title,route('news.show',$news->slug),'news-published:'.$news->id);
         }
 
