@@ -60,6 +60,7 @@ Route::get('/employees',[EmployeeController::class,'index'])->name('employees.in
 Route::get('/section/teachers',fn()=>redirect()->route('employees.index',['type'=>'teacher'],301));
 Route::get('/section/management',fn()=>redirect()->route('employees.index',['type'=>'leadership'],301));
 
+Route::get('/documents',[OfficialDocumentController::class,'index'])->name('document-center.index');
 Route::get('/sveden/documents',[OfficialDocumentController::class,'index'])->name('official-documents.index');
 Route::get('/section/documents',fn()=>redirect()->route('official-documents.index',[],301));
 
@@ -176,6 +177,10 @@ Route::prefix('admin')->name('admin.')->middleware(['auth','admin'])->group(func
  Route::post('official-documents',[OfficialDocumentAdminController::class,'storeDocument'])->name('official-documents.store');
  Route::put('official-documents/{document}',[OfficialDocumentAdminController::class,'updateDocument'])->name('official-documents.update');
  Route::delete('official-documents/{document}',[OfficialDocumentAdminController::class,'destroyDocument'])->name('official-documents.destroy');
+ Route::post('official-documents/{document}/versions',[OfficialDocumentAdminController::class,'storeVersion'])->name('official-documents.versions.store');
+ Route::put('official-documents/{document}/versions/{version}',[OfficialDocumentAdminController::class,'updateVersion'])->name('official-documents.versions.update');
+ Route::patch('official-documents/{document}/versions/{version}/current',[OfficialDocumentAdminController::class,'makeVersionCurrent'])->name('official-documents.versions.current');
+ Route::delete('official-documents/{document}/versions/{version}',[OfficialDocumentAdminController::class,'destroyVersion'])->name('official-documents.versions.destroy');
 
  Route::get('settings',[SettingsAdminController::class,'edit'])->name('settings');
  Route::post('settings',[SettingsAdminController::class,'update'])->name('settings.update');
