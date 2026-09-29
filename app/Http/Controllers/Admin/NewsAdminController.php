@@ -11,10 +11,25 @@ use Illuminate\Validation\ValidationException;
 
 class NewsAdminController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+        $data=$request->validate([
+            'date_from'=>['nullable','date'],
+            'date_to'=>['nullable','date','after_or_equal:date_from'],
+        ]);
+
+        $query=NewsPost::with('media')->latest('published_at');
+
+        if(!empty($data['date_from'])){
+            $query->where('published_at','>=',$data['date_from'].' 00:00:00');
+        }
+
+        if(!empty($data['date_to'])){
+            $query->where('published_at','<=',$data['date_to'].' 23:59:59');
+        }
+
         return view('admin.news.index', [
-            'posts' => NewsPost::with('media')->latest('published_at')->paginate(30),
+            'posts'=>$query->paginate(15)->withQueryString(),
         ]);
     }
 
