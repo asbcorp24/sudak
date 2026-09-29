@@ -1024,3 +1024,52 @@ html.a11y-high-contrast body{background:#000!important;color:#fff!important}
  .dpo-journal-table th,.dpo-journal-table td{padding:7px!important;color:#000!important;background:#fff!important;border-color:#bbb!important}
  .dpo-journal-head h2,.dpo-journal-head p,.dpo-journal-head small{color:#000!important}
 }
+
+
+/* Lists: pagination and news date filters */
+.news-date-filter,.admin-list-filter{
+ display:grid;
+ grid-template-columns:minmax(180px,240px) minmax(180px,240px) auto;
+ gap:12px;
+ align-items:end;
+ padding:18px;
+ border:1px solid rgba(23,105,210,.15);
+ background:rgba(255,255,255,.92);
+ box-shadow:0 12px 35px rgba(31,76,136,.06);
+}
+.news-date-filter .form-control,.admin-list-filter .form-control{
+ color-scheme:light!important;
+ background:#fff!important;
+ color:#0b2b55!important;
+ border-color:rgba(23,105,210,.2)!important;
+ -webkit-text-fill-color:#0b2b55!important;
+}
+.news-date-filter-actions,.admin-list-filter-actions{display:flex;gap:8px;align-items:center}
+.list-pagination{display:flex;justify-content:space-between;align-items:center;gap:18px;flex-wrap:wrap}
+.list-pagination>small{color:#60758f}
+.list-pagination nav{margin-left:auto}
+.pagination{margin-bottom:0;gap:4px;flex-wrap:wrap}
+.pagination .page-link{
+ border-radius:6px!important;
+ background:#fff!important;
+ color:#1769d2!important;
+ border:1px solid rgba(23,105,210,.18)!important;
+ min-width:40px;
+ text-align:center;
+}
+.pagination .page-link:hover{background:#e8f1ff!important;color:#0b3f86!important}
+.pagination .page-item.active .page-link{
+ background:#1769d2!important;
+ border-color:#1769d2!important;
+ color:#fff!important;
+}
+.pagination .page-item.disabled .page-link{background:#f4f8ff!important;color:#9aabbd!important}
+.section-children-pagination{padding-top:12px;border-top:1px solid rgba(23,105,210,.12)}
+.section-children-pagination .pagination{justify-content:center}
+.section-children-pagination .page-link{min-width:34px;padding:.35rem .55rem;font-size:.72rem}
+@media(max-width:767px){
+ .news-date-filter,.admin-list-filter{grid-template-columns:1fr}
+ .news-date-filter-actions,.admin-list-filter-actions{flex-direction:column;align-items:stretch}
+ .list-pagination{align-items:flex-start;flex-direction:column}
+ .list-pagination nav{margin-left:0;width:100%;overflow-x:auto;padding-bottom:4px}
+}
