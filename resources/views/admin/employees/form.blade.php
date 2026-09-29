@@ -1,13 +1,21 @@
 @extends('admin.layout')
 @section('heading',$employee->exists?'Редактирование сотрудника':'Новый сотрудник')
 @section('content')
+@php($scheduleOnly=auth()->user()->adminScope()==='schedule')
 <form method="post" class="admin-form" action="{{ $employee->exists ? route('admin.employees.update',$employee) : route('admin.employees.store') }}">
  @csrf @if($employee->exists) @method('PUT') @endif
  <div class="row g-4">
   <div class="col-lg-8">
    <div class="glass-panel">
     <div class="row g-3">
-     <div class="col-md-4 field"><label>Тип</label><select class="form-select" name="employee_type"><option value="leadership" @selected(old('employee_type',$employee->employee_type)==='leadership')>Руководство</option><option value="teacher" @selected(old('employee_type',$employee->employee_type)==='teacher')>Преподаватель</option><option value="staff" @selected(old('employee_type',$employee->employee_type)==='staff')>Сотрудник</option></select></div>
+     <div class="col-md-4 field"><label>Тип</label>
+      @if($scheduleOnly)
+       <input type="hidden" name="employee_type" value="teacher">
+       <input class="form-control" value="Преподаватель" disabled>
+      @else
+       <select class="form-select" name="employee_type"><option value="leadership" @selected(old('employee_type',$employee->employee_type)==='leadership')>Руководство</option><option value="teacher" @selected(old('employee_type',$employee->employee_type)==='teacher')>Преподаватель</option><option value="staff" @selected(old('employee_type',$employee->employee_type)==='staff')>Сотрудник</option></select>
+      @endif
+     </div>
      <div class="col-md-8 field"><label>ФИО</label><input class="form-control" name="full_name" value="{{ old('full_name',$employee->full_name) }}" required></div>
      <div class="col-12 field"><label>Должность</label><input class="form-control" name="position" value="{{ old('position',$employee->position) }}"></div>
      <div class="col-12 field"><label>Дисциплины</label><textarea class="form-control" rows="3" name="disciplines">{{ old('disciplines',$employee->disciplines) }}</textarea></div>
