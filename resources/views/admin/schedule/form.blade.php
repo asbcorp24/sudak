@@ -1,7 +1,7 @@
 @extends('admin.layout')
 @section('heading',$entry->exists?'Редактирование занятия':'Новое занятие')
 @section('content')
-<form class="admin-form" method="post" action="{{ $entry->exists ? route('admin.schedule.update',$entry) : route('admin.schedule.store') }}">
+<form class="admin-form schedule-edit-form" method="post" action="{{ $entry->exists ? route('admin.schedule.update',$entry) : route('admin.schedule.store') }}">
  @csrf @if($entry->exists) @method('PUT') @endif
  <div class="row g-4">
   <div class="col-lg-8">
