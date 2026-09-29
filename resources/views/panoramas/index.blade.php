@@ -1,6 +1,11 @@
 @extends('layouts.app')
 @section('title','Панорамы 360° — Зеленодольский судостроительный колледж')
 @section('description','Виртуальные панорамы 360 градусов Зеленодольского судостроительного колледжа: учебные аудитории, мастерские и пространства колледжа.')
+
+@push('head')
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pannellum@2.5.7/build/pannellum.css">
+@endpush
+
 @section('content')
 <style>
 .pano360{--p-blue:#1769d2;--p-dark:#082f63;--p-line:#dbe8f7;color:#173653}
@@ -18,21 +23,25 @@
 .pano360 .pano-drag{position:absolute;left:16px;bottom:13px;z-index:3;color:#fff;font-size:12px;font-weight:750}.pano360 .pano-card-body{padding:17px 18px 19px}.pano360 .pano-location{font-size:11px;font-weight:850;color:var(--p-blue);text-transform:uppercase;letter-spacing:.08em}.pano360 .pano-card h3{font-size:19px;color:var(--p-dark);margin:5px 0 7px}.pano360 .pano-card p{font-size:14px;color:#69839d;margin:0 0 14px;min-height:40px}
 .pano360 .pano-open{border:0;border-radius:11px;background:#edf5ff;color:var(--p-blue);font-weight:800;padding:9px 13px;cursor:pointer}.pano360 .pano-open:hover{background:var(--p-blue);color:#fff}
 .pano-empty{grid-column:1/-1;background:#fff;border:1px dashed #bcd3eb;border-radius:18px;padding:36px;text-align:center;color:#6e879f}
-.pano-viewer{position:fixed;inset:0;z-index:10050;background:#020914;display:none;color:#fff}.pano-viewer.open{display:block}.pano-viewer canvas{width:100%;height:100%;display:block;touch-action:none;cursor:grab}.pano-viewer canvas.dragging{cursor:grabbing}
-.pano-viewer .pv-top{position:absolute;z-index:3;left:0;right:0;top:0;padding:18px 20px 44px;display:flex;justify-content:space-between;gap:15px;align-items:flex-start;background:linear-gradient(rgba(1,12,25,.82),transparent);pointer-events:none}.pano-viewer .pv-title{pointer-events:auto;text-shadow:0 2px 10px #000}.pano-viewer .pv-title small{display:block;color:#a9c8e8;margin-bottom:3px}.pano-viewer .pv-title b{font-size:20px}
-.pano-viewer .pv-actions{display:flex;gap:7px;pointer-events:auto}.pano-viewer .pv-btn{width:42px;height:42px;border-radius:12px;border:1px solid rgba(255,255,255,.25);background:rgba(3,27,53,.65);color:#fff;display:grid;place-items:center;font-size:19px;cursor:pointer;backdrop-filter:blur(7px)}.pano-viewer .pv-btn:hover{background:#1769d2}
-.pano-viewer .pv-bottom{position:absolute;z-index:3;bottom:20px;left:50%;transform:translateX(-50%);display:flex;gap:7px;background:rgba(3,27,53,.62);padding:7px;border:1px solid rgba(255,255,255,.2);border-radius:15px;backdrop-filter:blur(8px)}.pano-viewer .pv-bottom .pv-btn{background:transparent;border:0}
-.pano-viewer .pv-loading{position:absolute;inset:0;display:grid;place-items:center;background:#07192d;z-index:2;font-weight:750;color:#bcd8f5}.pano-viewer.ready .pv-loading{display:none}
-.pano-viewer .pv-hint{position:absolute;z-index:3;left:50%;top:50%;transform:translate(-50%,-50%);background:rgba(3,27,53,.7);border:1px solid rgba(255,255,255,.2);border-radius:14px;padding:10px 14px;font-size:13px;pointer-events:none;transition:opacity .5s}.pano-viewer.interacted .pv-hint{opacity:0}
+
+.pano-viewer{position:fixed;inset:0;z-index:10050;background:#020914;display:none;color:#fff}.pano-viewer.open{display:block}
+.pano-viewer .pannellum-stage{position:absolute;inset:0}
+.pano-viewer .pannellum-stage .pnlm-container{width:100%;height:100%;background:#07192d}
+.pano-viewer .pv-top{position:absolute;z-index:100;left:0;right:0;top:0;padding:18px 20px 54px;display:flex;justify-content:space-between;gap:15px;align-items:flex-start;background:linear-gradient(rgba(1,12,25,.78),transparent);pointer-events:none}
+.pano-viewer .pv-title{pointer-events:auto;text-shadow:0 2px 10px #000}.pano-viewer .pv-title small{display:block;color:#a9c8e8;margin-bottom:3px}.pano-viewer .pv-title b{font-size:20px}
+.pano-viewer .pv-close{pointer-events:auto;width:44px;height:44px;border-radius:12px;border:1px solid rgba(255,255,255,.28);background:rgba(3,27,53,.72);color:#fff;display:grid;place-items:center;font-size:24px;cursor:pointer;backdrop-filter:blur(7px)}
+.pano-viewer .pv-close:hover{background:#1769d2}
+.pano-viewer .pv-engine{position:absolute;z-index:90;right:18px;bottom:16px;background:rgba(3,27,53,.65);border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:6px 10px;font-size:10px;letter-spacing:.08em;color:#b9d7f4;pointer-events:none}
+.pano-viewer .pnlm-controls-container{z-index:110}.pano-viewer .pnlm-load-button{border-radius:12px}.pano-viewer .pnlm-about-msg{display:none!important}
 @media(max-width:850px){.pano360 .pano-grid{grid-template-columns:1fr}.pano360 .pano-head{align-items:flex-start;flex-direction:column}.pano360 .pano-thumb{height:240px}.pano360 .pano-hero{padding:55px 0 48px}}
-@media(max-width:560px){.pano-viewer .pv-top{padding:12px}.pano-viewer .pv-title b{font-size:16px}.pano-viewer .pv-actions .pv-btn:not(.pv-close){display:none}}
+@media(max-width:560px){.pano-viewer .pv-top{padding:12px 12px 45px}.pano-viewer .pv-title b{font-size:16px}.pano-viewer .pv-engine{right:10px;bottom:10px}}
 html.a11y-no-motion .pano360 .pano-card,html.a11y-no-motion .pano360 .pano-thumb img{transition:none!important}
 </style>
 
 <div class="pano360">
  <section class="pano-hero">
   <div class="container-xxl">
-   <span class="pano-badge">◉ VIRTUAL TOUR / 360°</span>
+   <span class="pano-badge">◉ PANNELLUM / VIRTUAL TOUR / 360°</span>
    <h1>Колледж вокруг вас</h1>
    <p>Осмотрите учебные аудитории, лаборатории и мастерские в интерактивном формате. Перетаскивайте изображение мышью или пальцем и приближайте детали.</p>
   </div>
@@ -69,83 +78,91 @@ html.a11y-no-motion .pano360 .pano-card,html.a11y-no-motion .pano360 .pano-thumb
 </div>
 
 <div class="pano-viewer" id="panoViewer" aria-hidden="true">
- <canvas id="panoCanvas"></canvas>
- <div class="pv-loading">Загрузка панорамы…</div>
+ <div class="pannellum-stage" id="pannellumStage"></div>
  <div class="pv-top">
   <div class="pv-title"><small id="pvLocation"></small><b id="pvTitle">Панорама 360°</b></div>
-  <div class="pv-actions">
-   <button class="pv-btn" type="button" id="pvReset" title="Исходный вид">⌂</button>
-   <button class="pv-btn" type="button" id="pvFullscreen" title="На весь экран">⛶</button>
-   <button class="pv-btn pv-close" type="button" id="pvClose" title="Закрыть">×</button>
-  </div>
+  <button class="pv-close" type="button" id="pvClose" title="Закрыть" aria-label="Закрыть панораму">×</button>
  </div>
- <div class="pv-hint">↔ Перетаскивайте для обзора · колесо — масштаб</div>
- <div class="pv-bottom"><button class="pv-btn" id="pvMinus" type="button" title="Отдалить">−</button><button class="pv-btn" id="pvPlus" type="button" title="Приблизить">＋</button></div>
+ <div class="pv-engine">PANNELLUM 2.5.7</div>
 </div>
 
 @push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/pannellum@2.5.7/build/pannellum.js"></script>
 <script>
 (()=>{
- const viewer=document.getElementById('panoViewer'),canvas=document.getElementById('panoCanvas');
- if(!viewer||!canvas)return;
- const gl=canvas.getContext('webgl',{antialias:true,alpha:false});
- if(!gl){document.querySelectorAll('.js-pano-open').forEach(b=>b.disabled=true);return;}
+ const modal=document.getElementById('panoViewer');
+ const stage=document.getElementById('pannellumStage');
+ const closeButton=document.getElementById('pvClose');
+ if(!modal||!stage||typeof pannellum==='undefined')return;
 
- const vs=`attribute vec2 p;varying vec2 uv;void main(){uv=p*.5+.5;gl_Position=vec4(p,0.,1.);}`;
- const fs=`precision highp float;varying vec2 uv;uniform sampler2D tex;uniform float yaw,pitch,fov,aspect;
- const float PI=3.141592653589793;
- void main(){
-  vec2 q=uv*2.-1.;q.y=-q.y;
-  float t=tan(fov*.5);
-  vec3 r=normalize(vec3(q.x*aspect*t,q.y*t,-1.));
-  float cp=cos(pitch),sp=sin(pitch);r=vec3(r.x,r.y*cp-r.z*sp,r.y*sp+r.z*cp);
-  float cy=cos(yaw),sy=sin(yaw);r=vec3(r.x*cy+r.z*sy,r.y,-r.x*sy+r.z*cy);
-  float u=atan(r.x,-r.z)/(2.*PI)+.5;
-  float v=asin(clamp(r.y,-1.,1.))/PI+.5;
-  gl_FragColor=texture2D(tex,vec2(fract(u),v));
- }`;
- function shader(type,src){const s=gl.createShader(type);gl.shaderSource(s,src);gl.compileShader(s);if(!gl.getShaderParameter(s,gl.COMPILE_STATUS))throw new Error(gl.getShaderInfoLog(s));return s;}
- const program=gl.createProgram();gl.attachShader(program,shader(gl.VERTEX_SHADER,vs));gl.attachShader(program,shader(gl.FRAGMENT_SHADER,fs));gl.linkProgram(program);gl.useProgram(program);
- const buf=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,buf);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,1,-1,-1,1,-1,1,1,-1,1,1]),gl.STATIC_DRAW);
- const pos=gl.getAttribLocation(program,'p');gl.enableVertexAttribArray(pos);gl.vertexAttribPointer(pos,2,gl.FLOAT,false,0,0);
- const loc={yaw:gl.getUniformLocation(program,'yaw'),pitch:gl.getUniformLocation(program,'pitch'),fov:gl.getUniformLocation(program,'fov'),aspect:gl.getUniformLocation(program,'aspect')};
- const texture=gl.createTexture();gl.bindTexture(gl.TEXTURE_2D,texture);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL,true);
+ let viewer=null;
 
- let yaw=0,pitch=0,fov=75*Math.PI/180,startYaw=0,startPitch=0,drag=false,lastX=0,lastY=0,open=false,raf=0;
- const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
- function resize(){const dpr=Math.min(devicePixelRatio||1,2),w=Math.max(1,canvas.clientWidth),h=Math.max(1,canvas.clientHeight);const rw=Math.round(w*dpr),rh=Math.round(h*dpr);if(canvas.width!==rw||canvas.height!==rh){canvas.width=rw;canvas.height=rh;gl.viewport(0,0,rw,rh);}}
- function render(){if(!open)return;resize();gl.uniform1f(loc.yaw,yaw);gl.uniform1f(loc.pitch,pitch);gl.uniform1f(loc.fov,fov);gl.uniform1f(loc.aspect,canvas.width/canvas.height);gl.drawArrays(gl.TRIANGLES,0,6);raf=requestAnimationFrame(render);}
- function load(btn){
-  viewer.classList.add('open');viewer.classList.remove('ready','interacted');viewer.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';
-  document.getElementById('pvTitle').textContent=btn.dataset.title||'Панорама 360°';document.getElementById('pvLocation').textContent=btn.dataset.location||'';
-  startYaw=(Number(btn.dataset.yaw)||0)*Math.PI/180;startPitch=(Number(btn.dataset.pitch)||0)*Math.PI/180;yaw=startYaw;pitch=startPitch;fov=75*Math.PI/180;
-  const img=new Image();img.onload=()=>{
-   let source=img;
-   const maxTexture=gl.getParameter(gl.MAX_TEXTURE_SIZE)||4096;
-   if(img.width>maxTexture||img.height>maxTexture){
-    const scale=Math.min(maxTexture/img.width,maxTexture/img.height),tmp=document.createElement('canvas');
-    tmp.width=Math.max(1,Math.floor(img.width*scale));tmp.height=Math.max(1,Math.floor(img.height*scale));
-    tmp.getContext('2d').drawImage(img,0,0,tmp.width,tmp.height);source=tmp;
-   }
-   gl.bindTexture(gl.TEXTURE_2D,texture);gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,source);
-   viewer.classList.add('ready');open=true;cancelAnimationFrame(raf);render();
-  };img.onerror=()=>{viewer.querySelector('.pv-loading').textContent='Не удалось загрузить панораму';};img.src=btn.dataset.src;
+ function destroyViewer(){
+  if(viewer&&typeof viewer.destroy==='function'){
+   try{viewer.destroy();}catch(e){}
+  }
+  viewer=null;
+  stage.innerHTML='';
  }
- function close(){open=false;cancelAnimationFrame(raf);viewer.classList.remove('open','ready','interacted');viewer.setAttribute('aria-hidden','true');document.body.style.overflow='';if(document.fullscreenElement)document.exitFullscreen().catch(()=>{});}
- function interact(){viewer.classList.add('interacted');}
- function down(x,y){drag=true;lastX=x;lastY=y;canvas.classList.add('dragging');interact();}
- function move(x,y){if(!drag)return;const sens=.004*(fov/(75*Math.PI/180));yaw-=(x-lastX)*sens;pitch=clamp(pitch+(y-lastY)*sens,-1.45,1.45);lastX=x;lastY=y;}
- function up(){drag=false;canvas.classList.remove('dragging');}
- canvas.addEventListener('pointerdown',e=>{canvas.setPointerCapture(e.pointerId);down(e.clientX,e.clientY);});
- canvas.addEventListener('pointermove',e=>move(e.clientX,e.clientY));canvas.addEventListener('pointerup',up);canvas.addEventListener('pointercancel',up);
- canvas.addEventListener('wheel',e=>{e.preventDefault();interact();fov=clamp(fov+e.deltaY*.0008,.45,1.65);},{passive:false});
- document.querySelectorAll('.js-pano-open').forEach(btn=>{btn.addEventListener('click',()=>load(btn));btn.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();load(btn);}});});
- document.getElementById('pvClose').addEventListener('click',close);
- document.getElementById('pvReset').addEventListener('click',()=>{yaw=startYaw;pitch=startPitch;fov=75*Math.PI/180;interact();});
- document.getElementById('pvPlus').addEventListener('click',()=>{fov=clamp(fov-.18,.45,1.65);interact();});
- document.getElementById('pvMinus').addEventListener('click',()=>{fov=clamp(fov+.18,.45,1.65);interact();});
- document.getElementById('pvFullscreen').addEventListener('click',()=>{if(!document.fullscreenElement)viewer.requestFullscreen?.();else document.exitFullscreen?.();interact();});
- document.addEventListener('keydown',e=>{if(!viewer.classList.contains('open'))return;if(e.key==='Escape')close();if(e.key==='ArrowLeft'){yaw+=.08;interact();}if(e.key==='ArrowRight'){yaw-=.08;interact();}if(e.key==='ArrowUp'){pitch=clamp(pitch+.06,-1.45,1.45);interact();}if(e.key==='ArrowDown'){pitch=clamp(pitch-.06,-1.45,1.45);interact();}});
+
+ function openPanorama(button){
+  destroyViewer();
+
+  document.getElementById('pvTitle').textContent=button.dataset.title||'Панорама 360°';
+  document.getElementById('pvLocation').textContent=button.dataset.location||'';
+  modal.classList.add('open');
+  modal.setAttribute('aria-hidden','false');
+  document.body.style.overflow='hidden';
+
+  viewer=pannellum.viewer(stage,{
+   type:'equirectangular',
+   panorama:button.dataset.src,
+   autoLoad:true,
+   pitch:Number(button.dataset.pitch)||0,
+   yaw:Number(button.dataset.yaw)||0,
+   hfov:100,
+   minHfov:35,
+   maxHfov:120,
+   showControls:true,
+   showZoomCtrl:true,
+   showFullscreenCtrl:true,
+   keyboardZoom:true,
+   mouseZoom:true,
+   draggable:true,
+   friction:0.16,
+   touchPanSpeedCoeffFactor:1,
+   orientationOnByDefault:false,
+   escapeHTML:true,
+   backgroundColor:[0.02,0.07,0.13]
+  });
+ }
+
+ function closePanorama(){
+  if(document.fullscreenElement){
+   document.exitFullscreen().catch(()=>{});
+  }
+  modal.classList.remove('open');
+  modal.setAttribute('aria-hidden','true');
+  document.body.style.overflow='';
+  destroyViewer();
+ }
+
+ document.querySelectorAll('.js-pano-open').forEach(button=>{
+  button.addEventListener('click',()=>openPanorama(button));
+  button.addEventListener('keydown',event=>{
+   if(event.key==='Enter'||event.key===' '){
+    event.preventDefault();
+    openPanorama(button);
+   }
+  });
+ });
+
+ closeButton.addEventListener('click',closePanorama);
+ document.addEventListener('keydown',event=>{
+  if(event.key==='Escape'&&modal.classList.contains('open')&&!document.fullscreenElement){
+   closePanorama();
+  }
+ });
 })();
 </script>
 @endpush
