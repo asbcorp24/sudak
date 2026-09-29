@@ -16,7 +16,7 @@ class PanoramaAdminController extends Controller
     public function index()
     {
         return view('admin.panoramas.index',[
-            'panoramas'=>Panorama::orderBy('sort')->orderByDesc('id')->get(),
+            'panoramas'=>Panorama::withCount('hotspots')->orderBy('sort')->orderByDesc('id')->get(),
         ]);
     }
 
