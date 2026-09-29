@@ -20,10 +20,12 @@
     <h3>{{ $q['question'] ?? '' }}</h3>
     <div class="quiz-options">
      @foreach(($q['options'] ?? []) as $key=>$label)
-      <label class="quiz-option">
-       <input type="radio" name="answers[{{ $i }}]" value="{{ $key }}" required>
-       <span class="quiz-option-mark">{{ strtoupper($key) }}</span>
-       <span>{{ $label }}</span>
+      @php($optionId='quiz-'.$quiz->id.'-q'.$i.'-'.preg_replace('/[^a-zA-Z0-9_-]/','-',strval($key)))
+      <label class="quiz-option" for="{{ $optionId }}">
+       <input id="{{ $optionId }}" type="radio" name="answers[{{ $i }}]" value="{{ $key }}" @checked((string)old('answers.'.$i)===(string)$key) required>
+       <span class="quiz-option-mark" aria-hidden="true">{{ strtoupper($key) }}</span>
+       <span class="quiz-option-text">{{ $label }}</span>
+       <span class="quiz-option-check" aria-hidden="true">✓</span>
       </label>
      @endforeach
     </div>
