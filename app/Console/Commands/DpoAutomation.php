@@ -43,12 +43,12 @@ class DpoAutomation extends Command
 
         foreach($assignments as $assignment){
             foreach($assignment->groups as $group){
-                $due=$group->pivot->due_at;
-                if(!$due || $due<now() || $due>now()->addDay()) continue;
+                $due=$group->pivot->due_at ? \Illuminate\Support\Carbon::parse($group->pivot->due_at) : null;
+                if(!$due || $due->lt(now()) || $due->gt(now()->addDay())) continue;
                 $users=User::whereIn('id',$group->enrollments()->where('role','student')->where('status','active')->pluck('user_id'))->get();
                 $notifications->notifyUsers(
                     $users,'dpo_deadline','Дедлайн задания',
-                    $assignment->title.' · до '.\Illuminate\Support\Carbon::parse($due)->format('d.m.Y H:i'),
+                    $assignment->title.' · до '.$due->format('d.m.Y H:i'),
                     route('dpo.calendar'),'dpo-deadline-'.$assignment->id.'-'.$group->id
                 );
             }
