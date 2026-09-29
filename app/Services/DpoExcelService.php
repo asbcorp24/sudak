@@ -30,53 +30,62 @@ class DpoExcelService
     private function readXlsx(string $path): array
     {
         if(!class_exists(ZipArchive::class)) throw new RuntimeException('Для XLSX требуется PHP-расширение zip.');
+        if(!class_exists(\DOMDocument::class)) throw new RuntimeException('Для XLSX требуется PHP-расширение dom/xml.');
+
         $zip=new ZipArchive();
         if($zip->open($path)!==true) throw new RuntimeException('Не удалось открыть XLSX.');
 
         $shared=[];
         $sharedXml=$zip->getFromName('xl/sharedStrings.xml');
         if($sharedXml){
-            $xml=simplexml_load_string($sharedXml);
-            if($xml) foreach($xml->si as $si) $shared[]=$this->xlsxText($si);
+            $dom=new \DOMDocument();
+            if(@$dom->loadXML($sharedXml)){
+                $xp=new \DOMXPath($dom);
+                foreach($xp->query('//*[local-name()="si"]') as $si){
+                    $parts=[];
+                    foreach($xp->query('.//*[local-name()="t"]',$si) as $text) $parts[]=$text->textContent;
+                    $shared[]=implode('',$parts);
+                }
+            }
         }
 
         $sheetXml=$zip->getFromName('xl/worksheets/sheet1.xml');
         if(!$sheetXml){$zip->close(); throw new RuntimeException('В XLSX не найден первый лист.');}
-        $sheet=simplexml_load_string($sheetXml);
+
+        $dom=new \DOMDocument();
+        if(!@$dom->loadXML($sheetXml)){ $zip->close(); throw new RuntimeException('Не удалось прочитать XML первого листа.'); }
+        $xp=new \DOMXPath($dom);
         $rows=[];
-        if($sheet){
-            foreach($sheet->sheetData->row as $row){
-                $cells=[];
-                foreach($row->c as $cell){
-                    $ref=(string)$cell['r'];
-                    preg_match('/^[A-Z]+/',$ref,$m);
-                    $column=$this->columnIndex($m[0]??'A');
-                    $type=(string)$cell['t'];
-                    if($type==='inlineStr') $value=$this->xlsxText($cell->is);
-                    else{
-                        $value=(string)$cell->v;
-                        if($type==='s') $value=$shared[(int)$value]??'';
-                    }
-                    $cells[$column]=$value;
+
+        foreach($xp->query('//*[local-name()="sheetData"]/*[local-name()="row"]') as $row){
+            $cells=[];
+            foreach($xp->query('./*[local-name()="c"]',$row) as $cell){
+                $ref=$cell->attributes?->getNamedItem('r')?->nodeValue ?: 'A';
+                preg_match('/^[A-Z]+/',$ref,$m);
+                $column=$this->columnIndex($m[0]??'A');
+                $type=$cell->attributes?->getNamedItem('t')?->nodeValue ?: '';
+                $value='';
+                if($type==='inlineStr'){
+                    $parts=[];
+                    foreach($xp->query('.//*[local-name()="t"]',$cell) as $text) $parts[]=$text->textContent;
+                    $value=implode('',$parts);
+                }else{
+                    $valueNode=$xp->query('./*[local-name()="v"]',$cell)->item(0);
+                    $value=$valueNode?->textContent ?? '';
+                    if($type==='s') $value=$shared[(int)$value]??'';
                 }
-                if($cells){
-                    $max=max(array_keys($cells));
-                    $line=[];
-                    for($i=0;$i<=$max;$i++) $line[]=$cells[$i]??'';
-                    $rows[]=$line;
-                }
+                $cells[$column]=$value;
+            }
+            if($cells){
+                $max=max(array_keys($cells));
+                $line=[];
+                for($i=0;$i<=$max;$i++) $line[]=$cells[$i]??'';
+                $rows[]=$line;
             }
         }
+
         $zip->close();
         return $this->normalizeRows($rows);
-    }
-
-    private function xlsxText($node): string
-    {
-        if(isset($node->t)) return (string)$node->t;
-        $parts=[];
-        foreach($node->r??[] as $run) $parts[]=(string)$run->t;
-        return implode('',$parts);
     }
 
     private function columnIndex(string $letters): int
