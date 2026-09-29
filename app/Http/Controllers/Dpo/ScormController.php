@@ -9,6 +9,8 @@ use App\Models\DpoScormPackage;
 use App\Models\DpoScormValue;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Models\DpoEnrollment;
+use App\Services\DpoCompletionService;
 
 class ScormController extends Controller
 {
@@ -170,6 +172,9 @@ class ScormController extends Controller
                 );
             }
         });
+
+        $enrollment=DpoEnrollment::where('group_id',$attempt->group_id)->where('user_id',$attempt->user_id)->where('role','student')->where('status','active')->first();
+        if($enrollment) app(DpoCompletionService::class)->sync($enrollment);
 
         return response()->json(['ok'=>true]);
     }
