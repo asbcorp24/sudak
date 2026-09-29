@@ -1,6 +1,8 @@
 <!doctype html>
 <html lang="ru"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="csrf-token" content="{{ csrf_token() }}">
+<meta name="webpush-public-key" content="{{ config('services.webpush.public_key') }}">
 <title>@yield('title',$siteSettings['seo_title'] ?? 'Зеленодольский судостроительный колледж')</title>
 <meta name="description" content="@yield('description',$siteSettings['seo_description'] ?? 'Зеленодольский судостроительный колледж — инженерное и цифровое СПО в Зеленодольске.')">
 @if(!empty($siteSettings['seo_keywords']))<meta name="keywords" content="{{ $siteSettings['seo_keywords'] }}">@endif
@@ -66,6 +68,7 @@ try{
    </div>
 
    <a href="{{ route('news.index') }}">Новости</a>
+   <a href="{{ auth()->check() && auth()->user()->user_type==='student' ? route('student.dashboard') : route('student.login') }}">{{ auth()->check() && auth()->user()->user_type==='student' ? 'Мой кабинет' : 'Студенту' }}</a>
    <a href="{{ route('dpo.login') }}">ДПО</a>
   </nav>
  </div>
@@ -89,7 +92,8 @@ try{
   <a href="{{ route('cooperation.index') }}">Сотрудничество</a>
   <a href="{{ route('questions.create') }}">Задать вопрос</a>
   <a href="{{ route('news.index') }}">Новости</a>
-  <a href="{{ route('dpo.login') }}">ДПО / Личный кабинет</a>
+  <a href="{{ auth()->check() && auth()->user()->user_type==='student' ? route('student.dashboard') : route('student.login') }}">Личный кабинет студента</a>
+  <a href="{{ route('dpo.login') }}">ДПО</a>
   <button type="button" class="pwa-install-inline" data-pwa-install hidden>Установить приложение</button>
  </div>
 </div>
