@@ -8,6 +8,7 @@ use App\Models\NewsPost;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
+use App\Services\StudentNotificationService;
 
 class NewsAdminController extends Controller
 {
@@ -38,7 +39,7 @@ class NewsAdminController extends Controller
         return view('admin.news.form', $this->formData(new NewsPost));
     }
 
-    public function store(Request $request)
+    public function store(Request $request,StudentNotificationService $notifications)
     {
         [$data, $cover, $content] = $this->data($request);
         $data['slug'] = $data['slug'] ?: Str::slug($data['title']);
@@ -46,6 +47,10 @@ class NewsAdminController extends Controller
         $post = NewsPost::create($data);
         $post->syncMediaCollection('cover', $cover ? [$cover] : []);
         $post->syncMediaCollection('content', $content);
+
+        if($post->is_published){
+            $notifications->notifyAllStudents('news','Опубликована новость',$post->title,route('news.show',$post->slug),'news-published:'.$post->id);
+        }
 
         return redirect()->route('admin.news.index')->with('ok', 'Новость создана');
     }
@@ -56,14 +61,19 @@ class NewsAdminController extends Controller
         return view('admin.news.form', $this->formData($news));
     }
 
-    public function update(Request $request, NewsPost $news)
+    public function update(Request $request, NewsPost $news,StudentNotificationService $notifications)
     {
+        $wasPublished=$news->is_published;
         [$data, $cover, $content] = $this->data($request, $news->id);
         $data['slug'] = $data['slug'] ?: Str::slug($data['title']);
 
         $news->update($data);
         $news->syncMediaCollection('cover', $cover ? [$cover] : []);
         $news->syncMediaCollection('content', $content);
+
+        if(!$wasPublished && $news->is_published){
+            $notifications->notifyAllStudents('news','Опубликована новость',$news->title,route('news.show',$news->slug),'news-published:'.$news->id);
+        }
 
         return redirect()->route('admin.news.index')->with('ok', 'Новость обновлена');
     }
