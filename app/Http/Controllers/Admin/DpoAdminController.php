@@ -12,6 +12,7 @@ use App\Models\DpoEnrollment;
 use App\Models\DpoGroup;
 use App\Models\DpoLesson;
 use App\Models\DpoLessonResource;
+use App\Models\DpoLessonProgress;
 use App\Models\DpoModule;
 use App\Models\DpoProfile;
 use App\Models\DpoProgram;
@@ -855,6 +856,19 @@ class DpoAdminController extends Controller
                     'marked_at'=>now(),
                 ]
             );
+
+            if($entry->lesson && $entry->lesson->lesson_type==='offline_practice'){
+                $attended=in_array($status,['present','late'],true);
+                DpoLessonProgress::updateOrCreate(
+                    ['lesson_id'=>$entry->lesson_id,'group_id'=>$entry->group_id,'user_id'=>$userId],
+                    [
+                        'status'=>$attended?'completed':'in_progress',
+                        'started_at'=>now(),
+                        'completed_at'=>$attended?now():null,
+                        'last_seen_at'=>now(),
+                    ]
+                );
+            }
         }
 
         foreach($entry->group->enrollments()->where('role','student')->where('status','active')->get() as $enrollment){
