@@ -77,8 +77,9 @@
         <input class="form-control form-control-sm mb-2" name="title" value="{{ $module->title }}" required>
         <textarea class="form-control form-control-sm mb-2" name="description" rows="2" placeholder="Описание модуля">{{ $module->description }}</textarea>
         <label class="check mb-2"><input type="checkbox" name="is_published" value="1" @checked($module->is_published)> Опубликован</label>
-        <div class="d-flex justify-content-between gap-2"><button class="btn-ghost">Сохранить</button></form>
-        <form method="post" action="{{ route('admin.dpo.modules.destroy',$module) }}" onsubmit="return confirm('Удалить модуль и все его уроки?')">@csrf @method('DELETE')<button class="link-danger">Удалить</button></form></div>
+        <button class="btn-ghost">Сохранить</button>
+       </form>
+       <form method="post" action="{{ route('admin.dpo.modules.destroy',$module) }}" class="mt-2 text-end" onsubmit="return confirm('Удалить модуль и все его уроки?')">@csrf @method('DELETE')<button class="link-danger">Удалить модуль</button></form>
       </div>
 
       <div class="cb-lessons" data-module-lessons="{{ $module->id }}">
