@@ -128,6 +128,62 @@ class DpoAdminController extends Controller
         return back()->with('ok','Группа обновлена');
     }
 
+    public function users(Request $request)
+    {
+        $query=User::with('dpoProfile')
+            ->whereHas('dpoProfile')
+            ->orderBy('name');
+
+        if($role=$request->string('role')->toString()){
+            if(in_array($role,['student','teacher','manager'],true)){
+                $query->whereHas('dpoProfile',fn($q)=>$q->where('role',$role));
+            }
+        }
+
+        if($search=trim($request->string('q')->toString())){
+            $query->where(function($q) use($search){
+                $q->where('name','like','%'.$search.'%')->orWhere('email','like','%'.$search.'%');
+            });
+        }
+
+        return view('admin.dpo.users',[
+            'users'=>$query->paginate(40)->withQueryString(),
+            'role'=>$role??null,
+        ]);
+    }
+
+    public function updateUser(Request $request,User $user)
+    {
+        abort_unless($user->dpoProfile,404);
+
+        $data=$request->validate([
+            'name'=>['required','string','max:255'],
+            'email'=>['required','email','max:255',Rule::unique('users','email')->ignore($user->id)],
+            'role'=>['required','in:student,teacher,manager'],
+            'phone'=>['nullable','string','max:80'],
+            'organization'=>['nullable','string','max:255'],
+            'position'=>['nullable','string','max:255'],
+            'password'=>['nullable','string','min:6','max:255'],
+            'is_active'=>['nullable','boolean'],
+        ]);
+
+        $user->update([
+            'name'=>$data['name'],
+            'email'=>$data['email'],
+            'password'=>!empty($data['password'])?Hash::make($data['password']):$user->password,
+        ]);
+
+        $user->dpoProfile->update([
+            'role'=>$data['role'],
+            'phone'=>$data['phone']??null,
+            'organization'=>$data['organization']??null,
+            'position'=>$data['position']??null,
+            'is_active'=>$request->boolean('is_active'),
+        ]);
+
+        return back()->with('ok','Пользователь ДПО обновлён');
+    }
+
     public function storeUser(Request $request)
     {
         $data=$request->validate([
