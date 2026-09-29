@@ -17,6 +17,11 @@ class DeleteTeachers extends Command
 
     public function handle(): int
     {
+        if (!Schema::hasTable('employees')) {
+            $this->error('Таблица employees ещё не создана. Сначала выполните php artisan migrate --force.');
+            return self::FAILURE;
+        }
+
         $teacherIds = Employee::where('employee_type', 'teacher')->pluck('id');
         $teacherCount = $teacherIds->count();
 
