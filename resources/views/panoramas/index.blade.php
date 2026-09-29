@@ -109,7 +109,7 @@ html.a11y-no-motion .pano360 .pano-card,html.a11y-no-motion .pano360 .pano-thumb
  const buf=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,buf);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,1,-1,-1,1,-1,1,1,-1,1,1]),gl.STATIC_DRAW);
  const pos=gl.getAttribLocation(program,'p');gl.enableVertexAttribArray(pos);gl.vertexAttribPointer(pos,2,gl.FLOAT,false,0,0);
  const loc={yaw:gl.getUniformLocation(program,'yaw'),pitch:gl.getUniformLocation(program,'pitch'),fov:gl.getUniformLocation(program,'fov'),aspect:gl.getUniformLocation(program,'aspect')};
- const texture=gl.createTexture();gl.bindTexture(gl.TEXTURE_2D,texture);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.REPEAT);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL,true);
+ const texture=gl.createTexture();gl.bindTexture(gl.TEXTURE_2D,texture);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL,true);
 
  let yaw=0,pitch=0,fov=75*Math.PI/180,startYaw=0,startPitch=0,drag=false,lastX=0,lastY=0,open=false,raf=0;
  const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
@@ -119,7 +119,17 @@ html.a11y-no-motion .pano360 .pano-card,html.a11y-no-motion .pano360 .pano-thumb
   viewer.classList.add('open');viewer.classList.remove('ready','interacted');viewer.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';
   document.getElementById('pvTitle').textContent=btn.dataset.title||'Панорама 360°';document.getElementById('pvLocation').textContent=btn.dataset.location||'';
   startYaw=(Number(btn.dataset.yaw)||0)*Math.PI/180;startPitch=(Number(btn.dataset.pitch)||0)*Math.PI/180;yaw=startYaw;pitch=startPitch;fov=75*Math.PI/180;
-  const img=new Image();img.onload=()=>{gl.bindTexture(gl.TEXTURE_2D,texture);gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,img);viewer.classList.add('ready');open=true;cancelAnimationFrame(raf);render();};img.onerror=()=>{viewer.querySelector('.pv-loading').textContent='Не удалось загрузить панораму';};img.src=btn.dataset.src;
+  const img=new Image();img.onload=()=>{
+   let source=img;
+   const maxTexture=gl.getParameter(gl.MAX_TEXTURE_SIZE)||4096;
+   if(img.width>maxTexture||img.height>maxTexture){
+    const scale=Math.min(maxTexture/img.width,maxTexture/img.height),tmp=document.createElement('canvas');
+    tmp.width=Math.max(1,Math.floor(img.width*scale));tmp.height=Math.max(1,Math.floor(img.height*scale));
+    tmp.getContext('2d').drawImage(img,0,0,tmp.width,tmp.height);source=tmp;
+   }
+   gl.bindTexture(gl.TEXTURE_2D,texture);gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,source);
+   viewer.classList.add('ready');open=true;cancelAnimationFrame(raf);render();
+  };img.onerror=()=>{viewer.querySelector('.pv-loading').textContent='Не удалось загрузить панораму';};img.src=btn.dataset.src;
  }
  function close(){open=false;cancelAnimationFrame(raf);viewer.classList.remove('open','ready','interacted');viewer.setAttribute('aria-hidden','true');document.body.style.overflow='';if(document.fullscreenElement)document.exitFullscreen().catch(()=>{});}
  function interact(){viewer.classList.add('interacted');}
