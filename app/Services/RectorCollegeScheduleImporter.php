@@ -391,11 +391,15 @@ class RectorCollegeScheduleImporter
         $reader->close();
 
         if (!$rootSeen) {
-            throw new RuntimeException('Файл не является расписанием Rector-College: отсутствует корневой элемент <timetable>.');
+            throw new RuntimeException('Файл не является расписанием семейства «Ректор»: отсутствует корневой элемент <timetable>.');
         }
 
-        if ($data['format_name'] && $data['format_name']!=='Rector-College') {
-            throw new RuntimeException('Неподдерживаемый формат расписания: '.$data['format_name'].'.');
+        $supportedFormats=['Rector-College','Rector-University'];
+        if ($data['format_name'] && !in_array($data['format_name'],$supportedFormats,true)) {
+            throw new RuntimeException(
+                'Неподдерживаемый формат расписания: '.$data['format_name'].
+                '. Поддерживаются Rector-College и Rector-University.'
+            );
         }
 
         $data['patterns']=array_values($data['patterns']);
@@ -407,7 +411,7 @@ class RectorCollegeScheduleImporter
     {
         $node=simplexml_load_string($xml,SimpleXMLElement::class,LIBXML_NONET|LIBXML_NOCDATA);
         if ($node===false) {
-            throw new RuntimeException('Ошибка разбора XML Rector-College.');
+            throw new RuntimeException('Ошибка разбора XML расписания «Ректор».');
         }
         return $node;
     }
