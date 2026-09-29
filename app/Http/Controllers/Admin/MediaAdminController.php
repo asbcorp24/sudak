@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\MediaAsset;
+use App\Models\OfficialDocument;
+use App\Models\OfficialDocumentVersion;
 use App\Services\MediaImageProcessor;
 use App\Services\StorageQuota;
 use Illuminate\Http\Request;
@@ -139,6 +141,13 @@ class MediaAdminController extends Controller
 
     public function destroy(MediaAsset $media)
     {
+        if(OfficialDocument::where('media_asset_id',$media->id)->exists()
+            || OfficialDocumentVersion::where('media_asset_id',$media->id)->exists()){
+            throw ValidationException::withMessages([
+                'media'=>'Файл используется в Центре документов или в истории версий. Сначала замените/удалите соответствующую версию документа.',
+            ]);
+        }
+
         DB::transaction(function () use ($media) {
             DB::table('media_relations')->where('media_asset_id', $media->id)->delete();
             Storage::disk($media->disk)->delete($media->path);
