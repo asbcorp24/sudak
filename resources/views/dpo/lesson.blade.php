@@ -38,7 +38,23 @@
       <div class="section-head"><div><span class="eyebrow">SCORM / iSPRING</span><h2>Тестирование</h2></div></div>
       <div class="dpo-scorm-list">
        @foreach($lesson->scormPackages as $package)
-        <a class="dpo-scorm-card" href="{{ route('dpo.scorm.launch',$package) }}?group={{ $group->id }}"><div><span>SCORM {{ $package->scorm_version }}</span><h3>{{ $package->title }}</h3><p>Результат и прогресс сохраняются автоматически.</p></div><strong>Запустить →</strong></a>
+        @php($lastAttempt=optional($scormAttempts->get($package->id))->first())
+        <div class="dpo-scorm-card">
+         <div>
+          <span>SCORM {{ $package->scorm_version }}</span>
+          <h3>{{ $package->title }}</h3>
+          <p>Результат и прогресс сохраняются автоматически.</p>
+          @if($lastAttempt)
+           <small class="dpo-scorm-result">Попытка {{ $lastAttempt->attempt_no }} · {{ $lastAttempt->lesson_status ?: trim(($lastAttempt->completion_status ?: '').' '.($lastAttempt->success_status ?: '')) ?: 'в процессе' }}@if($lastAttempt->score_raw!==null) · {{ $lastAttempt->score_raw }} баллов @elseif($lastAttempt->score_scaled!==null) · {{ round($lastAttempt->score_scaled*100,1) }}% @endif</small>
+          @endif
+         </div>
+         <div class="d-flex gap-2 flex-wrap justify-content-end">
+          <a class="btn-tech" href="{{ route('dpo.scorm.launch',$package) }}?group={{ $group->id }}">Запустить →</a>
+          @if($lastAttempt && ($lastAttempt->completed_at || in_array($lastAttempt->lesson_status,['completed','passed','failed'],true) || $lastAttempt->completion_status==='completed'))
+           <a class="btn-ghost" href="{{ route('dpo.scorm.launch',$package) }}?group={{ $group->id }}&restart=1">Новая попытка</a>
+          @endif
+         </div>
+        </div>
        @endforeach
       </div>
      </section>
