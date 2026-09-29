@@ -16,6 +16,19 @@
  <div class="admin-stat"><span>На проверке</span><b>{{ $submissionsToReview }}</b><small>домашних работ</small></div>
 </div>
 
+<div class="glass-panel mb-4">
+ <div class="d-flex justify-content-between align-items-start gap-3 flex-wrap">
+  <div><span class="eyebrow">EXCEL IMPORT</span><h3 class="mt-2">Массовый импорт слушателей</h3><p class="text-secondary mb-0">XLSX или CSV. Колонки: ФИО, Email, Телефон, Организация, Должность, Группа, Пароль. Если Email или Пароль не указаны — они будут сформированы автоматически.</p></div>
+ </div>
+ <form method="post" enctype="multipart/form-data" action="{{ route('admin.dpo.import.students') }}" class="admin-form mt-3">@csrf
+  <div class="row g-2"><div class="col-md-5"><input type="file" class="form-control" name="file" accept=".xlsx,.csv,text/csv" required></div><div class="col-md-5"><select class="form-select" name="group_id"><option value="">Группа берётся из Excel</option>@foreach($importGroups as $group)<option value="{{ $group->id }}">{{ $group->program->title }} / {{ $group->name }}</option>@endforeach</select></div><div class="col-md-2"><button class="btn-tech w-100 justify-content-center">Импорт</button></div></div>
+ </form>
+ @if(session('dpo_import_credentials'))
+  <div class="alert alert-warning mt-3 mb-0"><b>Сохраните пароли — они показываются один раз.</b><div class="table-responsive mt-2"><table class="table table-sm mb-0"><thead><tr><th>ФИО</th><th>Логин</th><th>Пароль</th><th>Группа</th></tr></thead><tbody>@foreach(session('dpo_import_credentials') as $row)<tr><td>{{ $row['name'] }}</td><td>{{ $row['email'] }}</td><td><code>{{ $row['password'] }}</code></td><td>{{ $row['group'] }}</td></tr>@endforeach</tbody></table></div></div>
+ @endif
+ @if(session('dpo_import_errors'))<div class="alert alert-danger mt-3 mb-0">@foreach(session('dpo_import_errors') as $error)<div>{{ $error }}</div>@endforeach</div>@endif
+</div>
+
 <div class="row g-4">
  <div class="col-xl-4">
   <form method="post" action="{{ route('admin.dpo.programs.store') }}" class="glass-panel admin-form">@csrf
