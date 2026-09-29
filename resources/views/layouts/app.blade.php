@@ -65,6 +65,7 @@ try{
    </div>
 
    <a href="{{ route('news.index') }}">Новости</a>
+   <a href="{{ route('dpo.login') }}">ДПО</a>
   </nav>
  </div>
 </header>
@@ -86,6 +87,7 @@ try{
   <a href="{{ route('cooperation.index') }}">Сотрудничество</a>
   <a href="{{ route('questions.create') }}">Задать вопрос</a>
   <a href="{{ route('news.index') }}">Новости</a>
+  <a href="{{ route('dpo.login') }}">ДПО / Личный кабинет</a>
   <button type="button" class="pwa-install-inline" data-pwa-install hidden>Установить приложение</button>
  </div>
 </div>
