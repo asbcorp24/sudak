@@ -9,4 +9,5 @@ class DpoGroup extends Model{
  public function students(){return $this->belongsToMany(User::class,'dpo_enrollments','group_id','user_id')->wherePivot('role','student')->withPivot(['status','enrolled_at','completed_at'])->withTimestamps();}
  public function teachers(){return $this->belongsToMany(User::class,'dpo_enrollments','group_id','user_id')->wherePivot('role','teacher')->withPivot(['status','enrolled_at','completed_at'])->withTimestamps();}
  public function scheduleEntries(){return $this->hasMany(DpoScheduleEntry::class,'group_id');}
+ public function announcements(){return $this->hasMany(DpoAnnouncement::class,'group_id')->orderByDesc('published_at');}
 }
