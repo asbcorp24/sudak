@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\DpoAnnouncement;
 use App\Models\DpoAssignment;
+use App\Models\DpoAttendance;
 use App\Models\DpoEnrollment;
 use App\Models\DpoGroup;
 use App\Models\DpoLesson;
@@ -91,7 +92,7 @@ class DpoAdminController extends Controller
         $group->load([
             'program.modules.lessons',
             'enrollments.user.dpoProfile',
-            'scheduleEntries'=>fn($q)=>$q->with(['lesson','teacher'])->orderBy('starts_at'),
+            'scheduleEntries'=>fn($q)=>$q->with(['lesson','teacher','attendance'])->orderBy('starts_at'),
         ]);
 
         $submissions=DpoSubmission::with(['assignment.lesson','user','media'])
@@ -112,6 +113,12 @@ class DpoAdminController extends Controller
             'teachers'=>User::whereHas('dpoProfile',fn($q)=>$q->where('role','teacher')->where('is_active',true))->orderBy('name')->get(),
             'submissions'=>$submissions,
             'scormAttempts'=>$scormAttempts,
+            'attendanceSummary'=>DpoAttendance::query()
+                ->selectRaw("user_id, COUNT(*) as marked_count, SUM(CASE WHEN status IN ('present','late') THEN 1 ELSE 0 END) as attended_count, SUM(CASE WHEN status='absent' THEN 1 ELSE 0 END) as absent_count, SUM(CASE WHEN status='excused' THEN 1 ELSE 0 END) as excused_count")
+                ->whereHas('scheduleEntry',fn($q)=>$q->where('group_id',$group->id))
+                ->groupBy('user_id')
+                ->get()
+                ->keyBy('user_id'),
         ]);
     }
 
@@ -417,6 +424,59 @@ class DpoAdminController extends Controller
     {
         $entry->delete();
         return back()->with('ok','Занятие удалено из расписания');
+    }
+
+    public function attendance(DpoScheduleEntry $entry)
+    {
+        $entry->load(['group.program','lesson','teacher','attendance.user','attendance.marker']);
+
+        $students=$entry->group->enrollments()
+            ->with('user.dpoProfile')
+            ->where('role','student')
+            ->where('status','active')
+            ->orderBy('id')
+            ->get()
+            ->sortBy(fn($enrollment)=>mb_strtolower($enrollment->user->name))
+            ->values();
+
+        return view('admin.dpo.attendance',[
+            'entry'=>$entry,
+            'students'=>$students,
+            'attendance'=>$entry->attendance->keyBy('user_id'),
+        ]);
+    }
+
+    public function updateAttendance(Request $request,DpoScheduleEntry $entry)
+    {
+        $studentIds=$entry->group->enrollments()
+            ->where('role','student')
+            ->where('status','active')
+            ->pluck('user_id')
+            ->map(fn($id)=>(int)$id);
+
+        $data=$request->validate([
+            'status'=>['required','array'],
+            'status.*'=>['required','in:present,absent,excused,late'],
+            'note'=>['nullable','array'],
+            'note.*'=>['nullable','string','max:500'],
+        ]);
+
+        foreach($studentIds as $userId){
+            $status=$data['status'][$userId]??null;
+            if(!$status) continue;
+
+            DpoAttendance::updateOrCreate(
+                ['schedule_entry_id'=>$entry->id,'user_id'=>$userId],
+                [
+                    'status'=>$status,
+                    'note'=>trim((string)($data['note'][$userId]??''))?:null,
+                    'marked_by'=>$request->user()->id,
+                    'marked_at'=>now(),
+                ]
+            );
+        }
+
+        return back()->with('ok','Посещаемость сохранена');
     }
 
     public function storeAnnouncement(Request $request,DpoGroup $group)
