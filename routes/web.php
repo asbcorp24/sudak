@@ -104,6 +104,7 @@ Route::get('/dpo/programs/{program:slug}',[DpoPublicController::class,'show'])->
 Route::post('/dpo/programs/{program:slug}/apply',[DpoPublicController::class,'apply'])->name('dpo.apply');
 Route::get('/dpo/application/{token}',[DpoPublicController::class,'applicationStatus'])->name('dpo.application.status');
 Route::get('/dpo/document/{code}',[DpoPublicController::class,'verifyDocument'])->name('dpo.document.verify');
+Route::get('/dpo/document/{code}/print',[DpoPublicController::class,'printDocument'])->name('dpo.document.print');
 
 Route::get('/dpo/login',[DpoAuthController::class,'show'])->name('dpo.login');
 Route::post('/dpo/login',[DpoAuthController::class,'login'])->name('dpo.login.post');
