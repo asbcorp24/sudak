@@ -82,5 +82,5 @@
  </div>
 </div>
 
-<form method="post" action="{{ route('admin.dpo.programs.destroy',$program) }}" class="text-end mt-4" onsubmit="return confirm('Удалить программу со всеми группами, уроками и результатами?')">@csrf @method('DELETE')<button class="link-danger">Удалить программу ×</button></form>
+<div class="d-flex justify-content-end gap-3 mt-4"><form method="post" action="{{ route('admin.dpo.programs.archive',$program) }}">@csrf<button class="btn-ghost">{{ $program->is_archived?'Восстановить из архива':'Архивировать программу' }}</button></form><form method="post" action="{{ route('admin.dpo.programs.destroy',$program) }}" onsubmit="return confirm('Удалить программу со всеми группами, уроками и результатами?')">@csrf @method('DELETE')<button class="link-danger">Удалить программу ×</button></form></div>
 @endsection
