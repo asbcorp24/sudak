@@ -595,11 +595,14 @@ class DpoAdminController extends Controller
             'title'=>['required','string','max:255'],
             'description'=>['nullable','string','max:5000'],
             'duration_minutes'=>['nullable','integer','min:0','max:10000'],
-            'completion_mode'=>['required','in:manual,view,resources,scorm'],
+            'lesson_type'=>['nullable','in:online,offline_practice'],
+            'completion_mode'=>['required','in:manual,view,resources,scorm,attendance'],
             'sort'=>['nullable','integer','min:0','max:9999'],
         ]);
         $data['duration_minutes']=(int)($data['duration_minutes']??0);
         $data['sort']=(int)($data['sort']??0);
+        $data['lesson_type']=$data['lesson_type']??'online';
+        if($data['lesson_type']==='offline_practice') $data['completion_mode']='attendance';
         $data['is_published']=true;
         $lesson=$module->lessons()->create($data);
 
@@ -665,12 +668,16 @@ class DpoAdminController extends Controller
             'description'=>['nullable','string','max:5000'],
             'content'=>['nullable','string'],
             'duration_minutes'=>['nullable','integer','min:0','max:10000'],
-            'completion_mode'=>['required','in:manual,view,resources,scorm'],
+            'lesson_type'=>['nullable','in:online,offline_practice'],
+            'completion_mode'=>['required','in:manual,view,resources,scorm,attendance'],
             'sort'=>['nullable','integer','min:0','max:9999'],
             'is_published'=>['nullable','boolean'],
         ]);
         $data['duration_minutes']=(int)($data['duration_minutes']??0);
         $data['sort']=(int)($data['sort']??0);
+        $data['lesson_type']=$data['lesson_type']??$lesson->lesson_type??'online';
+        if($data['lesson_type']==='offline_practice') $data['completion_mode']='attendance';
+        elseif($data['completion_mode']==='attendance') $data['completion_mode']='view';
         $data['is_published']=$request->boolean('is_published');
         $lesson->update($data);
 
