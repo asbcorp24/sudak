@@ -83,6 +83,16 @@ function initInlineMediaUploads(){
   window.addEventListener('zsk:media-uploaded',event=>{
     const assets=event.detail?.assets||[];
 
+    document.querySelectorAll('[data-media-select]').forEach(select=>{
+      assets.forEach(asset=>{
+        if(select.querySelector('option[value="'+asset.id+'"]')) return;
+        const option=document.createElement('option');
+        option.value=asset.id;
+        option.textContent=(asset.title||'Файл')+' · '+String(asset.extension||'').toUpperCase();
+        select.prepend(option);
+      });
+    });
+
     document.querySelectorAll('.media-picker').forEach(picker=>{
       const coverGrid=picker.querySelector('[data-media-picker-grid="cover"]');
       const contentGrid=picker.querySelector('[data-media-picker-grid="content"]');
