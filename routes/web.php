@@ -167,6 +167,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth','admin'])->group(func
  Route::post('dpo/programs/{program}/builder/order',[DpoAdminController::class,'reorderBuilder'])->name('dpo.builder.order');
  Route::get('dpo/programs/{program}',[DpoAdminController::class,'showProgram'])->name('dpo.programs.show');
  Route::put('dpo/programs/{program}',[DpoAdminController::class,'updateProgram'])->name('dpo.programs.update');
+ Route::post('dpo/programs/{program}/archive',[DpoAdminController::class,'archiveProgram'])->name('dpo.programs.archive');
  Route::delete('dpo/programs/{program}',[DpoAdminController::class,'destroyProgram'])->name('dpo.programs.destroy');
  Route::post('dpo/programs/{program}/groups',[DpoAdminController::class,'storeGroup'])->name('dpo.groups.store');
  Route::get('dpo/groups/{group}',[DpoAdminController::class,'showGroup'])->name('dpo.groups.show');
