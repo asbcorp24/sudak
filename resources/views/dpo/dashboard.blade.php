@@ -30,6 +30,20 @@
       <div class="feedback-empty">Вы пока не зачислены ни в одну группу ДПО.</div>
      @endforelse
     </div>
+
+    @if($completedEnrollments->count())
+     <div class="section-head mt-5"><div><span class="eyebrow">HISTORY</span><h2>Завершённые программы</h2></div></div>
+     <div class="dpo-course-grid">
+      @foreach($completedEnrollments as $enrollment)
+       <div class="dpo-course-card">
+        <div class="dpo-course-card-top"><span class="eyebrow">{{ $enrollment->group->program->code ?: 'ДПО' }}</span><span class="dpo-status completed">Завершено</span></div>
+        <h3>{{ $enrollment->group->program->title }}</h3>
+        <p>{{ $enrollment->group->name }} · {{ $enrollment->group->program->hours }} ч.</p>
+        <strong>{{ $enrollment->completed_at?->format('d.m.Y') }}</strong>
+       </div>
+      @endforeach
+     </div>
+    @endif
    </div>
 
    <aside class="dpo-side-column">
