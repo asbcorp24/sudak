@@ -77,6 +77,10 @@ class CourseController extends Controller
             ->whereIn('assignment_id',$lesson->assignments->pluck('id'))
             ->get()->keyBy('assignment_id');
 
+        $practiceEntry=$lesson->lesson_type==='offline_practice'
+            ? DpoScheduleEntry::with('teacher')->where('group_id',$group->id)->where('lesson_id',$lesson->id)->orderBy('starts_at')->first()
+            : null;
+
         $scormAttempts=\App\Models\DpoScormAttempt::where('group_id',$group->id)
             ->where('user_id',$request->user()->id)
             ->whereIn('package_id',$lesson->scormPackages->pluck('id'))
@@ -84,13 +88,17 @@ class CourseController extends Controller
             ->get()
             ->groupBy('package_id');
 
-        return view('dpo.lesson',compact('group','lesson','progress','submissions','scormAttempts'));
+        return view('dpo.lesson',compact('group','lesson','progress','submissions','scormAttempts','practiceEntry'));
     }
 
     public function complete(Request $request,DpoGroup $group,DpoLesson $lesson)
     {
         $this->authorizeGroup($request,$group);
         abort_unless($lesson->module()->where('program_id',$group->program_id)->exists(),404);
+
+        if($lesson->lesson_type==='offline_practice' || $lesson->completion_mode==='attendance'){
+            return back()->withErrors(['lesson'=>'Офлайн-практика засчитывается преподавателем по посещаемости занятия.']);
+        }
 
         DpoLessonProgress::updateOrCreate(
             ['lesson_id'=>$lesson->id,'group_id'=>$group->id,'user_id'=>$request->user()->id],
