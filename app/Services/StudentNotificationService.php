@@ -29,13 +29,17 @@ class StudentNotificationService
         $pushUsers=collect();
 
         foreach($users as $user){
-            $key=$dedupeKey ? $dedupeKey : null;
-            $notification=UserNotification::firstOrCreate(
-                ['user_id'=>$user->id,'dedupe_key'=>$key],
-                ['type'=>$type,'title'=>$title,'body'=>$body,'url'=>$url]
-            );
-
-            if(!$notification->wasRecentlyCreated) continue;
+            if($dedupeKey){
+                $notification=UserNotification::firstOrCreate(
+                    ['user_id'=>$user->id,'dedupe_key'=>$dedupeKey],
+                    ['type'=>$type,'title'=>$title,'body'=>$body,'url'=>$url]
+                );
+                if(!$notification->wasRecentlyCreated) continue;
+            }else{
+                UserNotification::create([
+                    'user_id'=>$user->id,'type'=>$type,'title'=>$title,'body'=>$body,'url'=>$url,
+                ]);
+            }
             if($this->pushEnabled($user,$type)) $pushUsers->push($user);
         }
 
