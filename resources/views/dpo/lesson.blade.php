@@ -7,12 +7,24 @@
   <span class="eyebrow">{{ $lesson->module->title }}</span>
   <h1>{{ $lesson->title }}</h1>
   <p>{{ $lesson->description }}</p>
-  <div class="dpo-course-meta"><span>{{ $lesson->duration_minutes }} мин</span><span>{{ ['manual'=>'ручное завершение','view'=>'по просмотру','resources'=>'по материалам','scorm'=>'по SCORM'][$lesson->completion_mode] }}</span><span class="dpo-status {{ $progress->status }}">{{ ['not_started'=>'Не начат','in_progress'=>'В процессе','completed'=>'Завершён'][$progress->status] }}</span></div>
+  <div class="dpo-course-meta"><span>{{ $lesson->duration_minutes }} мин</span>@if($lesson->lesson_type==='offline_practice')<span>Офлайн-практика</span>@endif<span>{{ ['manual'=>'ручное завершение','view'=>'по просмотру','resources'=>'по материалам','scorm'=>'по SCORM','attendance'=>'по посещаемости'][$lesson->completion_mode] ?? $lesson->completion_mode }}</span><span class="dpo-status {{ $progress->status }}">{{ ['not_started'=>'Не начат','in_progress'=>'В процессе','completed'=>'Завершён'][$progress->status] }}</span></div>
  </div>
 </section>
 
 <section class="section-space">
  <div class="container-xxl">
+  @if($lesson->lesson_type==='offline_practice')
+   <div class="alert alert-primary mb-4">
+    <div class="d-flex justify-content-between gap-3 flex-wrap">
+     <div><b>Офлайн-практика</b><div class="mt-1">Занятие проходит очно. Урок будет засчитан автоматически после отметки преподавателем о посещении.</div></div>
+     @if($practiceEntry)
+      <div class="text-md-end"><b>{{ $practiceEntry->starts_at->format('d.m.Y H:i') }}</b>@if($practiceEntry->ends_at)<div>до {{ $practiceEntry->ends_at->format('H:i') }}</div>@endif @if($practiceEntry->room)<div>{{ $practiceEntry->room }}</div>@endif @if($practiceEntry->teacher)<small>{{ $practiceEntry->teacher->name }}</small>@endif</div>
+     @else
+      <div><small>Дата и аудитория пока не назначены.</small></div>
+     @endif
+    </div>
+   </div>
+  @endif
   <div class="dpo-dashboard-grid">
    <div class="dpo-main-column">
     @if($lesson->content)<article class="content-prose dpo-lesson-content">{!! $lesson->content !!}</article>@endif
@@ -83,7 +95,7 @@
      </section>
     @endif
 
-    @if($lesson->completion_mode!=='scorm' && auth()->user()->dpoProfile?->role==='student' && $progress->status!=='completed')
+    @if(!in_array($lesson->completion_mode,['scorm','attendance'],true) && $lesson->lesson_type!=='offline_practice' && auth()->user()->dpoProfile?->role==='student' && $progress->status!=='completed')
      <form method="post" action="{{ route('dpo.lessons.complete',[$group,$lesson]) }}" class="mt-4">@csrf<button class="btn-tech">Отметить урок завершённым ✓</button></form>
     @endif
    </div>
