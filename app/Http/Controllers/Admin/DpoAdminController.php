@@ -798,6 +798,10 @@ class DpoAdminController extends Controller
                 ->where('program_id',$enrollment->group->program_id)
                 ->whereIn('status',['approved','enrolled'])
                 ->update(['status'=>'completed']);
+
+            if(!$enrollment->group->enrollments()->where('role','student')->where('status','active')->exists()){
+                $enrollment->group->update(['status'=>'completed']);
+            }
         }
 
         return back()->with('ok',$attestation->status==='passed'?'Аттестация пройдена. Можно выдать документ.':'Результат аттестации сохранён.');
@@ -841,6 +845,13 @@ class DpoAdminController extends Controller
             ->where('program_id',$program->id)
             ->where('status','completed')
             ->update(['status'=>'archived']);
+
+        $group=$enrollment->group;
+        $hasActive=$group->enrollments()->where('role','student')->where('status','active')->exists();
+        $missingDocuments=$group->enrollments()->where('role','student')->where('status','completed')->whereDoesntHave('issuedDocument')->exists();
+        if(!$hasActive && !$missingDocuments){
+            $group->update(['status'=>'archived']);
+        }
 
         return back()->with('ok','Документ выдан. Код проверки: '.$document->verification_code);
     }
