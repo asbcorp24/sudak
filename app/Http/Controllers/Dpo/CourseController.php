@@ -34,7 +34,7 @@ class CourseController extends Controller
             ->first();
 
         $teacherSubmissions=collect();
-        if($request->user()->is_admin || $currentEnrollment?->role==='teacher'){
+        if(($request->user()->is_admin && $request->user()->canAdmin('dpo')) || $currentEnrollment?->role==='teacher'){
             $teacherSubmissions=\App\Models\DpoSubmission::with(['assignment.lesson','user','media'])
                 ->where('group_id',$group->id)
                 ->whereIn('status',['submitted','reviewed','returned'])
@@ -116,7 +116,7 @@ class CourseController extends Controller
     private function authorizeGroup(Request $request,DpoGroup $group): void
     {
         $user=$request->user();
-        if($user->is_admin) return;
+        if($user->is_admin && $user->canAdmin('dpo')) return;
 
         abort_unless(
             $group->enrollments()->where('user_id',$user->id)->where('status','active')->exists(),
