@@ -22,6 +22,12 @@ class DashboardController extends Controller
             ->orderByDesc('id')
             ->get();
 
+        $completedEnrollments=DpoEnrollment::with(['group.program'])
+            ->where('user_id',$user->id)
+            ->where('status','completed')
+            ->orderByDesc('completed_at')
+            ->get();
+
         $groupIds=$enrollments->pluck('group_id');
 
         $todaySchedule=DpoScheduleEntry::with(['group','lesson','teacher'])
@@ -60,6 +66,6 @@ class DashboardController extends Controller
             ->latest('issued_at')
             ->get();
 
-        return view('dpo.dashboard',compact('enrollments','todaySchedule','pendingSubmissions','progress','issuedDocuments'));
+        return view('dpo.dashboard',compact('enrollments','completedEnrollments','todaySchedule','pendingSubmissions','progress','issuedDocuments'));
     }
 }
