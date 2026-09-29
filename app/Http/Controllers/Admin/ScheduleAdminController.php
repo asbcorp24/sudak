@@ -8,6 +8,7 @@ use App\Models\ScheduleEntry;
 use App\Models\ScheduleGroup;
 use Illuminate\Http\Request;
 use App\Services\RectorCollegeScheduleImporter;
+use App\Services\StudentNotificationService;
 
 class ScheduleAdminController extends Controller
 {
@@ -35,7 +36,7 @@ class ScheduleAdminController extends Controller
         ]);
     }
 
-    public function importXml(Request $request, RectorCollegeScheduleImporter $importer)
+    public function importXml(Request $request, RectorCollegeScheduleImporter $importer,StudentNotificationService $notifications)
     {
         $data=$request->validate([
             'xml_file'=>['required','file','max:51200'],
@@ -51,6 +52,17 @@ class ScheduleAdminController extends Controller
             return back()->withErrors([
                 'xml_file'=>'Не удалось импортировать расписание: '.$e->getMessage(),
             ]);
+        }
+
+        foreach(($report['group_ids']??[]) as $affectedGroupId){
+            $group=ScheduleGroup::find($affectedGroupId);
+            if($group){
+                $notifications->notifyScheduleGroup($group->id,'Изменилось расписание группы '.$group->name,
+                    'Импортировано обновлённое расписание на период '.$report['period_from'].' — '.$report['period_to'],
+                    route('schedule.index',['group_id'=>$group->id]),
+                    'schedule-import:'.$group->id.':'.now()->format('YmdHi')
+                );
+            }
         }
 
         return redirect()
@@ -72,9 +84,14 @@ class ScheduleAdminController extends Controller
         ]);
     }
 
-    public function store(Request $request)
+    public function store(Request $request,StudentNotificationService $notifications)
     {
-        ScheduleEntry::create($this->data($request));
+        $entry=ScheduleEntry::create($this->data($request));
+        $group=ScheduleGroup::find($entry->group_id);
+        $notifications->notifyScheduleGroup($entry->group_id,'Изменилось расписание группы '.($group?->name??''),
+            'Добавлено занятие: '.$entry->lesson_date->format('d.m.Y').' · '.$entry->subject,
+            route('schedule.index',['date'=>$entry->lesson_date->format('Y-m-d'),'group_id'=>$entry->group_id])
+        );
         return redirect()->route('admin.schedule.index',['date'=>$request->input('lesson_date')])->with('ok','Занятие добавлено');
     }
 
@@ -87,16 +104,32 @@ class ScheduleAdminController extends Controller
         ]);
     }
 
-    public function update(Request $request,ScheduleEntry $schedule)
+    public function update(Request $request,ScheduleEntry $schedule,StudentNotificationService $notifications)
     {
+        $oldGroupId=$schedule->group_id;
         $schedule->update($this->data($request));
+        $groupIds=array_values(array_unique([$oldGroupId,$schedule->group_id]));
+        foreach($groupIds as $groupId){
+            $group=ScheduleGroup::find($groupId);
+            $notifications->notifyScheduleGroup($groupId,'Изменилось расписание группы '.($group?->name??''),
+                'Обновлено занятие: '.$schedule->lesson_date->format('d.m.Y').' · '.$schedule->subject,
+                route('schedule.index',['date'=>$schedule->lesson_date->format('Y-m-d'),'group_id'=>$groupId])
+            );
+        }
         return redirect()->route('admin.schedule.index',['date'=>$schedule->lesson_date->format('Y-m-d')])->with('ok','Занятие обновлено');
     }
 
-    public function destroy(ScheduleEntry $schedule)
+    public function destroy(ScheduleEntry $schedule,StudentNotificationService $notifications)
     {
         $date=$schedule->lesson_date->format('Y-m-d');
+        $groupId=$schedule->group_id;
+        $subject=$schedule->subject;
+        $group=ScheduleGroup::find($groupId);
         $schedule->delete();
+        $notifications->notifyScheduleGroup($groupId,'Изменилось расписание группы '.($group?->name??''),
+            'Занятие '.$date.' «'.$subject.'» удалено из расписания.',
+            route('schedule.index',['date'=>$date,'group_id'=>$groupId])
+        );
         return redirect()->route('admin.schedule.index',['date'=>$date])->with('ok','Занятие удалено');
     }
 
