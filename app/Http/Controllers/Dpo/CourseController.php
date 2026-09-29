@@ -28,6 +28,20 @@ class CourseController extends Controller
             ->where('user_id',$request->user()->id)
             ->get()->keyBy('lesson_id');
 
+        $currentEnrollment=$group->enrollments()
+            ->where('user_id',$request->user()->id)
+            ->where('status','active')
+            ->first();
+
+        $teacherSubmissions=collect();
+        if($request->user()->is_admin || $currentEnrollment?->role==='teacher'){
+            $teacherSubmissions=\App\Models\DpoSubmission::with(['assignment.lesson','user','media'])
+                ->where('group_id',$group->id)
+                ->whereIn('status',['submitted','reviewed','returned'])
+                ->latest('submitted_at')
+                ->get();
+        }
+
         $nextSchedule=DpoScheduleEntry::with(['lesson','teacher'])
             ->where('group_id',$group->id)
             ->where('starts_at','>=',now())
@@ -35,7 +49,7 @@ class CourseController extends Controller
             ->take(10)
             ->get();
 
-        return view('dpo.group',compact('group','progress','nextSchedule'));
+        return view('dpo.group',compact('group','progress','nextSchedule','currentEnrollment','teacherSubmissions'));
     }
 
     public function lesson(Request $request,DpoGroup $group,DpoLesson $lesson)
