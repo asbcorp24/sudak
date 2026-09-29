@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Achievement;
 use App\Models\CollegeEvent;
 use App\Models\NewsPost;
+use App\Models\Panorama;
 use App\Models\ScheduleEntry;
 use App\Models\Setting;
 use App\Models\Specialty;
@@ -85,6 +86,13 @@ class HomeController extends Controller
             }
         }
 
+        $homePanorama=Panorama::with(['hotspots.targetPanorama'])
+            ->where('is_published',true)
+            ->orderByDesc('is_home')
+            ->orderBy('sort')
+            ->orderByDesc('id')
+            ->first();
+
         return view('home',[
             'specialties'=>Specialty::published()->orderBy('sort')->get(),
             'news'=>NewsPost::with('media')->published()->latest('published_at')->take(6)->get(),
@@ -97,6 +105,7 @@ class HomeController extends Controller
             'achievements'=>$achievements,
             'openDayDate'=>$openDayDate,
             'openDayEvent'=>$openDayEvent,
+            'homePanorama'=>$homePanorama,
         ]);
     }
 }
