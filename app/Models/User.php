@@ -9,9 +9,14 @@ class User extends Authenticatable
 {
     use HasFactory,Notifiable;
 
-    protected $fillable=['name','email','password','is_admin','admin_scope'];
+    protected $fillable=['name','email','password','is_admin','admin_scope','user_type','schedule_group_id','student_number','notify_schedule','notify_news','notify_events'];
     protected $hidden=['password','remember_token'];
-    protected $casts=['email_verified_at'=>'datetime','is_admin'=>'boolean'];
+    protected $casts=['email_verified_at'=>'datetime','is_admin'=>'boolean','notify_schedule'=>'boolean','notify_news'=>'boolean','notify_events'=>'boolean'];
+
+    public function scheduleGroup(){return $this->belongsTo(ScheduleGroup::class,'schedule_group_id');}
+    public function eventRegistrations(){return $this->hasMany(EventRegistration::class);}
+    public function userNotifications(){return $this->hasMany(UserNotification::class);}
+    public function pushSubscriptions(){return $this->hasMany(PushSubscription::class);}
 
     public function dpoProfile(){return $this->hasOne(DpoProfile::class);}
     public function dpoEnrollments(){return $this->hasMany(DpoEnrollment::class);}
