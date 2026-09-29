@@ -22,7 +22,7 @@
    <form method="post" action="{{ route('admin.dpo.users.store') }}" class="admin-form">@csrf
     <div class="field"><label>ФИО</label><input class="form-control" name="name" required></div>
     <div class="field"><label>Email / логин</label><input type="email" class="form-control" name="email" required></div>
-    <div class="field"><label>Пароль</label><input class="form-control" name="password" value="{{ IlluminateSupportStr::random(10) }}" required></div>
+    <div class="field"><label>Пароль</label><input class="form-control" name="password" value="{{ \Illuminate\Support\Str::random(10) }}" required></div>
     <div class="field"><label>Роль</label><select class="form-select" name="role"><option value="student">Слушатель</option><option value="teacher">Преподаватель</option><option value="manager">Менеджер ДПО</option></select></div>
     <div class="field"><label>Телефон</label><input class="form-control" name="phone"></div>
     <div class="field"><label>Организация</label><input class="form-control" name="organization"></div>
@@ -59,7 +59,16 @@
    </form>
    <div class="dpo-admin-simple-list mt-3">
     @foreach($group->scheduleEntries as $entry)
-     <div><span><b>{{ $entry->starts_at->format('d.m.Y H:i') }} · {{ $entry->title }}</b><small>{{ $entry->teacher?->name }}@if($entry->room) · {{ $entry->room }}@endif @if($entry->online_url) · онлайн@endif</small></span><form method="post" action="{{ route('admin.dpo.schedule.destroy',$entry) }}">@csrf @method('DELETE')<button class="link-danger">×</button></form></div>
+     <div>
+      <span>
+       <b>{{ $entry->starts_at->format('d.m.Y H:i') }} · {{ $entry->title }}</b>
+       <small>{{ $entry->teacher?->name }}@if($entry->room) · {{ $entry->room }}@endif @if($entry->online_url) · онлайн@endif · отмечено {{ $entry->attendance->count() }} чел.</small>
+      </span>
+      <span class="d-flex gap-2 align-items-center">
+       <a class="btn-ghost" href="{{ route('admin.dpo.attendance.edit',$entry) }}">Посещаемость</a>
+       <form method="post" action="{{ route('admin.dpo.schedule.destroy',$entry) }}" onsubmit="return confirm('Удалить занятие? Посещаемость этого занятия тоже будет удалена.')">@csrf @method('DELETE')<button class="link-danger">×</button></form>
+      </span>
+     </div>
     @endforeach
    </div>
   </div>
@@ -71,6 +80,35 @@
     <div class="field"><textarea class="form-control" rows="3" name="body" placeholder="Текст объявления"></textarea></div>
     <button class="btn-ghost">Опубликовать</button>
    </form>
+  </div>
+
+  <div class="glass-panel mt-4">
+   <div class="d-flex justify-content-between align-items-center gap-3 flex-wrap">
+    <div><span class="eyebrow">ATTENDANCE SUMMARY</span><h3 class="mt-2 mb-0">Посещаемость группы</h3></div>
+    <small class="text-secondary">Занятий в расписании: {{ $group->scheduleEntries->count() }}</small>
+   </div>
+   <div class="table-responsive mt-3">
+    <table class="table tech-table align-middle">
+     <thead><tr><th>Слушатель</th><th>Отмечено</th><th>Посещено</th><th>Отсутствовал</th><th>Уваж.</th><th>Посещаемость</th></tr></thead>
+     <tbody>
+      @forelse($group->enrollments->where('role','student')->where('status','active') as $enrollment)
+       @php($a=$attendanceSummary->get($enrollment->user_id))
+       @php($marked=(int)($a?->marked_count ?? 0))
+       @php($attended=(int)($a?->attended_count ?? 0))
+       <tr>
+        <td><b>{{ $enrollment->user->name }}</b></td>
+        <td>{{ $marked }}</td>
+        <td>{{ $attended }}</td>
+        <td>{{ (int)($a?->absent_count ?? 0) }}</td>
+        <td>{{ (int)($a?->excused_count ?? 0) }}</td>
+        <td><b>{{ $marked ? round($attended/$marked*100) : 0 }}%</b></td>
+       </tr>
+      @empty
+       <tr><td colspan="6">Активных слушателей пока нет.</td></tr>
+      @endforelse
+     </tbody>
+    </table>
+   </div>
   </div>
 
   <div class="glass-panel mt-4">
