@@ -9,9 +9,10 @@
 <body class="dpo-body">
 <header class="dpo-topbar">
  <div class="container-xxl d-flex align-items-center gap-3">
-  <a class="dpo-brand" href="{{ route('dpo.dashboard') }}"><span class="brand-mark">ДПО</span><span><b>ЗСК · ДПО</b><small>система онлайн-обучения</small></span></a>
+  <a class="dpo-brand" href="{{ auth()->check() ? route('dpo.dashboard') : route('dpo.catalog') }}"><span class="brand-mark">ДПО</span><span><b>ЗСК · ДПО</b><small>система онлайн-обучения</small></span></a>
   @auth
   <nav class="dpo-nav ms-auto">
+   <a href="{{ route('dpo.catalog') }}">Программы</a>
    <a class="{{ request()->routeIs('dpo.dashboard')?'active':'' }}" href="{{ route('dpo.dashboard') }}">Моё обучение</a>
    <a class="{{ request()->routeIs('dpo.schedule')?'active':'' }}" href="{{ route('dpo.schedule') }}">Расписание</a>
    <a class="{{ request()->routeIs('dpo.profile*')?'active':'' }}" href="{{ route('dpo.profile') }}">Профиль</a>
