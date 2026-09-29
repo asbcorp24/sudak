@@ -32,7 +32,111 @@
  </div>
 </section>
 
+@include('home-persona')
+
+<div class="home-personalized-sections" data-home-sections>
 @foreach($homeSections as $section)
- @includeIf('home-sections.'.$section)
+ <div class="home-section-slot" data-home-section="{{ $section }}">
+  @includeIf('home-sections.'.$section)
+ </div>
 @endforeach
+</div>
+
+<script>
+(function(){
+ const root=document.querySelector('[data-home-persona]');
+ const sections=document.querySelector('[data-home-sections]');
+ if(!root||!sections) return;
+
+ const key='zsk-home-persona';
+ const allowed=['applicant','student','parent','employee','dpo'];
+ const meta={
+  applicant:{
+   eyebrow:'АБИТУРИЕНТ / ПОСТУПЛЕНИЕ',
+   title:'Всё для поступления — в начале страницы',
+   text:'Сначала покажем специальности, поступление, дни открытых дверей и ближайшие события.',
+   order:['specialties','admission','open_day','events','news','achievements','tech','schedule','quick_actions']
+  },
+  student:{
+   eyebrow:'СТУДЕНТ / УЧЁБА',
+   title:'Учебный день без лишних поисков',
+   text:'Сначала — расписание, события, новости и всё, что нужно действующему студенту.',
+   order:['schedule','events','news','achievements','tech','specialties','quick_actions','open_day','admission']
+  },
+  parent:{
+   eyebrow:'РОДИТЕЛЬ / ИНФОРМАЦИЯ',
+   title:'Главное об учёбе и жизни колледжа',
+   text:'В приоритете расписание, новости, события, достижения и информация о направлениях подготовки.',
+   order:['schedule','news','events','achievements','specialties','tech','quick_actions','open_day','admission']
+  },
+  employee:{
+   eyebrow:'СОТРУДНИК / РАБОТА',
+   title:'Рабочая информация — первой',
+   text:'Сначала покажем расписание, календарь, новости и текущие события колледжа.',
+   order:['schedule','events','news','achievements','tech','specialties','quick_actions','open_day','admission']
+  },
+  dpo:{
+   eyebrow:'ДПО / ОБУЧЕНИЕ',
+   title:'Маршрут слушателя дополнительного образования',
+   text:'Сначала — актуальные события, новости, расписание и полезная информация колледжа.',
+   order:['events','news','schedule','tech','achievements','specialties','quick_actions','open_day','admission']
+  }
+ };
+ const original=[...sections.querySelectorAll('[data-home-section]')];
+
+ function reorder(order){
+  const map=new Map(original.map(el=>[el.dataset.homeSection,el]));
+  order.forEach(name=>{const el=map.get(name);if(el)sections.appendChild(el);});
+  original.forEach(el=>{if(!order.includes(el.dataset.homeSection))sections.appendChild(el);});
+ }
+
+ function resetOrder(){
+  original.forEach(el=>sections.appendChild(el));
+ }
+
+ function apply(persona,save){
+  const valid=allowed.includes(persona);
+  root.querySelectorAll('[data-persona]').forEach(btn=>{
+   const active=valid&&btn.dataset.persona===persona;
+   btn.classList.toggle('active',active);
+   btn.setAttribute('aria-pressed',active?'true':'false');
+  });
+  root.querySelectorAll('[data-persona-panel]').forEach(panel=>{
+   panel.hidden=!valid||panel.dataset.personaPanel!==persona;
+  });
+  const result=root.querySelector('[data-persona-result]');
+  const reset=root.querySelector('[data-persona-reset]');
+  if(!valid){
+   if(result)result.hidden=true;
+   if(reset)reset.hidden=true;
+   resetOrder();
+   if(save)try{localStorage.removeItem(key);}catch(e){}
+   return;
+  }
+  const data=meta[persona];
+  root.querySelector('[data-persona-eyebrow]').textContent=data.eyebrow;
+  root.querySelector('[data-persona-title]').textContent=data.title;
+  root.querySelector('[data-persona-text]').textContent=data.text;
+  result.hidden=false;
+  reset.hidden=false;
+  reorder(data.order);
+  document.documentElement.dataset.homePersona=persona;
+  if(save)try{localStorage.setItem(key,persona);}catch(e){}
+ }
+
+ root.querySelectorAll('[data-persona]').forEach(btn=>btn.addEventListener('click',()=>{
+  apply(btn.dataset.persona,true);
+  root.querySelector('[data-persona-result]')?.scrollIntoView({behavior:'smooth',block:'nearest'});
+ }));
+ root.querySelector('[data-persona-reset]')?.addEventListener('click',()=>{
+  delete document.documentElement.dataset.homePersona;
+  apply('',true);
+ });
+
+ let saved='';
+ try{saved=localStorage.getItem(key)||'';}catch(e){}
+ const initial=allowed.includes(saved)?saved:(root.dataset.defaultPersona||'');
+ if(initial)apply(initial,false);
+})();
+</script>
 @endsection
