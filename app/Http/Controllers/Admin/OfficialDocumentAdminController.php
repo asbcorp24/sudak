@@ -102,6 +102,7 @@ class OfficialDocumentAdminController extends Controller
     {
         $data=$this->versionData($request);
         $makeCurrent=$request->boolean('make_current');
+        if($makeCurrent) $data['is_published']=true;
 
         DB::transaction(function() use($document,$data,$makeCurrent){
             if($makeCurrent) $document->versions()->update(['is_current'=>false]);
@@ -120,6 +121,7 @@ class OfficialDocumentAdminController extends Controller
     {
         $this->assertVersion($document,$version);
         $data=$this->versionData($request);
+        if($version->is_current) $data['is_published']=true;
         $version->update($data);
 
         if($version->is_current) $this->syncCurrentVersion($document,$version);
@@ -158,7 +160,7 @@ class OfficialDocumentAdminController extends Controller
                     ?: $document->versions()->orderByDesc('id')->first();
 
                 $document->versions()->update(['is_current'=>false]);
-                $replacement->update(['is_current'=>true]);
+                $replacement->update(['is_current'=>true,'is_published'=>true]);
                 $this->syncCurrentVersion($document,$replacement);
             }
         });
