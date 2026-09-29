@@ -284,7 +284,7 @@ function shipyard(api){
  const shipBaseRotationY=-.22;
  ship.position.set(1.35,shipBaseY,.3);
  ship.rotation.y=shipBaseRotationY;
- ship.scale.setScalar(.94);
+ ship.scale.setScalar(1);
  dock.add(ship);
 
  const makeLabel=(text)=>{
@@ -360,12 +360,27 @@ function shipyard(api){
   const targetLength=5.45;
   const modelScale=targetLength/size.x;
 
-  // The real STL is rendered as a technical wireframe instead of a solid blue hull.
+  // Multi-layer naval CAD rendering: a faint volume, dense mesh and hard structural edges.
+  const ghostHull=new THREE.Mesh(
+   geometry,
+   new THREE.MeshStandardMaterial({
+    color:0x0b3f86,
+    metalness:.22,
+    roughness:.58,
+    transparent:true,
+    opacity:.055,
+    depthWrite:false,
+    side:THREE.DoubleSide
+   })
+  );
+  ghostHull.scale.setScalar(modelScale);
+  ship.add(ghostHull);
+
   const vesselMaterial=new THREE.MeshBasicMaterial({
-   color:0x2f8cff,
+   color:0x1769d2,
    wireframe:true,
    transparent:true,
-   opacity:.20,
+   opacity:.13,
    depthWrite:false,
    side:THREE.DoubleSide
   });
@@ -376,11 +391,27 @@ function shipyard(api){
   ship.add(vessel);
 
   const edges=new THREE.LineSegments(
-   new THREE.EdgesGeometry(geometry,18),
-   new THREE.LineBasicMaterial({color:0x1769d2,transparent:true,opacity:.92})
+   new THREE.EdgesGeometry(geometry,24),
+   new THREE.LineBasicMaterial({color:0x0b3f86,transparent:true,opacity:.78})
   );
   edges.scale.setScalar(modelScale);
   ship.add(edges);
+
+  // Sparse vertices from the actual STL make the model read as an engineering scan.
+  const sourcePositions=geometry.getAttribute('position');
+  const sampled=[];
+  const step=Math.max(1,Math.floor(sourcePositions.count/1800));
+  for(let i=0;i<sourcePositions.count;i+=step){
+   sampled.push(sourcePositions.getX(i),sourcePositions.getY(i),sourcePositions.getZ(i));
+  }
+  const pointGeometry=new THREE.BufferGeometry();
+  pointGeometry.setAttribute('position',new THREE.Float32BufferAttribute(sampled,3));
+  const surveyPoints=new THREE.Points(
+   pointGeometry,
+   new THREE.PointsMaterial({color:0x69b8ff,size:.012,transparent:true,opacity:.24,depthWrite:false})
+  );
+  surveyPoints.scale.setScalar(modelScale);
+  ship.add(surveyPoints);
 
   // Actual dimensions calculated from the uploaded STL.
   const length=size.x*modelScale;
@@ -388,53 +419,101 @@ function shipyard(api){
   const height=size.z*modelScale;
   const halfL=length/2,halfW=width/2,halfH=height/2;
 
-  // Transverse frames (шпангоуты). They form a light technical skeleton around
-  // the hull without replacing or hiding the STL surface.
+  // Structural construction grid: transverse frames, bulkheads and longitudinal stringers.
   const frames=new THREE.Group();
-  frames.name='ship-frames';
-  const frameMaterial=new THREE.LineBasicMaterial({
-   color:0x4aa3ff,
-   transparent:true,
-   opacity:.78,
-   depthTest:false
-  });
-  const frameCount=15;
+  frames.name='ship-structure';
+  const frameMaterial=new THREE.LineBasicMaterial({color:0x2f8cff,transparent:true,opacity:.36,depthTest:false});
+  const bulkheadMaterial=new THREE.LineBasicMaterial({color:0x0b3f86,transparent:true,opacity:.68,depthTest:false});
+  const stringerMaterial=new THREE.LineBasicMaterial({color:0x1769d2,transparent:true,opacity:.46,depthTest:false});
+
+  const frameCount=27;
+  const stations=[];
   for(let i=0;i<frameCount;i++){
    const ratio=i/(frameCount-1);
-   const x=-halfL*.88+ratio*(halfL*1.76);
-   const longitudinal=Math.abs(x)/(halfL*.88);
-   const taper=Math.max(.34,1-Math.pow(longitudinal,2)*.64);
-   const beam=halfW*taper;
-   const deckY=-halfH*.03;
-   const bilgeY=-halfH*.52;
-   const keelY=-halfH*.79;
+   const x=-halfL*.92+ratio*(halfL*1.84);
+   const longitudinal=Math.abs(x)/(halfL*.92);
+   const taper=Math.max(.20,1-Math.pow(longitudinal,2.15)*.78);
+   const bowBias=ratio>.72 ? 1-(ratio-.72)*.22 : 1;
+   const beam=halfW*taper*bowBias;
+   const sheer=Math.pow(longitudinal,1.7)*halfH*.12;
+   const deckY=halfH*.02+sheer;
+   const upperY=-halfH*.18;
+   const chineY=-halfH*.48;
+   const lowerY=-halfH*.70;
+   const keelY=-halfH*.88;
+   stations.push({x,beam,deckY,upperY,chineY,lowerY,keelY});
+
    const points=[
     new THREE.Vector3(x,deckY,-beam*.92),
-    new THREE.Vector3(x,bilgeY,-beam),
-    new THREE.Vector3(x,keelY,-beam*.40),
-    new THREE.Vector3(x,-halfH*.88,0),
-    new THREE.Vector3(x,keelY,beam*.40),
-    new THREE.Vector3(x,bilgeY,beam),
+    new THREE.Vector3(x,upperY,-beam),
+    new THREE.Vector3(x,chineY,-beam*.90),
+    new THREE.Vector3(x,lowerY,-beam*.60),
+    new THREE.Vector3(x,keelY,0),
+    new THREE.Vector3(x,lowerY,beam*.60),
+    new THREE.Vector3(x,chineY,beam*.90),
+    new THREE.Vector3(x,upperY,beam),
     new THREE.Vector3(x,deckY,beam*.92)
    ];
-   const frame=new THREE.Line(
-    new THREE.BufferGeometry().setFromPoints(points),
-    frameMaterial
-   );
+   const major=i%4===0 || i===0 || i===frameCount-1;
+   const material=major?bulkheadMaterial:frameMaterial;
+   const frame=new THREE.Line(new THREE.BufferGeometry().setFromPoints(points),material);
    frame.renderOrder=12;
    frames.add(frame);
 
-   // Short deck beam makes every frame read as a real transverse section.
    const deckBeam=new THREE.Line(
-    new THREE.BufferGeometry().setFromPoints([
-     new THREE.Vector3(x,deckY,-beam*.92),
-     new THREE.Vector3(x,deckY,beam*.92)
-    ]),
-    frameMaterial
+    new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(x,deckY,-beam*.92),new THREE.Vector3(x,deckY,beam*.92)]),
+    material
    );
    deckBeam.renderOrder=12;
    frames.add(deckBeam);
+
+   if(major){
+    const centerPost=new THREE.Line(
+     new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(x,keelY,0),new THREE.Vector3(x,deckY,0)]),
+     bulkheadMaterial
+    );
+    centerPost.renderOrder=12;
+    frames.add(centerPost);
+   }
   }
+
+  [
+   {y:'deckY',z:.90},
+   {y:'upperY',z:1.00},
+   {y:'chineY',z:.90},
+   {y:'lowerY',z:.58}
+  ].forEach(level=>{
+   [-1,1].forEach(side=>{
+    const points=stations.map(s=>new THREE.Vector3(s.x,s[level.y],side*s.beam*level.z));
+    const curve=new THREE.CatmullRomCurve3(points);
+    const stringer=new THREE.Line(new THREE.BufferGeometry().setFromPoints(curve.getPoints(90)),stringerMaterial);
+    stringer.renderOrder=13;
+    frames.add(stringer);
+   });
+  });
+
+  const keelCurve=new THREE.CatmullRomCurve3(stations.map(s=>new THREE.Vector3(s.x,s.keelY,0)));
+  frames.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(keelCurve.getPoints(90)),bulkheadMaterial));
+  [-.38,.38].forEach(sideRatio=>{
+   const deckCurve=new THREE.CatmullRomCurve3(stations.map(s=>new THREE.Vector3(s.x,s.deckY,sideRatio*s.beam)));
+   frames.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(deckCurve.getPoints(90)),stringerMaterial));
+  });
+
+  const waterlineY=-halfH*.30;
+  [-1,1].forEach(side=>{
+   const waterlinePoints=stations.map(s=>{
+    const verticalSpan=Math.max(.001,s.deckY-s.keelY);
+    const k=THREE.MathUtils.clamp((waterlineY-s.keelY)/verticalSpan,0,1);
+    const breadth=s.beam*(.42+.58*Math.sin(k*Math.PI*.72));
+    return new THREE.Vector3(s.x,waterlineY,side*breadth);
+   });
+   const curve=new THREE.CatmullRomCurve3(waterlinePoints);
+   frames.add(new THREE.Line(
+    new THREE.BufferGeometry().setFromPoints(curve.getPoints(90)),
+    new THREE.LineBasicMaterial({color:0x69b8ff,transparent:true,opacity:.42,depthTest:false})
+   ));
+  });
+
   ship.add(frames);
 
   addDimension(
@@ -463,7 +542,7 @@ function shipyard(api){
    new THREE.MeshBasicMaterial({
     color:0x69b8ff,
     transparent:true,
-    opacity:.075,
+    opacity:.028,
     side:THREE.DoubleSide,
     depthWrite:false,
     blending:THREE.AdditiveBlending
@@ -476,7 +555,7 @@ function shipyard(api){
    new THREE.MeshBasicMaterial({
     color:0xbfe3ff,
     transparent:true,
-    opacity:.34,
+    opacity:.18,
     depthWrite:false,
     blending:THREE.AdditiveBlending
    })
@@ -487,11 +566,11 @@ function shipyard(api){
   ship.add(scanner);
 
   t.push(time=>{
-   const travel=(time*.22)%1;
+   const travel=(time*.075)%1;
    scanner.position.x=THREE.MathUtils.lerp(-halfL*.92,halfL*.92,travel);
-   const pulse=.72+Math.sin(time*3.2)*.18;
-   scanPlane.material.opacity=.055*pulse;
-   scanLine.material.opacity=.28+.12*Math.sin(time*3.2);
+   const pulse=.82+Math.sin(time*1.7)*.10;
+   scanPlane.material.opacity=.025*pulse;
+   scanLine.material.opacity=.14+.04*Math.sin(time*1.7);
   });
  },undefined,error=>{
   console.error('Homepage ship STL failed to load',error);
@@ -524,17 +603,14 @@ function shipyard(api){
 
  rings(dock,a,5,2.1);
  t.push((x)=>{
-  water.position.z=Math.sin(x*.4)*.04;
+  water.position.z=Math.sin(x*.28)*.018;
 
-  // Subtle launch/float motion. The ship moves; the slipway and cranes stay fixed.
-  if(ship.userData.revealStart===undefined) ship.userData.revealStart=x;
-  const reveal=THREE.MathUtils.clamp((x-ship.userData.revealStart)/1.45,0,1);
-  const ease=1-Math.pow(1-reveal,3);
-  ship.scale.setScalar(.94+.06*ease);
-  ship.position.y=shipBaseY+Math.sin(x*.58)*.032;
-  ship.rotation.x=Math.sin(x*.43)*.006;
-  ship.rotation.y=shipBaseRotationY+Math.sin(x*.21)*.012;
-  ship.rotation.z=Math.sin(x*.51)*.012;
+  // A ship on the slipway must feel massive: no floating or rocking.
+  // Only a very slow presentation yaw remains, similar to a CAD inspection camera.
+  ship.position.y=shipBaseY;
+  ship.rotation.x=0;
+  ship.rotation.y=shipBaseRotationY+Math.sin(x*.10)*.006;
+  ship.rotation.z=0;
  });
 }
 
