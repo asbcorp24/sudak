@@ -28,6 +28,7 @@
    <label class="check"><input type="checkbox" name="remember" value="1"> Запомнить меня</label>
    <button class="btn-tech w-100 justify-content-center">Войти в обучение</button>
   </form>
+  <a class="dpo-back-site" href="{{ route('dpo.catalog') }}">← Программы ДПО</a>
   @if(!empty($currentUser) && $currentUser->user_type==='student')
    <a class="dpo-back-site" href="{{ route('student.dashboard') }}">← Вернуться в кабинет студента</a>
   @else
