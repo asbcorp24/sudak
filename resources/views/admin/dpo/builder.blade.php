@@ -116,6 +116,7 @@
       <div><span class="eyebrow">{{ $selectedLesson->module->title }}</span><h2>{{ $selectedLesson->title }}</h2></div>
       <div class="d-flex gap-2">
        <span class="dpo-status {{ $selectedLesson->is_published?'active':'draft' }}">{{ $selectedLesson->is_published?'Опубликован':'Черновик' }}</span>
+       <form method="post" action="{{ route('admin.dpo.lessons.duplicate',$selectedLesson) }}">@csrf<button class="btn-ghost">Дублировать</button></form>
        <a class="btn-ghost" href="{{ route('admin.dpo.lessons.edit',$selectedLesson) }}">Расширенный режим ↗</a>
       </div>
      </div>
