@@ -67,6 +67,86 @@ class DpoAdminController extends Controller
         ]);
     }
 
+    public function builder(Request $request,DpoProgram $program)
+    {
+        $program->load([
+            'groups'=>fn($q)=>$q->orderByDesc('starts_on')->orderBy('name'),
+            'modules'=>fn($q)=>$q->orderBy('sort')->orderBy('id'),
+            'modules.lessons'=>fn($q)=>$q->orderBy('sort')->orderBy('id'),
+            'modules.lessons.resources.media',
+            'modules.lessons.assignments.groups',
+            'modules.lessons.assignments.submissions',
+            'modules.lessons.scormPackages'=>fn($q)=>$q->withCount('attempts')->orderBy('id'),
+        ]);
+
+        $lessonId=(int)$request->query('lesson',0);
+        $selectedLesson=$program->modules->flatMap->lessons->firstWhere('id',$lessonId)
+            ?: $program->modules->flatMap->lessons->first();
+
+        return view('admin.dpo.builder',[
+            'program'=>$program,
+            'selectedLesson'=>$selectedLesson,
+            'media'=>MediaAsset::latest()->take(200)->get(),
+        ]);
+    }
+
+    public function updateModule(Request $request,DpoModule $module)
+    {
+        $data=$request->validate([
+            'title'=>['required','string','max:255'],
+            'description'=>['nullable','string','max:5000'],
+            'is_published'=>['nullable','boolean'],
+        ]);
+        $data['is_published']=$request->boolean('is_published');
+        $module->update($data);
+        return back()->with('ok','Модуль сохранён');
+    }
+
+    public function destroyModule(DpoModule $module)
+    {
+        $program=$module->program;
+        $module->delete();
+        return redirect()->route('admin.dpo.builder',$program)->with('ok','Модуль удалён');
+    }
+
+    public function reorderBuilder(Request $request,DpoProgram $program)
+    {
+        $data=$request->validate([
+            'modules'=>['required','array'],
+            'modules.*.id'=>['required','integer'],
+            'modules.*.lessons'=>['present','array'],
+            'modules.*.lessons.*'=>['integer'],
+        ]);
+
+        $moduleIds=$program->modules()->pluck('id')->map(fn($id)=>(int)$id)->all();
+        $submittedModuleIds=collect($data['modules'])->pluck('id')->map(fn($id)=>(int)$id)->all();
+
+        if(count($moduleIds)!==count($submittedModuleIds) || array_diff($moduleIds,$submittedModuleIds) || array_diff($submittedModuleIds,$moduleIds)){
+            return response()->json(['message'=>'Структура курса изменилась. Обновите страницу.'],422);
+        }
+
+        $lessonIds=DpoLesson::whereIn('module_id',$moduleIds)->pluck('id')->map(fn($id)=>(int)$id)->all();
+        $submittedLessonIds=collect($data['modules'])->flatMap(fn($module)=>$module['lessons'])->map(fn($id)=>(int)$id)->all();
+
+        if(count($lessonIds)!==count($submittedLessonIds) || array_diff($lessonIds,$submittedLessonIds) || array_diff($submittedLessonIds,$lessonIds)){
+            return response()->json(['message'=>'Список уроков изменился. Обновите страницу.'],422);
+        }
+
+        DB::transaction(function() use($data){
+            foreach($data['modules'] as $moduleIndex=>$moduleData){
+                DpoModule::whereKey($moduleData['id'])->update(['sort'=>($moduleIndex+1)*10]);
+                foreach($moduleData['lessons'] as $lessonIndex=>$lessonId){
+                    DpoLesson::whereKey($lessonId)->update([
+                        'module_id'=>$moduleData['id'],
+                        'sort'=>($lessonIndex+1)*10,
+                    ]);
+                }
+            }
+        });
+
+        return response()->json(['ok'=>true]);
+    }
+
     public function updateProgram(Request $request,DpoProgram $program)
     {
         $data=$this->programData($request,$program->id);
@@ -384,6 +464,10 @@ class DpoAdminController extends Controller
         $data['is_published']=true;
         $lesson=$module->lessons()->create($data);
 
+        if($request->boolean('builder')){
+            return redirect()->route('admin.dpo.builder',['program'=>$module->program_id,'lesson'=>$lesson->id])->with('ok','Урок создан');
+        }
+
         return redirect()->route('admin.dpo.lessons.edit',$lesson)->with('ok','Урок создан');
     }
 
@@ -429,6 +513,11 @@ class DpoAdminController extends Controller
         }
         $program=$lesson->module->program;
         $lesson->delete();
+
+        if(request()->boolean('builder')){
+            return redirect()->route('admin.dpo.builder',$program)->with('ok','Урок удалён');
+        }
+
         return redirect()->route('admin.dpo.programs.show',$program)->with('ok','Урок удалён');
     }
 
