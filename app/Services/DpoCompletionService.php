@@ -6,6 +6,7 @@ use App\Models\DpoAttendance;
 use App\Models\DpoEnrollment;
 use App\Models\DpoLessonProgress;
 use App\Models\DpoScormAttempt;
+use App\Models\DpoScormPackage;
 use App\Models\DpoSubmission;
 
 class DpoCompletionService
@@ -30,16 +31,24 @@ class DpoCompletionService
         $homeworkScore=(float)DpoSubmission::where('group_id',$group->id)->where('user_id',$enrollment->user_id)->whereIn('assignment_id',$assignmentIds)->where('status','reviewed')->sum('score');
         $homeworkPercent=$assignmentMax>0?round($homeworkScore/$assignmentMax*100):null;
 
-        $attempts=DpoScormAttempt::with('package')->where('group_id',$group->id)->where('user_id',$enrollment->user_id)
-            ->whereHas('package.lesson.module',fn($q)=>$q->where('program_id',$program->id))
+        $packages=DpoScormPackage::with('lesson')
+            ->where('is_active',true)
+            ->whereHas('lesson.module',fn($q)=>$q->where('program_id',$program->id))
+            ->get();
+        $latestAttempts=DpoScormAttempt::with('package')
+            ->where('group_id',$group->id)
+            ->where('user_id',$enrollment->user_id)
+            ->whereIn('package_id',$packages->pluck('id'))
             ->orderBy('attempt_no')->get()->groupBy('package_id')
             ->map(fn($items)=>$items->sortByDesc('attempt_no')->first());
-        $scores=$attempts->map(function($attempt){
+        $scores=$packages->map(function($package) use($latestAttempts){
+            $attempt=$latestAttempts->get($package->id);
+            if(!$attempt) return 0;
             if($attempt->score_scaled!==null) return max(0,min(100,(float)$attempt->score_scaled*100));
-            if($attempt->score_raw!==null && (float)$attempt->package->max_score>0) return max(0,min(100,(float)$attempt->score_raw/(float)$attempt->package->max_score*100));
-            return null;
-        })->filter(fn($v)=>$v!==null);
-        $scormPercent=$scores->count()?round($scores->avg()):null;
+            if($attempt->score_raw!==null && (float)$package->max_score>0) return max(0,min(100,(float)$attempt->score_raw/(float)$package->max_score*100));
+            return 0;
+        });
+        $scormPercent=$packages->count()?round($scores->avg()):null;
 
         $checks=[
             'progress'=>$progress >= $program->min_progress_percent,
