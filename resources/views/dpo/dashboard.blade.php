@@ -55,7 +55,6 @@
     @endif
    </aside>
   </div>
- </div>
   @if($issuedDocuments->count())
   <div class="glass-panel mt-4">
    <span class="eyebrow">DOCUMENTS</span><h3 class="mt-2">Мои документы ДПО</h3>
@@ -69,5 +68,6 @@
    </div>
   </div>
   @endif
+ </div>
 </section>
 @endsection
