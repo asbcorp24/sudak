@@ -51,7 +51,7 @@ html.a11y-no-motion .pano360 .pano-card,html.a11y-no-motion .pano360 .pano-thumb
    <div class="pano-head"><div><span class="eyebrow">ПРОСТРАНСТВА КОЛЛЕДЖА</span><h2>Панорамы 360°</h2></div><p>Выберите пространство и откройте сферическую панораму на весь экран.</p></div>
    <div class="pano-grid">
     @forelse($panoramas as $panorama)
-     <article class="pano-card">
+     <article class="pano-card" id="panorama-{{ $panorama->slug }}">
       <div class="pano-thumb js-pano-open" role="button" tabindex="0"
        data-scene="{{ $panorama->slug }}" data-src="{{ $panorama->image_url }}" data-title="{{ $panorama->title }}"
        data-location="{{ $panorama->location }}" data-yaw="{{ $panorama->initial_yaw }}"
