@@ -17,7 +17,7 @@
       <td>{{ $document->program->title }}<br><small>{{ $document->hours }} ч. · {{ $document->group->name }}</small></td>
       <td>{{ $document->document_type }}<br><b>{{ trim(($document->series ?: '').' '.$document->number) }}</b></td>
       <td><code>{{ $document->verification_code }}</code></td>
-      <td><a class="btn-ghost" target="_blank" href="{{ route('dpo.document.verify',$document->verification_code) }}">Проверить ↗</a></td>
+      <td><div class="d-flex gap-2"><a class="btn-ghost" target="_blank" href="{{ route('dpo.document.verify',$document->verification_code) }}">Проверить ↗</a><a class="btn-ghost" target="_blank" href="{{ route('dpo.document.print',$document->verification_code) }}">Печать</a></div></td>
      </tr>
     @empty
      <tr><td colspan="6">Выданных документов пока нет.</td></tr>
