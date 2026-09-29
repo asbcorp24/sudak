@@ -48,23 +48,6 @@
 </div>
 
 @if($homePanorama)
-@php
- $homeHotspots=$homePanorama->hotspots->map(function($hotspot){
-  $text=$hotspot->title.($hotspot->description ? ' — '.$hotspot->description : '');
-  $item=[
-   'id'=>'home-hs-'.$hotspot->id,
-   'pitch'=>(float)$hotspot->pitch,
-   'yaw'=>(float)$hotspot->yaw,
-   'type'=>'info',
-   'text'=>$text,
-  ];
-  if($hotspot->type==='scene' && $hotspot->targetPanorama && $hotspot->targetPanorama->is_published){
-   $item['URL']=route('panoramas.index').'#panorama-'.$hotspot->targetPanorama->slug;
-   $item['attributes']=['target'=>'_self'];
-  }
-  return $item;
- })->values();
-@endphp
 <section class="home-panorama-section" id="home-panorama">
  <style>
  .home-panorama-section{padding:78px 0 88px;background:linear-gradient(180deg,#f5f9fd 0%,#eaf3fb 100%);border-top:1px solid #dbe8f7}
@@ -118,7 +101,7 @@
    draggable:true,
    friction:.16,
    escapeHTML:true,
-   hotSpots:@json($homeHotspots)
+   hotSpots:@json($homePanoramaHotspots)
   });
  };
  if('IntersectionObserver' in window){
