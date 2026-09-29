@@ -62,4 +62,6 @@
  @if($errors->any())<div class="alert alert-danger">{{ $errors->first() }}</div>@endif
  @yield('content')
 </main>
-</div></body></html>
+</div>
+@stack('scripts')
+</body></html>
