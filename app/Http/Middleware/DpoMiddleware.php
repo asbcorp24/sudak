@@ -12,7 +12,9 @@ class DpoMiddleware
         }
 
         $user=auth()->user();
-        if (!$user->is_admin && (!$user->dpoProfile || !$user->dpoProfile->is_active)) {
+        $adminHasDpoAccess=$user->is_admin && $user->canAdmin('dpo');
+
+        if (!$adminHasDpoAccess && (!$user->dpoProfile || !$user->dpoProfile->is_active)) {
             abort(403, 'Доступ к ДПО не активирован.');
         }
 
