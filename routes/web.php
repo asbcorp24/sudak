@@ -162,6 +162,8 @@ Route::prefix('admin')->name('admin.')->middleware(['auth','admin'])->group(func
  Route::post('dpo/groups/{group}/archive',[DpoAdminController::class,'archiveGroup'])->name('dpo.groups.archive');
 
  Route::post('dpo/programs',[DpoAdminController::class,'storeProgram'])->name('dpo.programs.store');
+ Route::get('dpo/programs/{program}/builder',[DpoAdminController::class,'builder'])->name('dpo.builder');
+ Route::post('dpo/programs/{program}/builder/order',[DpoAdminController::class,'reorderBuilder'])->name('dpo.builder.order');
  Route::get('dpo/programs/{program}',[DpoAdminController::class,'showProgram'])->name('dpo.programs.show');
  Route::put('dpo/programs/{program}',[DpoAdminController::class,'updateProgram'])->name('dpo.programs.update');
  Route::delete('dpo/programs/{program}',[DpoAdminController::class,'destroyProgram'])->name('dpo.programs.destroy');
@@ -175,6 +177,8 @@ Route::prefix('admin')->name('admin.')->middleware(['auth','admin'])->group(func
  Route::post('dpo/groups/{group}/enroll',[DpoAdminController::class,'enroll'])->name('dpo.enroll');
  Route::delete('dpo/enrollments/{enrollment}',[DpoAdminController::class,'destroyEnrollment'])->name('dpo.enrollments.destroy');
  Route::post('dpo/programs/{program}/modules',[DpoAdminController::class,'storeModule'])->name('dpo.modules.store');
+ Route::put('dpo/modules/{module}',[DpoAdminController::class,'updateModule'])->name('dpo.modules.update');
+ Route::delete('dpo/modules/{module}',[DpoAdminController::class,'destroyModule'])->name('dpo.modules.destroy');
  Route::post('dpo/modules/{module}/lessons',[DpoAdminController::class,'storeLesson'])->name('dpo.lessons.store');
  Route::get('dpo/lessons/{lesson}/edit',[DpoAdminController::class,'editLesson'])->name('dpo.lessons.edit');
  Route::put('dpo/lessons/{lesson}',[DpoAdminController::class,'updateLesson'])->name('dpo.lessons.update');
