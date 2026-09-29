@@ -1009,3 +1009,18 @@ html.a11y-high-contrast body{background:#000!important;color:#fff!important}
  color:#71869d!important;
  background:#fff!important;
 }
+
+
+/* DPO attendance and printable group journal */
+.dpo-attendance-table td,.dpo-journal-table td{vertical-align:middle}
+.dpo-journal-head small{color:#60758f}
+@media print{
+ body.admin-body{background:#fff!important}
+ .admin-sidebar,.admin-top,.dpo-journal-actions{display:none!important}
+ .admin-shell,.admin-main{display:block!important;width:100%!important;min-height:0!important}
+ .admin-main{padding:0!important;margin:0!important}
+ .dpo-journal-sheet{box-shadow:none!important;border:0!important;padding:0!important;background:#fff!important}
+ .dpo-journal-table{font-size:11px}
+ .dpo-journal-table th,.dpo-journal-table td{padding:7px!important;color:#000!important;background:#fff!important;border-color:#bbb!important}
+ .dpo-journal-head h2,.dpo-journal-head p,.dpo-journal-head small{color:#000!important}
+}
