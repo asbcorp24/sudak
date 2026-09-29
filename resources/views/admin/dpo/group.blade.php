@@ -74,6 +74,29 @@
   </div>
 
   <div class="glass-panel mt-4">
+   <span class="eyebrow">SCORM RESULTS</span><h3 class="mt-2">Результаты iSpring / SCORM</h3>
+   <div class="table-responsive">
+    <table class="table tech-table align-middle">
+     <thead><tr><th>Слушатель</th><th>Тест</th><th>Попытка</th><th>Статус</th><th>Балл</th><th>Последняя активность</th></tr></thead>
+     <tbody>
+      @forelse($scormAttempts as $attempt)
+       <tr>
+        <td><b>{{ $attempt->user->name }}</b></td>
+        <td>{{ $attempt->package->title }}<br><small>{{ $attempt->package->lesson->title }}</small></td>
+        <td>{{ $attempt->attempt_no }}</td>
+        <td>{{ $attempt->lesson_status ?: trim(($attempt->completion_status ?: '').' '.($attempt->success_status ?: '')) ?: '—' }}</td>
+        <td>{{ $attempt->score_raw !== null ? $attempt->score_raw : ($attempt->score_scaled !== null ? round($attempt->score_scaled*100,1).'%' : '—') }}</td>
+        <td>{{ $attempt->last_accessed_at?->format('d.m.Y H:i') ?: '—' }}</td>
+       </tr>
+      @empty
+       <tr><td colspan="6">SCORM-попыток пока нет.</td></tr>
+      @endforelse
+     </tbody>
+    </table>
+   </div>
+  </div>
+
+  <div class="glass-panel mt-4">
    <span class="eyebrow">GRADEBOOK</span><h3 class="mt-2">Домашние работы</h3>
    <div class="dpo-submission-admin-list">
     @forelse($submissions as $submission)
