@@ -75,6 +75,8 @@ Route::prefix('dpo')->name('dpo.')->middleware(['auth','dpo'])->group(function()
  Route::get('/',[DpoDashboardController::class,'index'])->name('dashboard');
  Route::post('/logout',[DpoAuthController::class,'logout'])->name('logout');
  Route::get('/schedule',[DpoCourseController::class,'schedule'])->name('schedule');
+ Route::get('/profile',[DpoAuthController::class,'profile'])->name('profile');
+ Route::put('/profile',[DpoAuthController::class,'updateProfile'])->name('profile.update');
  Route::get('/groups/{group}',[DpoCourseController::class,'group'])->name('groups.show');
  Route::get('/groups/{group}/lessons/{lesson}',[DpoCourseController::class,'lesson'])->name('lessons.show');
  Route::post('/groups/{group}/lessons/{lesson}/complete',[DpoCourseController::class,'complete'])->name('lessons.complete');
