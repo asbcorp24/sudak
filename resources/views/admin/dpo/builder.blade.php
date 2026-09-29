@@ -91,7 +91,7 @@
       </div>
       <div class="cb-add-lesson">
        <form method="post" action="{{ route('admin.dpo.lessons.store',$module) }}">@csrf
-        <input type="hidden" name="builder" value="1"><input type="hidden" name="completion_mode" value="view"><input type="hidden" name="duration_minutes" value="45"><input type="hidden" name="sort" value="{{ $module->lessons->count()*10+10 }}">
+        <input type="hidden" name="builder" value="1"><input type="hidden" name="lesson_type" value="online"><input type="hidden" name="completion_mode" value="view"><input type="hidden" name="duration_minutes" value="45"><input type="hidden" name="sort" value="{{ $module->lessons->count()*10+10 }}">
         <input class="form-control form-control-sm" name="title" placeholder="+ Новый урок" required>
         <button class="btn btn-sm btn-outline-primary">+</button>
        </form>
