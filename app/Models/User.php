@@ -9,7 +9,7 @@ class User extends Authenticatable
 {
     use HasFactory,Notifiable;
 
-    protected $fillable=['name','email','password','is_admin'];
+    protected $fillable=['name','email','password','is_admin','admin_scope'];
     protected $hidden=['password','remember_token'];
     protected $casts=['email_verified_at'=>'datetime','is_admin'=>'boolean'];
 
@@ -17,4 +17,29 @@ class User extends Authenticatable
     public function dpoEnrollments(){return $this->hasMany(DpoEnrollment::class);}
     public function dpoGroups(){return $this->belongsToMany(DpoGroup::class,'dpo_enrollments','user_id','group_id')->withPivot(['role','status','enrolled_at','completed_at'])->withTimestamps();}
     public function dpoScheduleEntries(){return $this->hasMany(DpoScheduleEntry::class,'teacher_user_id');}
+
+    public function adminScope(): string
+    {
+        return $this->is_admin ? ($this->admin_scope ?: 'full') : 'none';
+    }
+
+    public function canAdmin(string $area): bool
+    {
+        if (!$this->is_admin) return false;
+
+        $scope=$this->adminScope();
+        if ($scope==='full') return true;
+
+        return $scope===$area;
+    }
+
+    public function adminHomeRouteName(): string
+    {
+        return match($this->adminScope()){
+            'dpo'=>'admin.dpo.index',
+            'schedule'=>'admin.schedule.index',
+            'site'=>'admin.dashboard',
+            default=>'admin.dashboard',
+        };
+    }
 }
