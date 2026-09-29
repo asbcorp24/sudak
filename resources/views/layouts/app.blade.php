@@ -38,101 +38,64 @@ try{
 <header class="site-header">
  <div class="container-xxl d-flex align-items-center gap-3 py-3">
   <a class="brand" href="{{ route('home') }}"><span class="brand-mark">ЗСК</span><span><b>Зеленодольский</b><small>судостроительный колледж</small></span></a>
-  <nav class="main-nav main-nav-compact d-none d-lg-flex ms-auto align-items-center gap-1">
-   <div class="dropdown">
-    <a class="dropdown-toggle" data-bs-toggle="dropdown" href="#">Обучение</a>
+  <nav class="main-nav d-none d-lg-flex ms-auto align-items-center gap-1">
+   <a href="{{ route('specialties.index') }}">Специальности</a>
+   <a href="{{ route('schedule.index') }}">Расписание</a>
+   <a href="{{ route('employees.index') }}">Сотрудники</a>
+   @foreach($mainMenu as $item)
+    @if($item->childrenRecursive->count())
+     <div class="dropdown"><a class="dropdown-toggle" data-bs-toggle="dropdown" href="{{ route('pages.show',$item->slug) }}">{{ $item->menu_title ?: $item->title }}</a>
+      <div class="dropdown-menu tech-dropdown">@include('partials.menu-tree',['items'=>$item->childrenRecursive,'depth'=>0,'mobile'=>false])</div>
+     </div>
+    @else <a href="{{ route('pages.show',$item->slug) }}">{{ $item->menu_title ?: $item->title }}</a> @endif
+   @endforeach
+
+   <div class="dropdown"><a class="dropdown-toggle" data-bs-toggle="dropdown" href="#">Активности</a>
     <div class="dropdown-menu tech-dropdown">
-     <a class="dropdown-item" href="{{ route('specialties.index') }}">Специальности</a>
-     <a class="dropdown-item" href="{{ route('schedule.index') }}">Расписание</a>
-     <a class="dropdown-item" href="{{ route('dpo.login') }}">ДПО / дополнительное образование</a>
+     <a class="dropdown-item" href="{{ route('calendar.index') }}">Календарь колледжа</a>
+     <a class="dropdown-item" href="{{ route('competitions.index') }}">Конкурсы и достижения</a>
+     <a class="dropdown-item" href="{{ route('quizzes.index') }}">Викторины</a>
+    </div>
+   </div>
+
+   <div class="dropdown"><a class="dropdown-toggle" data-bs-toggle="dropdown" href="#">Обратная связь</a>
+    <div class="dropdown-menu tech-dropdown">
+     <a class="dropdown-item" href="{{ route('contacts.index') }}">Контакты и карта</a>
+     <a class="dropdown-item" href="{{ route('admission.create') }}">Заявка на поступление</a>
+     <a class="dropdown-item" href="{{ route('cooperation.index') }}">Сотрудничество</a>
+     <a class="dropdown-item" href="{{ route('questions.create') }}">Задать вопрос</a>
     </div>
    </div>
 
    <a href="{{ route('news.index') }}">Новости</a>
-
-   <div class="dropdown">
-    <a class="dropdown-toggle" data-bs-toggle="dropdown" href="#">Колледж</a>
-    <div class="dropdown-menu tech-dropdown public-mega-menu">
-     <div class="public-mega-title">Основные разделы</div>
-     <a class="dropdown-item" href="{{ route('employees.index') }}">Сотрудники</a>
-     <a class="dropdown-item" href="{{ route('document-center.index') }}">Центр документов</a>
-     <a class="dropdown-item" href="{{ route('calendar.index') }}">Календарь колледжа</a>
-     <a class="dropdown-item" href="{{ route('competitions.index') }}">Конкурсы и достижения</a>
-     <a class="dropdown-item" href="{{ route('quizzes.index') }}">Викторины</a>
-     @if($mainMenu->count())
-      <div class="dropdown-divider"></div>
-      <div class="public-mega-title">Разделы сайта</div>
-      @foreach($mainMenu as $item)
-       @if($item->childrenRecursive->count())
-        <div class="public-menu-branch">
-         <a class="dropdown-item public-menu-parent" href="{{ route('pages.show',$item->slug) }}">{{ $item->menu_title ?: $item->title }}</a>
-         <div class="public-menu-children">@include('partials.menu-tree',['items'=>$item->childrenRecursive,'depth'=>0,'mobile'=>false])</div>
-        </div>
-       @else
-        <a class="dropdown-item" href="{{ route('pages.show',$item->slug) }}">{{ $item->menu_title ?: $item->title }}</a>
-       @endif
-      @endforeach
-     @endif
-    </div>
-   </div>
-
-   <div class="dropdown">
-    <a class="dropdown-toggle" data-bs-toggle="dropdown" href="#">Поступление</a>
-    <div class="dropdown-menu tech-dropdown">
-     <a class="dropdown-item" href="{{ route('admission.create') }}">Подать заявление</a>
-     <a class="dropdown-item" href="{{ route('contacts.index') }}">Контакты и карта</a>
-     <a class="dropdown-item" href="{{ route('questions.create') }}">Задать вопрос</a>
-     <a class="dropdown-item" href="{{ route('cooperation.index') }}">Сотрудничество</a>
-    </div>
-   </div>
-
-   <a class="main-nav-cabinet" href="{{ auth()->check() && auth()->user()->user_type==='student' ? route('student.dashboard') : route('student.login') }}">{{ auth()->check() && auth()->user()->user_type==='student' ? 'Мой кабинет' : 'Студенту' }}</a>
+   <a href="{{ route('document-center.index') }}">Документы</a>
+   <a href="{{ auth()->check() && auth()->user()->user_type==='student' ? route('student.dashboard') : route('student.login') }}">{{ auth()->check() && auth()->user()->user_type==='student' ? 'Мой кабинет' : 'Студенту' }}</a>
+   <a href="{{ route('dpo.login') }}">ДПО</a>
   </nav>
  </div>
 </header>
 
 <div class="offcanvas offcanvas-end tech-offcanvas" tabindex="-1" id="mobileNav">
  <div class="offcanvas-header"><b>Навигация</b><button class="btn-close" data-bs-dismiss="offcanvas"></button></div>
- <div class="offcanvas-body public-mobile-menu">
-  <a class="public-mobile-home" href="{{ route('home') }}">Главная</a>
-
-  <details open>
-   <summary>Обучение <span>⌄</span></summary>
-   <div>
-    <a href="{{ route('specialties.index') }}">Специальности</a>
-    <a href="{{ route('schedule.index') }}">Расписание</a>
-    <a href="{{ route('dpo.login') }}">ДПО / дополнительное образование</a>
-   </div>
-  </details>
-
-  <a class="public-mobile-home" href="{{ route('news.index') }}">Новости</a>
-
-  <details>
-   <summary>Колледж <span>⌄</span></summary>
-   <div>
-    <a href="{{ route('employees.index') }}">Сотрудники</a>
-    <a href="{{ route('document-center.index') }}">Центр документов</a>
-    <a href="{{ route('calendar.index') }}">Календарь колледжа</a>
-    <a href="{{ route('competitions.index') }}">Конкурсы и достижения</a>
-    <a href="{{ route('quizzes.index') }}">Викторины</a>
-    @foreach($mainMenu as $item)
-     <a href="{{ route('pages.show',$item->slug) }}">{{ $item->menu_title ?: $item->title }}</a>
-     @if($item->childrenRecursive->count()) @include('partials.menu-tree',['items'=>$item->childrenRecursive,'depth'=>1,'mobile'=>true]) @endif
-    @endforeach
-   </div>
-  </details>
-
-  <details>
-   <summary>Поступление и связь <span>⌄</span></summary>
-   <div>
-    <a href="{{ route('admission.create') }}">Подать заявление</a>
-    <a href="{{ route('contacts.index') }}">Контакты и карта</a>
-    <a href="{{ route('questions.create') }}">Задать вопрос</a>
-    <a href="{{ route('cooperation.index') }}">Сотрудничество</a>
-   </div>
-  </details>
-
-  <a class="public-mobile-cabinet" href="{{ auth()->check() && auth()->user()->user_type==='student' ? route('student.dashboard') : route('student.login') }}">Личный кабинет студента</a>
+ <div class="offcanvas-body">
+  <a href="{{ route('home') }}">Главная</a>
+  <a href="{{ route('specialties.index') }}">Специальности</a>
+  <a href="{{ route('schedule.index') }}">Расписание</a>
+  @foreach($mainMenu as $item)
+   <a href="{{ route('pages.show',$item->slug) }}">{{ $item->menu_title ?: $item->title }}</a>
+   @if($item->childrenRecursive->count()) @include('partials.menu-tree',['items'=>$item->childrenRecursive,'depth'=>1,'mobile'=>true]) @endif
+  @endforeach
+  <a href="{{ route('calendar.index') }}">Календарь колледжа</a>
+  <a href="{{ route('competitions.index') }}">Конкурсы и достижения</a>
+  <a href="{{ route('quizzes.index') }}">Викторины</a>
+  <a href="{{ route('contacts.index') }}">Контакты и карта</a>
+  <a href="{{ route('admission.create') }}">Заявка на поступление</a>
+  <a href="{{ route('cooperation.index') }}">Сотрудничество</a>
+  <a href="{{ route('questions.create') }}">Задать вопрос</a>
+  <a href="{{ route('news.index') }}">Новости</a>
+  <a href="{{ route('document-center.index') }}">Центр документов</a>
+  <a href="{{ auth()->check() && auth()->user()->user_type==='student' ? route('student.dashboard') : route('student.login') }}">Личный кабинет студента</a>
+  <a href="{{ route('dpo.login') }}">ДПО</a>
   <button type="button" class="pwa-install-inline" data-pwa-install hidden>Установить приложение</button>
  </div>
 </div>
@@ -178,14 +141,4 @@ try{
  <div class="col-lg-2"><h6>Колледж</h6><a href="{{ route('employees.index') }}">Сотрудники</a><br><a href="{{ route('calendar.index') }}">Календарь</a><br><a href="{{ route('official-documents.index') }}">Документы</a><br><a href="{{ route('cooperation.index') }}">Сотрудничество</a><br><a href="{{ route('competitions.index') }}">Достижения</a><br><a href="{{ route('pages.show','sveden') }}">Сведения</a></div>
 </div></div></footer>
 @stack('scripts')
-<script>
-document.querySelectorAll('.public-mobile-menu details').forEach(function(section){
- section.addEventListener('toggle',function(){
-  if(!section.open) return;
-  document.querySelectorAll('.public-mobile-menu details').forEach(function(other){
-   if(other!==section) other.open=false;
-  });
- });
-});
-</script>
 </body></html>
