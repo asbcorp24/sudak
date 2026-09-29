@@ -778,13 +778,18 @@ class DpoAdminController extends Controller
 
         $attestation=DpoAttestation::updateOrCreate(
             ['enrollment_id'=>$enrollment->id],
-            array_merge($metrics,[
+            [
+                'progress_percent'=>$metrics['progress_percent'],
+                'attendance_percent'=>$metrics['attendance_percent'],
+                'homework_percent'=>$metrics['homework_percent'],
+                'scorm_percent'=>$metrics['scorm_percent'],
+                'final_score'=>$metrics['final_score'],
                 'status'=>$data['status'],
                 'result_text'=>$data['result_text']??($data['status']==='passed'?'Зачтено':'Не зачтено'),
                 'notes'=>$data['notes']??null,
                 'assessed_by'=>$request->user()->id,
                 'assessed_at'=>now(),
-            ])
+            ]
         );
 
         if($attestation->status==='passed'){
@@ -884,7 +889,7 @@ class DpoAdminController extends Controller
         $data['sort']=(int)$request->input('sort',0);
         $data['is_published']=$request->boolean('is_published');
         $data['applications_open']=$request->boolean('applications_open');
-        $data['document_type']=$data['document_type'] ?: 'Удостоверение о повышении квалификации';
+        $data['document_type']=($data['document_type']??null) ?: 'Удостоверение о повышении квалификации';
         $data['min_progress_percent']=(int)$request->input('min_progress_percent',100);
         $data['min_attendance_percent']=(int)$request->input('min_attendance_percent',0);
         $data['min_homework_percent']=(int)$request->input('min_homework_percent',0);
