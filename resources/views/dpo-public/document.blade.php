@@ -11,6 +11,7 @@
    @else
     <div class="alert alert-danger mt-4"><b>Документ отозван.</b></div>
    @endif
+   @if($document->status==='issued')<a class="btn btn-primary mb-3" target="_blank" href="{{ route('dpo.document.print',$document->verification_code) }}">Открыть документ для печати</a>@endif
    <table class="table">
     <tr><th>ФИО</th><td>{{ $document->user->name }}</td></tr>
     <tr><th>Программа</th><td>{{ $document->program->title }}</td></tr>
