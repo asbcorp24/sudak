@@ -179,6 +179,7 @@ class RectorCollegeScheduleImporter
                 'format'=>$data['format_name'],
                 'format_version'=>$data['format_version'],
                 'groups'=>count($groupMap),
+                'group_ids'=>array_values(array_unique($groupMap)),
                 'teachers'=>count($teacherMap),
                 'created'=>$created,
                 'updated'=>$updated,
