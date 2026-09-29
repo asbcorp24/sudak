@@ -180,6 +180,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth','admin'])->group(func
  Route::put('dpo/modules/{module}',[DpoAdminController::class,'updateModule'])->name('dpo.modules.update');
  Route::delete('dpo/modules/{module}',[DpoAdminController::class,'destroyModule'])->name('dpo.modules.destroy');
  Route::post('dpo/modules/{module}/lessons',[DpoAdminController::class,'storeLesson'])->name('dpo.lessons.store');
+ Route::post('dpo/lessons/{lesson}/duplicate',[DpoAdminController::class,'duplicateLesson'])->name('dpo.lessons.duplicate');
  Route::get('dpo/lessons/{lesson}/edit',[DpoAdminController::class,'editLesson'])->name('dpo.lessons.edit');
  Route::put('dpo/lessons/{lesson}',[DpoAdminController::class,'updateLesson'])->name('dpo.lessons.update');
  Route::delete('dpo/lessons/{lesson}',[DpoAdminController::class,'destroyLesson'])->name('dpo.lessons.destroy');
