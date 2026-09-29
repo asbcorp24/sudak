@@ -11,4 +11,6 @@ class DpoGroup extends Model{
  public function scheduleEntries(){return $this->hasMany(DpoScheduleEntry::class,'group_id');}
  public function announcements(){return $this->hasMany(DpoAnnouncement::class,'group_id')->orderByDesc('published_at');}
  public function attendance(){return $this->hasManyThrough(DpoAttendance::class,DpoScheduleEntry::class,'group_id','schedule_entry_id');}
+ public function applications(){return $this->hasMany(DpoApplication::class,'group_id');}
+ public function issuedDocuments(){return $this->hasMany(DpoIssuedDocument::class,'group_id');}
 }
