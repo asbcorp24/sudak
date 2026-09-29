@@ -77,6 +77,7 @@ try{
    <div class="dropdown"><a class="dropdown-toggle" data-bs-toggle="dropdown" href="#">Личный кабинет</a>
     <div class="dropdown-menu tech-dropdown dropdown-menu-end">
      <a class="dropdown-item" href="{{ auth()->check() && auth()->user()->user_type==='student' ? route('student.dashboard') : route('student.login') }}">{{ auth()->check() && auth()->user()->user_type==='student' ? 'Мой кабинет студента' : 'Кабинет студента' }}</a>
+     <a class="dropdown-item" href="{{ route('dpo.catalog') }}">Программы ДПО</a>
      <a class="dropdown-item" href="{{ route('dpo.login') }}">Кабинет ДПО</a>
     </div>
    </div>
@@ -105,7 +106,8 @@ try{
   <a href="{{ route('news.index') }}">Новости</a>
   <a href="{{ route('document-center.index') }}">Центр документов</a>
   <a href="{{ auth()->check() && auth()->user()->user_type==='student' ? route('student.dashboard') : route('student.login') }}">Личный кабинет студента</a>
-  <a href="{{ route('dpo.login') }}">ДПО</a>
+  <a href="{{ route('dpo.catalog') }}">Программы ДПО</a>
+  <a href="{{ route('dpo.login') }}">Кабинет ДПО</a>
   <button type="button" class="pwa-install-inline" data-pwa-install hidden>Установить приложение</button>
  </div>
 </div>
