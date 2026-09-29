@@ -13,9 +13,10 @@
     <div class="field"><label>Название урока</label><input class="form-control" name="title" value="{{ $lesson->title }}" required></div>
     <div class="field"><label>Краткое описание</label><textarea class="form-control" rows="3" name="description">{{ $lesson->description }}</textarea></div>
     <div class="row g-3">
-     <div class="col-md-4 field"><label>Длительность, мин</label><input type="number" min="0" class="form-control" name="duration_minutes" value="{{ $lesson->duration_minutes }}"></div>
-     <div class="col-md-4 field"><label>Завершение</label><select class="form-select" name="completion_mode">@foreach(['view'=>'По просмотру','manual'=>'Вручную','resources'=>'По материалам','scorm'=>'По SCORM'] as $v=>$t)<option value="{{ $v }}" @selected($lesson->completion_mode===$v)>{{ $t }}</option>@endforeach</select></div>
-     <div class="col-md-4 field"><label>Порядок</label><input type="number" min="0" class="form-control" name="sort" value="{{ $lesson->sort }}"></div>
+     <div class="col-md-3 field"><label>Тип урока</label><select class="form-select" name="lesson_type"><option value="online" @selected($lesson->lesson_type!=='offline_practice')>Обычный / онлайн</option><option value="offline_practice" @selected($lesson->lesson_type==='offline_practice')>Офлайн-практика</option></select></div>
+     <div class="col-md-3 field"><label>Длительность, мин</label><input type="number" min="0" class="form-control" name="duration_minutes" value="{{ $lesson->duration_minutes }}"></div>
+     <div class="col-md-3 field"><label>Завершение</label><select class="form-select" name="completion_mode">@foreach(['view'=>'По просмотру','manual'=>'Вручную','resources'=>'По материалам','scorm'=>'По SCORM','attendance'=>'По посещаемости'] as $v=>$t)<option value="{{ $v }}" @selected($lesson->completion_mode===$v)>{{ $t }}</option>@endforeach</select></div>
+     <div class="col-md-3 field"><label>Порядок</label><input type="number" min="0" class="form-control" name="sort" value="{{ $lesson->sort }}"></div>
     </div>
     <label class="check"><input type="checkbox" name="is_published" value="1" @checked($lesson->is_published)> Урок опубликован</label>
    </div>
