@@ -72,34 +72,54 @@
       <small>{{ $block['entries']->count() }} {{ $block['entries']->count()===1 ? 'занятие' : 'занятий' }}</small>
      </header>
 
-     @if($block['entries']->count())
-      <div class="schedule-table-wrap">
-       <table class="schedule-table">
-        <thead>
-         <tr>
-          <th>№</th>
-          <th>Время</th>
-          <th>Группа</th>
-          <th>Дисциплина</th>
-          <th>Преподаватель</th>
-          <th>Кабинет</th>
-          <th>Тип</th>
-         </tr>
-        </thead>
-        <tbody>
-         @foreach($block['entries'] as $entry)
-          <tr>
-           <td class="schedule-number">{{ $entry->lesson_number ?: '—' }}</td>
-           <td class="schedule-time"><b>{{ substr($entry->starts_at,0,5) }}</b><span>{{ substr($entry->ends_at,0,5) }}</span></td>
-           <td><b>{{ $entry->group->name }}</b>@if($entry->subgroup)<small>{{ $entry->subgroup }}</small>@endif</td>
-           <td><b>{{ $entry->subject }}</b>@if($entry->notes)<small>{{ $entry->notes }}</small>@endif</td>
-           <td>{{ $entry->teacher?->full_name ?: '—' }}</td>
-           <td>{{ $entry->room ?: '—' }}</td>
-           <td>{{ $entry->lesson_type ?: '—' }}</td>
-          </tr>
-         @endforeach
-        </tbody>
-       </table>
+     @if($block['groups']->count())
+      <div class="schedule-group-list">
+       @foreach($block['groups'] as $groupBlock)
+        <section class="schedule-group-block">
+         <header class="schedule-group-head">
+          <div>
+           <span>Группа</span>
+           <h3>{{ $groupBlock['group']->name }}</h3>
+          </div>
+          <div class="schedule-group-meta">
+           @if($groupBlock['group']->course)<span>{{ $groupBlock['group']->course }} курс</span>@endif
+           @if($groupBlock['group']->specialty)<span>{{ $groupBlock['group']->specialty }}</span>@endif
+           <b>{{ $groupBlock['entries']->count() }} {{ $groupBlock['entries']->count()===1 ? 'занятие' : 'занятий' }}</b>
+          </div>
+         </header>
+
+         <div class="schedule-table-wrap">
+          <table class="schedule-table schedule-group-table">
+           <thead>
+            <tr>
+             <th>№</th>
+             <th>Время</th>
+             <th>Дисциплина</th>
+             <th>Преподаватель</th>
+             <th>Кабинет</th>
+             <th>Тип</th>
+            </tr>
+           </thead>
+           <tbody>
+            @foreach($groupBlock['entries'] as $entry)
+             <tr>
+              <td class="schedule-number">{{ $entry->lesson_number ?: '—' }}</td>
+              <td class="schedule-time"><b>{{ substr($entry->starts_at,0,5) }}</b><span>{{ substr($entry->ends_at,0,5) }}</span></td>
+              <td>
+               <b>{{ $entry->subject }}</b>
+               @if($entry->subgroup)<small>{{ $entry->subgroup }}</small>@endif
+               @if($entry->notes)<small>{{ $entry->notes }}</small>@endif
+              </td>
+              <td>{{ $entry->teacher?->full_name ?: '—' }}</td>
+              <td>{{ $entry->room ?: '—' }}</td>
+              <td>{{ $entry->lesson_type ?: '—' }}</td>
+             </tr>
+            @endforeach
+           </tbody>
+          </table>
+         </div>
+        </section>
+       @endforeach
       </div>
      @else
       <div class="schedule-day-empty">На этот день занятий по выбранным фильтрам нет.</div>
