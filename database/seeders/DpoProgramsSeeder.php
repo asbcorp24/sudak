@@ -61,7 +61,8 @@ class DpoProgramsSeeder extends Seeder
                             'description'=>'Практический урок модуля «'.$moduleTitle.'»: '.$lessonTitle.'.',
                             'content'=>$this->lessonContent($program->title,$moduleTitle,$moduleDescription,$lessonTitle),
                             'duration_minutes'=>$data['hours']>=72?270:150,
-                            'completion_mode'=>'view',
+                            'lesson_type'=>$lessonIndex===2?'offline_practice':'online',
+                            'completion_mode'=>$lessonIndex===2?'attendance':'view',
                             'sort'=>($lessonIndex+1)*10,
                             'is_published'=>true,
                         ]
