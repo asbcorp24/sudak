@@ -111,7 +111,7 @@
 
      <div class="admission-specialty-grid">
       <label class="admission-specialty-option">
-       <input type="radio" name="specialty_id" value="" @checked(old('specialty_id',request('specialty'))==='')>
+       <input type="radio" name="specialty_id" value="" @checked(blank(old('specialty_id',request('specialty'))))>
        <span class="admission-specialty-code">?</span>
        <span class="admission-specialty-copy"><b>Пока не определился</b><small>Нужна помощь с выбором направления</small></span>
        <i>✓</i>
