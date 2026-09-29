@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\CollegeEvent;
+use App\Models\EventRegistration;
+use App\Services\StudentNotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
@@ -26,11 +28,14 @@ class CollegeEventAdminController extends Controller
         return view('admin.calendar.form',['event'=>new CollegeEvent,'types'=>CollegeEvent::types()]);
     }
 
-    public function store(Request $request)
+    public function store(Request $request,StudentNotificationService $notifications)
     {
         $data=$this->data($request);
         $data['slug']=$data['slug']?:Str::slug($data['title']).'-'.now()->format('ymdHis');
-        CollegeEvent::create($data);
+        $event=CollegeEvent::create($data);
+        if($event->is_published && $event->registration_enabled){
+            $notifications->notifyAllStudents('event','Открыта регистрация',$event->title,route('calendar.show',$event->slug),'event-open:'.$event->id);
+        }
         return redirect()->route('admin.calendar.index')->with('ok','Событие добавлено');
     }
 
@@ -39,12 +44,31 @@ class CollegeEventAdminController extends Controller
         return view('admin.calendar.form',['event'=>$calendar,'types'=>CollegeEvent::types()]);
     }
 
-    public function update(Request $request,CollegeEvent $calendar)
+    public function update(Request $request,CollegeEvent $calendar,StudentNotificationService $notifications)
     {
+        $wasPublished=$calendar->is_published;
+        $wasRegistrationEnabled=$calendar->registration_enabled;
         $data=$this->data($request,$calendar->id);
         $data['slug']=$data['slug']?:Str::slug($data['title']).'-'.$calendar->id;
         $calendar->update($data);
+        if($calendar->is_published && $calendar->registration_enabled && (!$wasPublished || !$wasRegistrationEnabled)){
+            $notifications->notifyAllStudents('event','Открыта регистрация',$calendar->title,route('calendar.show',$calendar->slug),'event-open:'.$calendar->id);
+        }
         return redirect()->route('admin.calendar.index')->with('ok','Событие обновлено');
+    }
+
+    public function participants(CollegeEvent $calendar)
+    {
+        $registrations=$calendar->registrations()->with(['user.scheduleGroup'])->orderByDesc('registered_at')->get();
+        return view('admin.calendar.participants',['event'=>$calendar,'registrations'=>$registrations]);
+    }
+
+    public function participantStatus(Request $request,CollegeEvent $calendar,EventRegistration $registration)
+    {
+        abort_unless($registration->college_event_id===$calendar->id,404);
+        $status=$request->validate(['status'=>'required|in:registered,attended,cancelled'])['status'];
+        $registration->update(['status'=>$status,'attended_at'=>$status==='attended'?now():null]);
+        return back()->with('ok','Статус участника обновлён');
     }
 
     public function destroy(CollegeEvent $calendar)
@@ -65,11 +89,15 @@ class CollegeEventAdminController extends Controller
             'excerpt'=>'nullable|string|max:1000',
             'description'=>'nullable|string',
             'external_url'=>'nullable|url|max:2000',
+            'capacity'=>'nullable|integer|min:1|max:100000',
+            'registration_deadline'=>'nullable|date|before_or_equal:starts_at',
+            'registration_note'=>'nullable|string|max:1000',
             'sort'=>'nullable|integer|min:0|max:9999',
         ]);
         $data['all_day']=$request->boolean('all_day');
         $data['is_featured']=$request->boolean('is_featured');
         $data['is_published']=$request->boolean('is_published');
+        $data['registration_enabled']=$request->boolean('registration_enabled');
         $data['sort']=(int)$request->input('sort',0);
         return $data;
     }
