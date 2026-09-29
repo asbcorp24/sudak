@@ -15,7 +15,7 @@ class EventRegistrationController extends Controller
     {
         $user=$request->user();
 
-        DB::transaction(function() use ($event,$user,$notifications){
+        $registeredEvent=DB::transaction(function() use ($event,$user){
             $locked=CollegeEvent::whereKey($event->id)->lockForUpdate()->firstOrFail();
 
             if(!$locked->is_published || !$locked->registration_enabled || $locked->starts_at->isPast()){
@@ -26,7 +26,7 @@ class EventRegistrationController extends Controller
             }
 
             $existing=EventRegistration::where('college_event_id',$locked->id)->where('user_id',$user->id)->first();
-            if($existing && $existing->status==='registered') return;
+            if($existing && $existing->status==='registered') return $locked;
 
             $occupied=EventRegistration::where('college_event_id',$locked->id)->where('status','registered')->count();
             if($locked->capacity && $occupied >= $locked->capacity){
@@ -38,12 +38,14 @@ class EventRegistrationController extends Controller
                 ['status'=>'registered','registered_at'=>now(),'attended_at'=>null]
             );
 
-            $notifications->notifyUsers(collect([$user]),'event','Регистрация подтверждена',
-                $locked->title.' · '.$locked->starts_at->translatedFormat('d F, H:i'),
-                route('calendar.show',$locked->slug),
-                'event-registration:'.$locked->id.':'.$user->id
-            );
+            return $locked;
         });
+
+        $notifications->notifyUsers(collect([$user]),'event','Регистрация подтверждена',
+            $registeredEvent->title.' · '.$registeredEvent->starts_at->translatedFormat('d F, H:i'),
+            route('calendar.show',$registeredEvent->slug),
+            'event-registration:'.$registeredEvent->id.':'.$user->id
+        );
 
         return back()->with('ok','Вы зарегистрированы на мероприятие');
     }
