@@ -63,8 +63,14 @@ class HomeController extends Controller
             ->take(3)
             ->get();
 
+        $openDayEvent=CollegeEvent::published()
+            ->where('type','open_day')
+            ->where('starts_at','>=',now()->startOfDay())
+            ->orderBy('starts_at')
+            ->first();
+
         $openDayDate=null;
-        $openDayDateRaw=$settings['home_open_day_date'] ?? null;
+        $openDayDateRaw=$openDayEvent?->starts_at ?: ($settings['home_open_day_date'] ?? null);
         if($openDayDateRaw){
             try{
                 $date=Carbon::parse($openDayDateRaw);
@@ -90,6 +96,7 @@ class HomeController extends Controller
             'upcomingEvents'=>$upcomingEvents,
             'achievements'=>$achievements,
             'openDayDate'=>$openDayDate,
+            'openDayEvent'=>$openDayEvent,
         ]);
     }
 }
