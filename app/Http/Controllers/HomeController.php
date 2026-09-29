@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Achievement;
+use App\Models\CollegeEvent;
 use App\Models\NewsPost;
 use App\Models\ScheduleEntry;
 use App\Models\Setting;
@@ -19,6 +20,7 @@ class HomeController extends Controller
             'quick_actions'=>10,
             'schedule'=>20,
             'open_day'=>30,
+            'events'=>35,
             'specialties'=>40,
             'admission'=>50,
             'achievements'=>60,
@@ -44,6 +46,14 @@ class HomeController extends Controller
             ->orderBy('starts_at')
             ->orderBy('group_id')
             ->take(8)
+            ->get();
+
+        $upcomingEvents=CollegeEvent::published()
+            ->where('starts_at','>=',now()->startOfDay())
+            ->orderBy('starts_at')
+            ->orderByDesc('is_featured')
+            ->orderBy('sort')
+            ->take(5)
             ->get();
 
         $achievements=Achievement::with(['competition','media'])
@@ -77,6 +87,7 @@ class HomeController extends Controller
             'homeSettings'=>$settings,
             'homeSections'=>$homeSections,
             'todaySchedule'=>$todaySchedule,
+            'upcomingEvents'=>$upcomingEvents,
             'achievements'=>$achievements,
             'openDayDate'=>$openDayDate,
         ]);
