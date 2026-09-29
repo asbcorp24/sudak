@@ -15,6 +15,10 @@ use App\Http\Controllers\QuizController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\OfficialDocumentController;
 use App\Http\Controllers\CollegeCalendarController;
+use App\Http\Controllers\EventRegistrationController;
+use App\Http\Controllers\PushSubscriptionController;
+use App\Http\Controllers\Student\AuthController as StudentAuthController;
+use App\Http\Controllers\Student\DashboardController as StudentDashboardController;
 use App\Http\Controllers\Dpo\AuthController as DpoAuthController;
 use App\Http\Controllers\Dpo\DashboardController as DpoDashboardController;
 use App\Http\Controllers\Dpo\CourseController as DpoCourseController;
@@ -74,6 +78,24 @@ Route::post('/quizzes/{quiz}',[QuizController::class,'submit'])->name('quizzes.s
 Route::get('/quiz-results/{token}',[QuizController::class,'result'])->name('quizzes.result');
 Route::get('/certificates/{code}',[QuizController::class,'certificate'])->name('quizzes.certificate');
 
+Route::get('/student/login',[StudentAuthController::class,'showLogin'])->name('student.login');
+Route::post('/student/login',[StudentAuthController::class,'login'])->name('student.login.post');
+Route::get('/student/register',[StudentAuthController::class,'showRegister'])->name('student.register');
+Route::post('/student/register',[StudentAuthController::class,'register'])->name('student.register.post');
+
+Route::prefix('student')->name('student.')->middleware(['auth','student'])->group(function(){
+ Route::get('/',[StudentDashboardController::class,'index'])->name('dashboard');
+ Route::post('/logout',[StudentAuthController::class,'logout'])->name('logout');
+ Route::get('/notifications',[StudentDashboardController::class,'notifications'])->name('notifications');
+ Route::get('/notifications/{notification}/read',[StudentDashboardController::class,'read'])->name('notifications.read');
+ Route::patch('/notifications/read-all',[StudentDashboardController::class,'readAll'])->name('notifications.read-all');
+ Route::put('/preferences',[StudentDashboardController::class,'preferences'])->name('preferences');
+ Route::post('/push-subscriptions',[PushSubscriptionController::class,'store'])->name('push.store');
+ Route::delete('/push-subscriptions',[PushSubscriptionController::class,'destroy'])->name('push.destroy');
+ Route::post('/events/{event}/register',[EventRegistrationController::class,'store'])->name('events.register');
+ Route::delete('/events/{event}/register',[EventRegistrationController::class,'destroy'])->name('events.unregister');
+});
+
 Route::get('/dpo/login',[DpoAuthController::class,'show'])->name('dpo.login');
 Route::post('/dpo/login',[DpoAuthController::class,'login'])->name('dpo.login.post');
 
@@ -111,6 +133,8 @@ Route::prefix('admin')->name('admin.')->middleware(['auth','admin'])->group(func
  Route::resource('news',NewsAdminController::class)->except('show');
  Route::resource('specialties',SpecialtyAdminController::class)->except('show');
  Route::resource('employees',EmployeeAdminController::class)->except('show');
+ Route::get('calendar/{calendar}/participants',[CollegeEventAdminController::class,'participants'])->name('calendar.participants');
+ Route::patch('calendar/{calendar}/participants/{registration}',[CollegeEventAdminController::class,'participantStatus'])->name('calendar.participants.status');
  Route::resource('calendar',CollegeEventAdminController::class)->except('show');
 
  Route::get('dpo',[DpoAdminController::class,'index'])->name('dpo.index');
