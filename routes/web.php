@@ -44,6 +44,7 @@ use App\Http\Controllers\Admin\OfficialDocumentAdminController;
 use App\Http\Controllers\Admin\DpoAdminController;
 use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\Admin\CollegeEventAdminController;
+use App\Http\Controllers\Admin\StudentAccountAdminController;
 
 Route::get('/',HomeController::class)->name('home');
 
@@ -124,6 +125,11 @@ Route::post('/admin/logout',[AuthController::class,'logout'])->name('admin.logou
 
 Route::prefix('admin')->name('admin.')->middleware(['auth','admin'])->group(function(){
  Route::get('/',DashboardController::class)->name('dashboard');
+
+ Route::get('students',[StudentAccountAdminController::class,'index'])->name('students.index');
+ Route::put('students/{student}',[StudentAccountAdminController::class,'update'])->name('students.update');
+ Route::patch('students/{student}/approve',[StudentAccountAdminController::class,'approve'])->name('students.approve');
+ Route::patch('students/{student}/reject',[StudentAccountAdminController::class,'reject'])->name('students.reject');
 
  Route::get('admins',[AdminUserController::class,'index'])->name('admins.index');
  Route::post('admins',[AdminUserController::class,'store'])->name('admins.store');
