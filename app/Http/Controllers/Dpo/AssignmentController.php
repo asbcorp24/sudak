@@ -20,7 +20,7 @@ class AssignmentController extends Controller
         $user=$request->user();
         abort_unless($submission->group_id===$group->id,404);
         abort_unless(
-            $user->is_admin || $group->enrollments()->where('user_id',$user->id)->where('role','teacher')->where('status','active')->exists(),
+            ($user->is_admin && $user->canAdmin('dpo')) || $group->enrollments()->where('user_id',$user->id)->where('role','teacher')->where('status','active')->exists(),
             403
         );
 
