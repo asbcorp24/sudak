@@ -77,6 +77,9 @@ class DpoAdminController extends Controller
 
     public function destroyProgram(DpoProgram $program)
     {
+        if($program->issuedDocuments()->exists()){
+            return back()->withErrors(['program'=>'Нельзя удалить программу, по которой уже выданы документы. Переведите программу в архивный режим, сняв её с публикации.']);
+        }
         $program->delete();
         return redirect()->route('admin.dpo.index')->with('ok','Программа удалена');
     }
@@ -713,15 +716,12 @@ class DpoAdminController extends Controller
                 ]);
             }
 
-            DpoProfile::updateOrCreate(
-                ['user_id'=>$user->id],
-                [
-                    'role'=>'student',
-                    'phone'=>$application->phone,
-                    'organization'=>$application->organization,
-                    'is_active'=>true,
-                ]
-            );
+            $profile=DpoProfile::firstOrNew(['user_id'=>$user->id]);
+            if(!$profile->exists) $profile->role='student';
+            $profile->phone=$application->phone;
+            $profile->organization=$application->organization;
+            $profile->is_active=true;
+            $profile->save();
 
             DpoEnrollment::updateOrCreate(
                 ['group_id'=>$group->id,'user_id'=>$user->id,'role'=>'student'],
@@ -818,7 +818,7 @@ class DpoAdminController extends Controller
 
         $enrollment=$attestation->enrollment;
         $program=$enrollment->group->program;
-        $number=$data['number'] ?: 'ДПО-'.date('Y').'-'.str_pad((string)$attestation->id,6,'0',STR_PAD_LEFT);
+        $number=($data['number']??null) ?: 'ДПО-'.now()->format('Y').'-'.str_pad((string)$attestation->id,6,'0',STR_PAD_LEFT);
 
         $document=DpoIssuedDocument::create([
             'attestation_id'=>$attestation->id,
