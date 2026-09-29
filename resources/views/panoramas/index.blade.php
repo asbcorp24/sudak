@@ -165,6 +165,13 @@ html.a11y-no-motion .pano360 .pano-card,html.a11y-no-motion .pano360 .pano-thumb
  });
 
  closeButton.addEventListener('click',closePanorama);
+
+ const requestedCard=location.hash ? document.getElementById(location.hash.slice(1)) : null;
+ const requestedButton=requestedCard?.querySelector('.js-pano-open');
+ if(requestedButton){
+  setTimeout(()=>openPanorama(requestedButton),120);
+ }
+
  document.addEventListener('keydown',event=>{
   if(event.key==='Escape'&&modal.classList.contains('open')&&!document.fullscreenElement){
    closePanorama();
