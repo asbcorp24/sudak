@@ -68,6 +68,7 @@ try{
    </div>
 
    <a href="{{ route('news.index') }}">Новости</a>
+   <a href="{{ route('document-center.index') }}">Документы</a>
    <a href="{{ auth()->check() && auth()->user()->user_type==='student' ? route('student.dashboard') : route('student.login') }}">{{ auth()->check() && auth()->user()->user_type==='student' ? 'Мой кабинет' : 'Студенту' }}</a>
    <a href="{{ route('dpo.login') }}">ДПО</a>
   </nav>
@@ -92,6 +93,7 @@ try{
   <a href="{{ route('cooperation.index') }}">Сотрудничество</a>
   <a href="{{ route('questions.create') }}">Задать вопрос</a>
   <a href="{{ route('news.index') }}">Новости</a>
+  <a href="{{ route('document-center.index') }}">Центр документов</a>
   <a href="{{ auth()->check() && auth()->user()->user_type==='student' ? route('student.dashboard') : route('student.login') }}">Личный кабинет студента</a>
   <a href="{{ route('dpo.login') }}">ДПО</a>
   <button type="button" class="pwa-install-inline" data-pwa-install hidden>Установить приложение</button>
