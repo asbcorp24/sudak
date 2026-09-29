@@ -14,6 +14,15 @@
     <div class="field"><label>Короткое описание</label><textarea class="form-control" rows="3" name="excerpt">{{ old('excerpt',$event->excerpt) }}</textarea></div>
     <div class="field"><label>Подробное описание</label><textarea class="form-control" rows="12" name="description">{{ old('description',$event->description) }}</textarea></div>
     <div class="field"><label>Внешняя ссылка</label><input class="form-control" type="url" name="external_url" value="{{ old('external_url',$event->external_url) }}" placeholder="https://..."></div>
+    <div class="glass-panel mt-4 event-registration-admin">
+     <span class="eyebrow">REGISTRATION</span><h3>Регистрация студентов</h3>
+     <label class="check"><input type="checkbox" name="registration_enabled" value="1" @checked(old('registration_enabled',$event->registration_enabled))> Разрешить регистрацию через личный кабинет</label>
+     <div class="row g-3">
+      <div class="col-md-6 field"><label>Количество мест</label><input class="form-control" type="number" min="1" name="capacity" value="{{ old('capacity',$event->capacity) }}" placeholder="без ограничения"></div>
+      <div class="col-md-6 field"><label>Регистрация до</label><input class="form-control" type="datetime-local" name="registration_deadline" value="{{ old('registration_deadline',$event->registration_deadline?->format('Y-m-d\TH:i')) }}"></div>
+     </div>
+     <div class="field"><label>Примечание для участников</label><textarea class="form-control" rows="3" name="registration_note" placeholder="Что взять с собой, где собраться и т. п.">{{ old('registration_note',$event->registration_note) }}</textarea></div>
+    </div>
    </div>
   </div>
   <div class="col-lg-4">
