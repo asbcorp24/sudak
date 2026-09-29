@@ -4,7 +4,10 @@
 <div class="d-flex justify-content-between align-items-center gap-3 flex-wrap mb-4">
  <a class="btn-ghost" href="{{ route('admin.dpo.programs.show',$group->program) }}">← {{ $group->program->title }}</a>
  <div class="d-flex gap-2 align-items-center flex-wrap">
-  <a class="btn-ghost" href="{{ route('admin.dpo.groups.journal',$group) }}">Ведомость группы</a>
+  <a class="btn-ghost" href="{{ route('admin.dpo.groups.journal',$group) }}">Ведомость</a>
+  <a class="btn-ghost" href="{{ route('admin.dpo.groups.report.excel',$group) }}">Excel</a>
+  <a class="btn-ghost" target="_blank" href="{{ route('admin.dpo.groups.report.print',$group) }}">PDF / печать</a>
+  <a class="btn-ghost" href="{{ route('admin.dpo.groups.scorm',$group) }}">SCORM аналитика</a>
   <span class="dpo-status {{ $group->status }}">{{ ['draft'=>'Черновик','active'=>'Идёт обучение','completed'=>'Завершена','archived'=>'Архив'][$group->status] }}</span>
  </div>
 </div>
@@ -176,10 +179,10 @@
   </div>
 
   <div class="glass-panel mt-4">
-   <span class="eyebrow">SCORM RESULTS</span><h3 class="mt-2">Результаты iSpring / SCORM</h3>
+   <div class="d-flex justify-content-between gap-2 align-items-center flex-wrap"><div><span class="eyebrow">SCORM RESULTS</span><h3 class="mt-2">Результаты iSpring / SCORM</h3></div><a class="btn-ghost" href="{{ route('admin.dpo.groups.scorm',$group) }}">Полная аналитика →</a></div>
    <div class="table-responsive">
     <table class="table tech-table align-middle">
-     <thead><tr><th>Слушатель</th><th>Тест</th><th>Попытка</th><th>Статус</th><th>Балл</th><th>Последняя активность</th></tr></thead>
+     <thead><tr><th>Слушатель</th><th>Тест</th><th>Попытка</th><th>Статус</th><th>Балл</th><th>Время</th><th>Последняя активность</th></tr></thead>
      <tbody>
       @forelse($scormAttempts as $attempt)
        <tr>
@@ -188,10 +191,11 @@
         <td>{{ $attempt->attempt_no }}</td>
         <td>{{ $attempt->lesson_status ?: trim(($attempt->completion_status ?: '').' '.($attempt->success_status ?: '')) ?: '—' }}</td>
         <td>{{ $attempt->score_raw !== null ? $attempt->score_raw : ($attempt->score_scaled !== null ? round($attempt->score_scaled*100,1).'%' : '—') }}</td>
+        <td><small>{{ $attempt->total_time ?: $attempt->session_time ?: '—' }}</small></td>
         <td>{{ $attempt->last_accessed_at?->format('d.m.Y H:i') ?: '—' }}</td>
        </tr>
       @empty
-       <tr><td colspan="6">SCORM-попыток пока нет.</td></tr>
+       <tr><td colspan="7">SCORM-попыток пока нет.</td></tr>
       @endforelse
      </tbody>
     </table>
