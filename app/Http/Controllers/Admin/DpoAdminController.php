@@ -23,6 +23,8 @@ use App\Models\MediaAsset;
 use App\Models\User;
 use App\Services\DpoScormImporter;
 use App\Services\DpoCompletionService;
+use App\Services\DpoExcelService;
+use App\Services\StudentNotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
@@ -40,10 +42,133 @@ class DpoAdminController extends Controller
             'students'=>DpoProfile::where('role','student')->count(),
             'teachers'=>DpoProfile::where('role','teacher')->count(),
             'activeGroups'=>DpoGroup::where('status','active')->count(),
+            'importGroups'=>DpoGroup::with('program')->whereIn('status',['draft','active'])->orderByDesc('starts_on')->get(),
             'submissionsToReview'=>DpoSubmission::where('status','submitted')->count(),
             'pendingApplications'=>DpoApplication::where('status','pending')->count(),
             'issuedDocuments'=>DpoIssuedDocument::where('status','issued')->count(),
         ]);
+    }
+
+    public function importStudents(Request $request,DpoExcelService $excel)
+    {
+        $data=$request->validate([
+            'file'=>['required','file','max:20480'],
+            'group_id'=>['nullable','exists:dpo_groups,id'],
+        ]);
+
+        $file=$data['file'];
+        $rows=$excel->read($file->getRealPath(),strtolower($file->getClientOriginalExtension()));
+        if(!$rows) return back()->withErrors(['file'=>'В файле не найдено строк слушателей. Проверьте заголовки: ФИО, Email, Телефон, Организация, Должность, Группа.']);
+
+        $defaultGroup=!empty($data['group_id'])?DpoGroup::find($data['group_id']):null;
+        $created=0; $existing=0; $enrolled=0; $errors=[]; $credentials=[];
+
+        foreach($rows as $line=>$row){
+            try{
+                $group=$defaultGroup;
+                if(!$group && !empty($row['group'])){
+                    $group=DpoGroup::where('name',$row['group'])->first();
+                }
+                if(!$group) throw new \RuntimeException('не найдена учебная группа');
+
+                $email=trim((string)($row['email']??''));
+                if(!$email){
+                    $base=Str::slug($row['name']??'student','.');
+                    if(!$base) $base='student';
+                    $email=$base.'.'.Str::lower(Str::random(5)).'@dpo.local';
+                }
+
+                $user=User::where('email',$email)->first();
+                $password=null;
+                if(!$user){
+                    $password=trim((string)($row['password']??'')) ?: Str::random(10);
+                    $user=User::create([
+                        'name'=>$row['name'],
+                        'email'=>$email,
+                        'password'=>Hash::make($password),
+                        'is_admin'=>false,
+                    ]);
+                    $created++;
+                }else{
+                    $existing++;
+                    if(trim((string)$user->name)==='') $user->update(['name'=>$row['name']]);
+                }
+
+                DpoProfile::updateOrCreate(
+                    ['user_id'=>$user->id],
+                    [
+                        'role'=>'student',
+                        'phone'=>$row['phone']??null,
+                        'organization'=>$row['organization']??null,
+                        'position'=>$row['position']??null,
+                        'is_active'=>true,
+                    ]
+                );
+
+                DpoEnrollment::updateOrCreate(
+                    ['group_id'=>$group->id,'user_id'=>$user->id,'role'=>'student'],
+                    ['status'=>'active','enrolled_at'=>now(),'completed_at'=>null]
+                );
+                $enrolled++;
+
+                if($password) $credentials[]=[
+                    'name'=>$user->name,'email'=>$email,'password'=>$password,'group'=>$group->name,
+                ];
+            }catch(\Throwable $e){
+                $errors[]='Строка '.($line+2).': '.$e->getMessage();
+            }
+        }
+
+        return back()->with('ok',"Импорт завершён: создано {$created}, существующих {$existing}, зачислено {$enrolled}.")
+            ->with('dpo_import_credentials',$credentials)
+            ->with('dpo_import_errors',$errors);
+    }
+
+    public function groupReportExcel(DpoGroup $group,DpoCompletionService $completion,DpoExcelService $excel)
+    {
+        $group->load(['program','enrollments.user']);
+        $rows=[];
+        foreach($group->enrollments->where('role','student') as $enrollment){
+            $m=$completion->metrics($enrollment);
+            $rows[]=[
+                $enrollment->user->name,
+                $enrollment->user->email,
+                $m['progress_percent'],
+                $m['attendance_percent'],
+                $m['homework_percent']??'',
+                $m['scorm_percent']??'',
+                $m['final_score']??'',
+                $m['ready']?'Выполнены':'Не выполнены',
+                $enrollment->status,
+            ];
+        }
+        $xml=$excel->spreadsheetXml('Ведомость',[
+            'ФИО','Email','Уроки, %','Посещаемость, %','ДЗ, %','SCORM, %','Итог, %','Критерии','Статус'
+        ],$rows);
+        $name='dpo_'.$group->id.'_'.now()->format('Ymd').'.xls';
+        return response($xml,200,[
+            'Content-Type'=>'application/vnd.ms-excel; charset=UTF-8',
+            'Content-Disposition'=>'attachment; filename="'.$name.'"',
+        ]);
+    }
+
+    public function groupReportPrint(DpoGroup $group,DpoCompletionService $completion)
+    {
+        $group->load(['program','enrollments.user']);
+        $rows=$group->enrollments->where('role','student')->map(function($enrollment) use($completion){
+            return ['enrollment'=>$enrollment,'metrics'=>$completion->metrics($enrollment)];
+        });
+        return view('admin.dpo.group-report-print',compact('group','rows'));
+    }
+
+    public function scormAnalytics(DpoGroup $group)
+    {
+        $group->load('program');
+        $attempts=DpoScormAttempt::with(['user','package.lesson','values'])
+            ->where('group_id',$group->id)
+            ->latest('last_accessed_at')
+            ->paginate(100);
+        return view('admin.dpo.scorm-analytics',compact('group','attempts'));
     }
 
     public function storeProgram(Request $request)
@@ -606,6 +731,9 @@ class DpoAdminController extends Controller
             $assignment->groups()->attach($group->id);
         }
 
+        $users=User::whereIn('id',DpoEnrollment::whereIn('group_id',$lesson->module->program->groups->pluck('id'))->where('role','student')->where('status','active')->pluck('user_id'))->get();
+        app(StudentNotificationService::class)->notifyUsers($users,'dpo_assignment','Новое задание',$assignment->title,route('dpo.dashboard'),'dpo-assignment-'.$assignment->id);
+
         return back()->with('ok','Домашнее задание добавлено');
     }
 
@@ -646,7 +774,9 @@ class DpoAdminController extends Controller
             'notes'=>['nullable','string','max:5000'],
         ]);
 
-        $group->scheduleEntries()->create($data);
+        $entry=$group->scheduleEntries()->create($data);
+        $users=User::whereIn('id',$group->enrollments()->where('role','student')->where('status','active')->pluck('user_id'))->get();
+        app(StudentNotificationService::class)->notifyUsers($users,'dpo_schedule','Новое занятие',$entry->title.' · '.$entry->starts_at->format('d.m.Y H:i'),route('dpo.calendar'),'dpo-schedule-'.$entry->id);
         return back()->with('ok','Занятие добавлено в расписание');
     }
 
@@ -787,6 +917,18 @@ class DpoAdminController extends Controller
             'reviewed_by'=>$request->user()->id,
             'reviewed_at'=>now(),
         ]);
+
+        app(StudentNotificationService::class)->notifyUsers(
+            collect([$submission->user]),
+            'dpo_homework',
+            $data['status']==='reviewed'?'Работа проверена':'Работа возвращена',
+            $submission->assignment->title.($data['score']!==null?' · '.$data['score'].' балл.':''),
+            route('dpo.dashboard'),
+            'dpo-review-'.$submission->id.'-'.$submission->updated_at->timestamp
+        );
+
+        $enrollment=DpoEnrollment::where('group_id',$submission->group_id)->where('user_id',$submission->user_id)->where('role','student')->where('status','active')->first();
+        if($enrollment) app(DpoCompletionService::class)->sync($enrollment);
 
         return back()->with('ok','Результат проверки сохранён');
     }
