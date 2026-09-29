@@ -24,6 +24,7 @@ use App\Http\Controllers\Dpo\DashboardController as DpoDashboardController;
 use App\Http\Controllers\Dpo\CourseController as DpoCourseController;
 use App\Http\Controllers\Dpo\AssignmentController as DpoAssignmentController;
 use App\Http\Controllers\Dpo\ScormController as DpoScormController;
+use App\Http\Controllers\Dpo\PublicController as DpoPublicController;
 use App\Http\Controllers\Admin\AuthController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\PageAdminController;
@@ -98,6 +99,12 @@ Route::prefix('student')->name('student.')->middleware(['auth','student'])->grou
  Route::delete('/events/{event}/register',[EventRegistrationController::class,'destroy'])->name('events.unregister');
 });
 
+Route::get('/dpo/programs',[DpoPublicController::class,'index'])->name('dpo.catalog');
+Route::get('/dpo/programs/{program:slug}',[DpoPublicController::class,'show'])->name('dpo.program');
+Route::post('/dpo/programs/{program:slug}/apply',[DpoPublicController::class,'apply'])->name('dpo.apply');
+Route::get('/dpo/application/{token}',[DpoPublicController::class,'applicationStatus'])->name('dpo.application.status');
+Route::get('/dpo/document/{code}',[DpoPublicController::class,'verifyDocument'])->name('dpo.document.verify');
+
 Route::get('/dpo/login',[DpoAuthController::class,'show'])->name('dpo.login');
 Route::post('/dpo/login',[DpoAuthController::class,'login'])->name('dpo.login.post');
 
@@ -145,6 +152,14 @@ Route::prefix('admin')->name('admin.')->middleware(['auth','admin'])->group(func
  Route::resource('calendar',CollegeEventAdminController::class)->except('show');
 
  Route::get('dpo',[DpoAdminController::class,'index'])->name('dpo.index');
+ Route::get('dpo/applications',[DpoAdminController::class,'applications'])->name('dpo.applications.index');
+ Route::patch('dpo/applications/{application}/approve',[DpoAdminController::class,'approveApplication'])->name('dpo.applications.approve');
+ Route::patch('dpo/applications/{application}/reject',[DpoAdminController::class,'rejectApplication'])->name('dpo.applications.reject');
+ Route::post('dpo/enrollments/{enrollment}/attest',[DpoAdminController::class,'attest'])->name('dpo.attestations.store');
+ Route::post('dpo/attestations/{attestation}/document',[DpoAdminController::class,'issueDocument'])->name('dpo.documents.issue');
+ Route::get('dpo/documents',[DpoAdminController::class,'documents'])->name('dpo.documents.index');
+ Route::post('dpo/groups/{group}/archive',[DpoAdminController::class,'archiveGroup'])->name('dpo.groups.archive');
+
  Route::post('dpo/programs',[DpoAdminController::class,'storeProgram'])->name('dpo.programs.store');
  Route::get('dpo/programs/{program}',[DpoAdminController::class,'showProgram'])->name('dpo.programs.show');
  Route::put('dpo/programs/{program}',[DpoAdminController::class,'updateProgram'])->name('dpo.programs.update');
