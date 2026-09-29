@@ -36,10 +36,10 @@
         <div class="event-registration-closed">Регистрация закрыта или свободных мест больше нет.</div>
        @endif
       @else
-       <a class="btn-tech" href="{{ route('student.login') }}">Войти как студент</a>
+       <a class="btn-tech" href="{{ route('student.login',['redirect'=>url()->current()]) }}">Войти как студент</a>
       @endif
      @else
-      <a class="btn-tech" href="{{ route('student.login') }}">Войти и зарегистрироваться</a>
+      <a class="btn-tech" href="{{ route('student.login',['redirect'=>url()->current()]) }}">Войти и зарегистрироваться</a>
      @endauth
     </div>
    @endif
