@@ -18,4 +18,9 @@ class OfficialDocumentCategory extends Model
     {
         return $this->documents()->where('is_published', true);
     }
+
+    public function scopePublished($query)
+    {
+        return $query->where('is_published',true);
+    }
 }
