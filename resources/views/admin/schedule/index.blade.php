@@ -20,7 +20,7 @@
   <span class="eyebrow">IMPORT COMPLETE</span>
   <h3 class="mt-2">Расписание импортировано</h3>
   <div class="schedule-import-stats">
-   <div><small>Формат</small><b>{{ $r['format'] ?: 'Rector-College' }} {{ $r['format_version'] }}</b></div>
+   <div><small>Формат</small><b>{{ $r['format'] ?: 'Ректор' }} {{ $r['format_version'] }}</b></div>
    <div><small>Период</small><b>{{ $r['period_from'] }} — {{ $r['period_to'] }}</b></div>
    <div><small>Группы</small><b>{{ $r['groups'] }}</b></div>
    <div><small>Преподаватели</small><b>{{ $r['teachers'] }}</b></div>
@@ -34,9 +34,9 @@
 <div class="glass-panel mb-4 schedule-import-panel">
  <div class="d-flex justify-content-between align-items-start gap-3 flex-wrap">
   <div>
-   <span class="eyebrow">RECTOR-COLLEGE XML</span>
+   <span class="eyebrow">RECTOR XML</span>
    <h3 class="mt-2 mb-1">Импорт расписания</h3>
-   <p class="text-secondary mb-0">Загрузите XML, выгруженный из «Ректор-Колледж». Группы и преподаватели создаются автоматически, спаренные академические часы объединяются в пары.</p>
+   <p class="text-secondary mb-0">Загрузите XML из «Ректор-Колледж» или «Ректор-ВУЗ». Формат определяется автоматически. Для колледжа 45-минутные часы при необходимости объединяются в пары, а для Rector-University используются готовые интервалы занятий из файла.</p>
   </div>
   <span class="schedule-import-badge">XML / WINDOWS-1251</span>
  </div>
@@ -46,7 +46,7 @@
   <div class="field">
    <label>XML-файл расписания</label>
    <input class="form-control" type="file" name="xml_file" accept=".xml,text/xml,application/xml" required>
-   <small class="text-secondary">Поддерживается экспорт Rector-College. Максимум 50 МБ.</small>
+   <small class="text-secondary">Поддерживаются Rector-College и Rector-University (Ректор-ВУЗ). Максимум 50 МБ.</small>
   </div>
   <div class="field">
    <label>Режим импорта</label>
