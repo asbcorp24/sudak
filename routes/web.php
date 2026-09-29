@@ -114,6 +114,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth','admin'])->group(func
  Route::delete('dpo/programs/{program}',[DpoAdminController::class,'destroyProgram'])->name('dpo.programs.destroy');
  Route::post('dpo/programs/{program}/groups',[DpoAdminController::class,'storeGroup'])->name('dpo.groups.store');
  Route::get('dpo/groups/{group}',[DpoAdminController::class,'showGroup'])->name('dpo.groups.show');
+ Route::get('dpo/groups/{group}/journal',[DpoAdminController::class,'journal'])->name('dpo.groups.journal');
  Route::put('dpo/groups/{group}',[DpoAdminController::class,'updateGroup'])->name('dpo.groups.update');
  Route::get('dpo/users',[DpoAdminController::class,'users'])->name('dpo.users.index');
  Route::post('dpo/users',[DpoAdminController::class,'storeUser'])->name('dpo.users.store');
