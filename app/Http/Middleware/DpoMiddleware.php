@@ -15,7 +15,9 @@ class DpoMiddleware
         $adminHasDpoAccess=$user->is_admin && $user->canAdmin('dpo');
 
         if (!$adminHasDpoAccess && (!$user->dpoProfile || !$user->dpoProfile->is_active)) {
-            abort(403, 'Доступ к ДПО не активирован.');
+            return redirect()
+                ->route('dpo.login')
+                ->with('dpo_access_error','Текущая учётная запись не имеет доступа к ДПО. Войдите под учётной записью слушателя ДПО.');
         }
 
         return $next($request);
