@@ -21,6 +21,7 @@ class CourseController extends Controller
             'program.modules.lessons.assignments'=>fn($q)=>$q->where('is_published',true),
             'program.modules.lessons.scormPackages'=>fn($q)=>$q->where('is_active',true),
             'teachers.dpoProfile',
+            'announcements'=>fn($q)=>$q->whereNotNull('published_at')->orderByDesc('published_at'),
         ]);
 
         $progress=DpoLessonProgress::where('group_id',$group->id)
@@ -55,7 +56,12 @@ class CourseController extends Controller
             $progress->update(['last_seen_at'=>now()]);
         }
 
-        return view('dpo.lesson',compact('group','lesson','progress'));
+        $submissions=\App\Models\DpoSubmission::where('group_id',$group->id)
+            ->where('user_id',$request->user()->id)
+            ->whereIn('assignment_id',$lesson->assignments->pluck('id'))
+            ->get()->keyBy('assignment_id');
+
+        return view('dpo.lesson',compact('group','lesson','progress','submissions'));
     }
 
     public function complete(Request $request,DpoGroup $group,DpoLesson $lesson)
