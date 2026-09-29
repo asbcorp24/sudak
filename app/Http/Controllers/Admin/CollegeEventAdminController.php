@@ -84,8 +84,12 @@ class CollegeEventAdminController extends Controller
         return back()->with('ok','Статус участника обновлён');
     }
 
-    public function destroy(CollegeEvent $calendar)
+    public function destroy(CollegeEvent $calendar,StudentNotificationService $notifications)
     {
+        $participants=$calendar->registrations()->where('status','registered')->with('user')->get()->pluck('user')->filter()->values();
+        if($participants->isNotEmpty()){
+            $notifications->notifyUsers($participants,'event','Мероприятие отменено',$calendar->title,route('calendar.index'),'event-cancel:'.$calendar->id);
+        }
         $calendar->delete();
         return back()->with('ok','Событие удалено');
     }
