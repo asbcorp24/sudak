@@ -916,3 +916,96 @@ html.a11y-high-contrast body{background:#000!important;color:#fff!important}
  opacity:.7;
  filter:none!important;
 }
+
+
+/* Public schedule — blue / white theme */
+.schedule-section{
+ background:linear-gradient(180deg,#f7faff 0%,#edf4ff 100%)!important;
+ color:#0b2b55;
+}
+.schedule-filters{
+ border-color:rgba(23,105,210,.15)!important;
+ background:rgba(255,255,255,.92)!important;
+ box-shadow:0 12px 35px rgba(31,76,136,.06);
+ backdrop-filter:blur(12px);
+}
+.schedule-filter-field label{
+ color:#55708c!important;
+}
+.schedule-filters .form-control,
+.schedule-filters .form-select{
+ color-scheme:light!important;
+ background:#fff!important;
+ color:#0b2b55!important;
+ border:1px solid rgba(23,105,210,.2)!important;
+ -webkit-text-fill-color:#0b2b55!important;
+}
+.schedule-filters .form-control:focus,
+.schedule-filters .form-select:focus{
+ background:#fff!important;
+ color:#0b2b55!important;
+ border-color:#1769d2!important;
+ box-shadow:0 0 0 3px rgba(23,105,210,.1)!important;
+}
+.schedule-filters .form-select option{
+ background:#fff!important;
+ color:#0b2b55!important;
+}
+.schedule-filters input[type="date"]{
+ color-scheme:light!important;
+}
+.schedule-date-nav{
+ color:#60758f!important;
+ border-bottom:1px solid rgba(23,105,210,.1);
+}
+.schedule-date-nav a{
+ color:#1769d2!important;
+}
+.schedule-date-nav a:hover{
+ color:#0b3f86!important;
+}
+.schedule-date-nav strong{
+ color:#0b2b55!important;
+}
+.schedule-table-wrap{
+ border-color:rgba(23,105,210,.15)!important;
+ background:#fff!important;
+ box-shadow:0 12px 35px rgba(31,76,136,.06);
+}
+.schedule-table th,
+.schedule-table td{
+ border-bottom-color:rgba(23,105,210,.1)!important;
+}
+.schedule-table th{
+ color:#55708c!important;
+ background:#edf4ff!important;
+}
+.schedule-table tbody tr{
+ background:#fff;
+}
+.schedule-table tbody tr:hover{
+ background:#f4f8ff!important;
+}
+.schedule-table td{
+ color:#315675!important;
+ background:#fff;
+}
+.schedule-table td b{
+ color:#0b2b55!important;
+}
+.schedule-table td small{
+ color:#71869d!important;
+}
+.schedule-number{
+ color:#1769d2!important;
+}
+.schedule-time b{
+ color:#0b2b55!important;
+}
+.schedule-time span{
+ color:#71869d!important;
+}
+.schedule-empty{
+ color:#71869d!important;
+ background:#fff!important;
+}
