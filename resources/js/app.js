@@ -570,3 +570,58 @@ if('serviceWorker' in navigator && (location.protocol==='https:' || location.hos
       });
   });
 }
+
+
+function zskUrlBase64ToUint8Array(base64String){
+  const padding='='.repeat((4-base64String.length%4)%4);
+  const base64=(base64String+padding).replace(/-/g,'+').replace(/_/g,'/');
+  const raw=atob(base64);
+  return Uint8Array.from([...raw].map(ch=>ch.charCodeAt(0)));
+}
+
+async function zskEnablePush(button,status){
+  const key=document.querySelector('meta[name="webpush-public-key"]')?.content||'';
+  const csrf=document.querySelector('meta[name="csrf-token"]')?.content||'';
+  if(!('serviceWorker' in navigator)||!('PushManager' in window)||!('Notification' in window)){
+    if(status)status.textContent='Этот браузер не поддерживает Web Push.';
+    return;
+  }
+  if(!key){
+    if(status)status.textContent='Push ещё не настроен на сервере.';
+    return;
+  }
+  try{
+    const permission=await Notification.requestPermission();
+    if(permission!=='granted'){ if(status)status.textContent='Разрешение на уведомления не предоставлено.'; return; }
+    const registration=await navigator.serviceWorker.ready;
+    let subscription=await registration.pushManager.getSubscription();
+    if(!subscription){
+      subscription=await registration.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:zskUrlBase64ToUint8Array(key)});
+    }
+    const json=subscription.toJSON();
+    json.contentEncoding=(window.PushManager.supportedContentEncodings||['aes128gcm'])[0];
+    const response=await fetch('/student/push-subscriptions',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Accept':'application/json','X-CSRF-TOKEN':csrf},
+      body:JSON.stringify(json)
+    });
+    if(!response.ok)throw new Error('Не удалось сохранить подписку');
+    button.textContent='PWA-уведомления включены';
+    button.disabled=true;
+    if(status)status.textContent='Это устройство будет получать выбранные уведомления.';
+  }catch(error){
+    if(status)status.textContent=error?.message||'Не удалось включить уведомления.';
+  }
+}
+
+document.addEventListener('DOMContentLoaded',()=>{
+  document.querySelectorAll('[data-push-enable]').forEach(button=>{
+    const status=document.querySelector('[data-push-status]');
+    button.addEventListener('click',()=>zskEnablePush(button,status));
+    if('serviceWorker' in navigator && 'PushManager' in window && Notification.permission==='granted'){
+      navigator.serviceWorker.ready.then(r=>r.pushManager.getSubscription()).then(subscription=>{
+        if(subscription){button.textContent='PWA-уведомления включены';button.disabled=true;if(status)status.textContent='Подписка активна на этом устройстве.';}
+      }).catch(()=>{});
+    }
+  });
+});
