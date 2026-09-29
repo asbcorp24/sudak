@@ -7,4 +7,5 @@ class DpoScheduleEntry extends Model{
  public function group(){return $this->belongsTo(DpoGroup::class,'group_id');}
  public function lesson(){return $this->belongsTo(DpoLesson::class,'lesson_id');}
  public function teacher(){return $this->belongsTo(User::class,'teacher_user_id');}
+ public function attendance(){return $this->hasMany(DpoAttendance::class,'schedule_entry_id');}
 }
