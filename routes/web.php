@@ -247,7 +247,9 @@ Route::prefix('admin')->name('admin.')->middleware(['auth','admin'])->group(func
 
  Route::get('quizzes',[QuizAdminController::class,'index'])->name('quizzes.index');
  Route::post('quizzes',[QuizAdminController::class,'store'])->name('quizzes.store');
+ Route::get('quizzes/{quiz}/builder',[QuizAdminController::class,'builder'])->name('quizzes.builder');
  Route::put('quizzes/{quiz}',[QuizAdminController::class,'update'])->name('quizzes.update');
+ Route::post('quizzes/{quiz}/duplicate',[QuizAdminController::class,'duplicate'])->name('quizzes.duplicate');
  Route::delete('quizzes/{quiz}',[QuizAdminController::class,'destroy'])->name('quizzes.destroy');
 
  Route::get('schedule',[ScheduleAdminController::class,'index'])->name('schedule.index');
