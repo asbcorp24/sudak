@@ -122,6 +122,99 @@ class DpoAdminController extends Controller
         ]);
     }
 
+    public function journal(DpoGroup $group)
+    {
+        $group->load([
+            'program.modules.lessons'=>fn($q)=>$q->where('is_published',true),
+            'enrollments.user',
+            'scheduleEntries',
+        ]);
+
+        $students=$group->enrollments
+            ->where('role','student')
+            ->where('status','active')
+            ->sortBy(fn($enrollment)=>mb_strtolower($enrollment->user->name))
+            ->values();
+
+        $studentIds=$students->pluck('user_id');
+        $lessonIds=$group->program->modules->flatMap->lessons->pluck('id');
+        $totalLessons=$lessonIds->count();
+
+        $attendance=DpoAttendance::query()
+            ->selectRaw("user_id, COUNT(*) as marked_count, SUM(CASE WHEN status IN ('present','late') THEN 1 ELSE 0 END) as attended_count, SUM(CASE WHEN status='absent' THEN 1 ELSE 0 END) as absent_count, SUM(CASE WHEN status='excused' THEN 1 ELSE 0 END) as excused_count")
+            ->whereHas('scheduleEntry',fn($q)=>$q->where('group_id',$group->id))
+            ->whereIn('user_id',$studentIds)
+            ->groupBy('user_id')
+            ->get()
+            ->keyBy('user_id');
+
+        $progress=\App\Models\DpoLessonProgress::query()
+            ->selectRaw("user_id, SUM(CASE WHEN status='completed' THEN 1 ELSE 0 END) as completed_count")
+            ->where('group_id',$group->id)
+            ->whereIn('user_id',$studentIds)
+            ->whereIn('lesson_id',$lessonIds)
+            ->groupBy('user_id')
+            ->get()
+            ->keyBy('user_id');
+
+        $submissions=DpoSubmission::with('assignment')
+            ->where('group_id',$group->id)
+            ->whereIn('user_id',$studentIds)
+            ->where('status','reviewed')
+            ->get()
+            ->groupBy('user_id');
+
+        $scorm=DpoScormAttempt::with('package')
+            ->where('group_id',$group->id)
+            ->whereIn('user_id',$studentIds)
+            ->orderBy('attempt_no')
+            ->get()
+            ->groupBy('user_id');
+
+        $rows=$students->map(function($enrollment) use($attendance,$progress,$submissions,$scorm,$totalLessons){
+            $userId=$enrollment->user_id;
+            $a=$attendance->get($userId);
+            $marked=(int)($a?->marked_count ?? 0);
+            $attended=(int)($a?->attended_count ?? 0);
+
+            $homework=$submissions->get($userId,collect());
+            $homeworkMax=(float)$homework->sum(fn($submission)=>(float)$submission->assignment->max_score);
+            $homeworkScore=(float)$homework->sum(fn($submission)=>(float)($submission->score ?? 0));
+
+            $latestScorm=$scorm->get($userId,collect())
+                ->groupBy('package_id')
+                ->map(fn($attempts)=>$attempts->sortByDesc('attempt_no')->first());
+
+            $scormPercents=$latestScorm->map(function($attempt){
+                if($attempt->score_scaled!==null) return max(0,min(100,(float)$attempt->score_scaled*100));
+                if($attempt->score_raw!==null && (float)$attempt->package->max_score>0){
+                    return max(0,min(100,(float)$attempt->score_raw/(float)$attempt->package->max_score*100));
+                }
+                return null;
+            })->filter(fn($value)=>$value!==null);
+
+            $completed=(int)($progress->get($userId)?->completed_count ?? 0);
+
+            return [
+                'enrollment'=>$enrollment,
+                'marked'=>$marked,
+                'attended'=>$attended,
+                'absent'=>(int)($a?->absent_count ?? 0),
+                'excused'=>(int)($a?->excused_count ?? 0),
+                'attendance_percent'=>$marked?round($attended/$marked*100):0,
+                'completed_lessons'=>$completed,
+                'total_lessons'=>$totalLessons,
+                'progress_percent'=>$totalLessons?round($completed/$totalLessons*100):0,
+                'homework_count'=>$homework->count(),
+                'homework_percent'=>$homeworkMax>0?round($homeworkScore/$homeworkMax*100):null,
+                'scorm_count'=>$latestScorm->count(),
+                'scorm_percent'=>$scormPercents->count()?round($scormPercents->avg()):null,
+            ];
+        });
+
+        return view('admin.dpo.journal',compact('group','rows','totalLessons'));
+    }
+
     public function updateGroup(Request $request,DpoGroup $group)
     {
         $data=$request->validate([
