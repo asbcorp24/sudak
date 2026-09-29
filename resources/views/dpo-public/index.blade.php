@@ -97,7 +97,7 @@
    <div class="dpo-grid" id="dpoProgramGrid">
     @forelse($programs as $program)
      @php($next=$program->groups->first())
-     <article class="dpo-program-card" data-dpo-card data-search="{{ IlluminateSupportStr::lower(($program->code ?: 'ДПО').' '.$program->title.' '.($program->qualification ?: '').' '.($program->description ?: '')) }}">
+     <article class="dpo-program-card" data-dpo-card data-search="{{ \Illuminate\Support\Str::lower(($program->code ?: 'ДПО').' '.$program->title.' '.($program->qualification ?: '').' '.($program->description ?: '')) }}">
       <div class="dpo-card-top">
        <span class="dpo-program-code">{{ $program->code ?: 'ДПО' }}</span>
        <span class="dpo-hours">{{ $program->hours }} ч.</span>
@@ -113,7 +113,7 @@
       @endif
 
       @if($program->description)
-       <p class="dpo-description">{{ IlluminateSupportStr::limit($program->description,190) }}</p>
+       <p class="dpo-description">{{ \Illuminate\Support\Str::limit($program->description,190) }}</p>
       @else
        <p class="dpo-description">Откройте программу, чтобы посмотреть содержание обучения, результаты и условия зачисления.</p>
       @endif
