@@ -7,6 +7,8 @@ use App\Models\DpoLesson;
 use App\Models\DpoLessonProgress;
 use App\Models\DpoScheduleEntry;
 use Illuminate\Http\Request;
+use App\Models\DpoEnrollment;
+use App\Services\DpoCompletionService;
 
 class CourseController extends Controller
 {
@@ -94,6 +96,9 @@ class CourseController extends Controller
             ['lesson_id'=>$lesson->id,'group_id'=>$group->id,'user_id'=>$request->user()->id],
             ['status'=>'completed','started_at'=>now(),'completed_at'=>now(),'last_seen_at'=>now()]
         );
+
+        $enrollment=DpoEnrollment::where('group_id',$group->id)->where('user_id',$request->user()->id)->where('role','student')->where('status','active')->first();
+        if($enrollment) app(DpoCompletionService::class)->sync($enrollment);
 
         return back()->with('ok','Урок отмечен как завершённый');
     }
