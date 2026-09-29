@@ -434,7 +434,6 @@ function shipyard(api){
  rings(dock,a,5,2.1);
  t.push((x)=>{
   water.position.z=Math.sin(x*.4)*.04;
-  ship.position.y=-.55+Math.sin(x*.45)*.012;
  });
 }
 
