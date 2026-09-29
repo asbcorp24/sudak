@@ -53,7 +53,7 @@ html.a11y-no-motion .pano360 .pano-card,html.a11y-no-motion .pano360 .pano-thumb
     @forelse($panoramas as $panorama)
      <article class="pano-card">
       <div class="pano-thumb js-pano-open" role="button" tabindex="0"
-       data-src="{{ $panorama->image_url }}" data-title="{{ $panorama->title }}"
+       data-scene="{{ $panorama->slug }}" data-src="{{ $panorama->image_url }}" data-title="{{ $panorama->title }}"
        data-location="{{ $panorama->location }}" data-yaw="{{ $panorama->initial_yaw }}"
        data-pitch="{{ $panorama->initial_pitch }}">
        <img src="{{ $panorama->image_url }}" alt="{{ $panorama->title }}" loading="lazy">
@@ -114,26 +114,33 @@ html.a11y-no-motion .pano360 .pano-card,html.a11y-no-motion .pano360 .pano-thumb
   modal.setAttribute('aria-hidden','false');
   document.body.style.overflow='hidden';
 
+  const scenes=@json($pannellumScenes);
+  const sceneMeta=@json($panoramas->mapWithKeys(fn($p)=>[$p->slug=>['title'=>$p->title,'location'=>$p->location]]));
   viewer=pannellum.viewer(stage,{
-   type:'equirectangular',
-   panorama:button.dataset.src,
-   autoLoad:true,
-   pitch:Number(button.dataset.pitch)||0,
-   yaw:Number(button.dataset.yaw)||0,
-   hfov:100,
-   minHfov:35,
-   maxHfov:120,
-   showControls:true,
-   showZoomCtrl:true,
-   showFullscreenCtrl:true,
-   keyboardZoom:true,
-   mouseZoom:true,
-   draggable:true,
-   friction:0.16,
-   touchPanSpeedCoeffFactor:1,
-   orientationOnByDefault:false,
-   escapeHTML:true,
-   backgroundColor:[0.02,0.07,0.13]
+   default:{
+    firstScene:button.dataset.scene,
+    sceneFadeDuration:800,
+    autoLoad:true,
+    minHfov:35,
+    maxHfov:120,
+    showControls:true,
+    showZoomCtrl:true,
+    showFullscreenCtrl:true,
+    keyboardZoom:true,
+    mouseZoom:true,
+    draggable:true,
+    friction:0.16,
+    touchPanSpeedCoeffFactor:1,
+    orientationOnByDefault:false,
+    escapeHTML:true,
+    backgroundColor:[0.02,0.07,0.13]
+   },
+   scenes:scenes
+  });
+  viewer.on('scenechange',sceneId=>{
+   const meta=sceneMeta[sceneId]||{};
+   document.getElementById('pvTitle').textContent=meta.title||'Панорама 360°';
+   document.getElementById('pvLocation').textContent=meta.location||'';
   });
  }
 
