@@ -440,7 +440,7 @@ class DpoAdminController extends Controller
 
     private function programData(Request $request,?int $id=null): array
     {
-        return $request->validate([
+        $data=$request->validate([
             'code'=>['nullable','string','max:80'],
             'title'=>['required','string','max:255'],
             'slug'=>['nullable','string','max:191',Rule::unique('dpo_programs','slug')->ignore($id)],
@@ -449,9 +449,9 @@ class DpoAdminController extends Controller
             'learning_outcomes'=>['nullable','string','max:20000'],
             'sort'=>['nullable','integer','min:0','max:9999'],
             'is_published'=>['nullable','boolean'],
-        ]) + [
-            'sort'=>(int)$request->input('sort',0),
-            'is_published'=>$request->boolean('is_published'),
-        ];
+        ]);
+        $data['sort']=(int)$request->input('sort',0);
+        $data['is_published']=$request->boolean('is_published');
+        return $data;
     }
 }
