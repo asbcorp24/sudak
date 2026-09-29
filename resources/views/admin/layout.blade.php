@@ -105,4 +105,14 @@
 </main>
 </div>
 @stack('scripts')
+<script>
+document.querySelectorAll('.admin-nav-section').forEach(function(section){
+ section.addEventListener('toggle',function(){
+  if(!section.open) return;
+  document.querySelectorAll('.admin-nav-section').forEach(function(other){
+   if(other!==section) other.open=false;
+  });
+ });
+});
+</script>
 </body></html>
