@@ -73,12 +73,31 @@ class ScheduleController extends Controller
         $dayBlocks=collect();
         for($day=$dateFrom->copy()->startOfDay();$day->lte($dateTo);$day->addDay()){
             $key=$day->format('Y-m-d');
+            $dayEntries=$entriesByDate->get($key,collect());
+
+            $groupBlocks=$dayEntries
+                ->groupBy('group_id')
+                ->map(function($groupEntries){
+                    $group=$groupEntries->first()->group;
+
+                    return [
+                        'group'=>$group,
+                        'entries'=>$groupEntries->sortBy([
+                            ['starts_at','asc'],
+                            ['lesson_number','asc'],
+                        ])->values(),
+                    ];
+                })
+                ->sortBy(fn($block)=>mb_strtolower($block['group']->name))
+                ->values();
+
             $dayBlocks->push([
                 'date'=>$key,
                 'display_date'=>$day->format('d.m.Y'),
                 'day_name'=>$dayNames[$day->isoWeekday()],
                 'is_today'=>$day->isToday(),
-                'entries'=>$entriesByDate->get($key,collect()),
+                'entries'=>$dayEntries,
+                'groups'=>$groupBlocks,
             ]);
         }
 
