@@ -48,7 +48,7 @@ class AuthController extends Controller
 
         Auth::login($user);
         $request->session()->regenerate();
-        return redirect()->route('student.dashboard')->with('ok','Личный кабинет создан');
+        return redirect()->intended(route('student.dashboard'))->with('ok','Личный кабинет создан');
     }
 
     public function login(Request $request)
