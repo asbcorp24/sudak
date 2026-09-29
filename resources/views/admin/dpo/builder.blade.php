@@ -85,7 +85,7 @@
       <div class="cb-lessons" data-module-lessons="{{ $module->id }}">
        @foreach($module->lessons as $lesson)
         <a class="cb-lesson {{ $selectedLesson?->id===$lesson->id?'active':'' }}" draggable="true" data-lesson-id="{{ $lesson->id }}" href="{{ route('admin.dpo.builder',['program'=>$program,'lesson'=>$lesson->id]) }}">
-         <span class="cb-dot"></span><span>{{ $lesson->title }}</span><small>{{ $lesson->duration_minutes }}м</small>
+         <span class="cb-dot"></span><span>{{ $lesson->title }}</span><small>{{ $lesson->lesson_type==='offline_practice'?'практика':$lesson->duration_minutes.'м' }}</small>
         </a>
        @endforeach
       </div>
