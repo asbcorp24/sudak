@@ -29,7 +29,9 @@ class AuthController extends Controller
         $request->session()->regenerate();
         $user=Auth::user();
 
-        if (!$user->is_admin && (!$user->dpoProfile || !$user->dpoProfile->is_active)) {
+        $adminHasDpoAccess=$user->is_admin && $user->canAdmin('dpo');
+
+        if (!$adminHasDpoAccess && (!$user->dpoProfile || !$user->dpoProfile->is_active)) {
             Auth::logout();
             return back()->withErrors(['email'=>'Для этой учётной записи доступ к ДПО не активирован.']);
         }
