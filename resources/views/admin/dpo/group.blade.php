@@ -45,6 +45,67 @@
   </div>
 
   <div class="glass-panel mt-4">
+   <div class="d-flex justify-content-between align-items-center gap-3 flex-wrap">
+    <div><span class="eyebrow">ATTESTATION / DOCUMENTS</span><h3 class="mt-2 mb-0">Аттестация и документы</h3></div>
+    @if($group->status!=='archived')
+     <form method="post" action="{{ route('admin.dpo.groups.archive',$group) }}">@csrf
+      <button class="btn-ghost" onclick="return confirm('Перенести группу в архив?')">Архивировать группу</button>
+     </form>
+    @endif
+   </div>
+   <p class="text-secondary mt-2">Критерии программы: уроки ≥ {{ $group->program->min_progress_percent }}%, посещаемость ≥ {{ $group->program->min_attendance_percent }}%, ДЗ ≥ {{ $group->program->min_homework_percent }}%, SCORM/тест ≥ {{ $group->program->min_scorm_percent }}%.</p>
+
+   <div class="d-grid gap-3 mt-3">
+    @forelse($group->enrollments->where('role','student') as $enrollment)
+     @php($m=$completionMetrics->get($enrollment->id))
+     <div class="border rounded-3 p-3">
+      <div class="d-flex justify-content-between gap-3 flex-wrap">
+       <div><b>{{ $enrollment->user->name }}</b><div class="small text-secondary">{{ $enrollment->user->email }} · {{ $enrollment->status }}</div></div>
+       <div class="small">
+        Уроки <b>{{ $m['progress_percent'] }}%</b> ·
+        посещаемость <b>{{ $m['attendance_percent'] }}%</b> ·
+        ДЗ <b>{{ $m['homework_percent']===null?'—':$m['homework_percent'].'%' }}</b> ·
+        SCORM <b>{{ $m['scorm_percent']===null?'—':$m['scorm_percent'].'%' }}</b>
+       </div>
+      </div>
+      <div class="mt-2">
+       @if($m['ready'])<span class="badge text-bg-success">К аттестации готов</span>@else<span class="badge text-bg-warning">Критерии ещё не выполнены</span>@endif
+       @if($enrollment->attestation)<span class="badge text-bg-primary">{{ $enrollment->attestation->status==='passed'?'Аттестация пройдена':($enrollment->attestation->status==='failed'?'Не аттестован':'Ожидает аттестации') }}</span>@endif
+      </div>
+
+      @if(!$enrollment->attestation || $enrollment->attestation->status!=='passed')
+       <form method="post" action="{{ route('admin.dpo.attestations.store',$enrollment) }}" class="admin-form mt-3">@csrf
+        <div class="row g-2">
+         <div class="col-md-3"><select class="form-select" name="status"><option value="passed">Аттестован</option><option value="failed">Не аттестован</option></select></div>
+         <div class="col-md-3"><input class="form-control" name="result_text" placeholder="Итог: зачтено"></div>
+         <div class="col-md-4"><input class="form-control" name="notes" placeholder="Комментарий комиссии"></div>
+         <div class="col-md-2"><button class="btn-tech w-100 justify-content-center">Сохранить</button></div>
+        </div>
+       </form>
+      @elseif(!$enrollment->attestation->document)
+       <form method="post" action="{{ route('admin.dpo.documents.issue',$enrollment->attestation) }}" class="admin-form mt-3">@csrf
+        <div class="row g-2">
+         <div class="col-md-2"><input class="form-control" name="series" placeholder="Серия"></div>
+         <div class="col-md-3"><input class="form-control" name="number" placeholder="Номер (авто)"></div>
+         <div class="col-md-3"><input type="date" class="form-control" name="issued_at" value="{{ now()->format('Y-m-d') }}" required></div>
+         <div class="col-md-2"><input class="form-control" name="note" placeholder="Примечание"></div>
+         <div class="col-md-2"><button class="btn-tech w-100 justify-content-center">Выдать</button></div>
+        </div>
+       </form>
+      @else
+       <div class="mt-3 d-flex align-items-center gap-2 flex-wrap">
+        <span>Документ: <b>{{ trim(($enrollment->attestation->document->series ?: '').' '.$enrollment->attestation->document->number) }}</b></span>
+        <a class="btn-ghost" target="_blank" href="{{ route('dpo.document.verify',$enrollment->attestation->document->verification_code) }}">Проверить ↗</a>
+       </div>
+      @endif
+     </div>
+    @empty
+     <div class="feedback-empty">Слушателей в группе пока нет.</div>
+    @endforelse
+   </div>
+  </div>
+
+  <div class="glass-panel mt-4">
    <span class="eyebrow">ONLINE SCHEDULE</span><h3 class="mt-2">Расписание группы</h3>
    <form method="post" action="{{ route('admin.dpo.schedule.store',$group) }}" class="admin-form">@csrf
     <div class="row g-2">
