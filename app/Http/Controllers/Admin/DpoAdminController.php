@@ -38,7 +38,7 @@ class DpoAdminController extends Controller
     public function index()
     {
         return view('admin.dpo.index',[
-            'programs'=>DpoProgram::withCount(['groups','modules'])->orderBy('sort')->orderBy('title')->get(),
+            'programs'=>DpoProgram::withCount(['groups','modules'])->where('is_archived',request()->boolean('archive'))->orderBy('sort')->orderBy('title')->get(),
             'students'=>DpoProfile::where('role','student')->count(),
             'teachers'=>DpoProfile::where('role','teacher')->count(),
             'activeGroups'=>DpoGroup::where('status','active')->count(),
@@ -278,6 +278,20 @@ class DpoAdminController extends Controller
         $data['slug']=$data['slug']?:Str::slug($data['title']);
         $program->update($data);
         return back()->with('ok','Программа обновлена');
+    }
+
+    public function archiveProgram(DpoProgram $program)
+    {
+        if(!$program->is_archived && $program->groups()->whereIn('status',['draft','active'])->exists()){
+            return back()->withErrors(['program'=>'Нельзя архивировать программу: есть текущие или ещё не начатые группы.']);
+        }
+        $program->update([
+            'is_archived'=>!$program->is_archived,
+            'is_published'=>$program->is_archived ? $program->is_published : false,
+            'applications_open'=>$program->is_archived ? $program->applications_open : false,
+        ]);
+        return redirect()->route('admin.dpo.index',['archive'=>$program->is_archived?1:0])
+            ->with('ok',$program->is_archived?'Программа перенесена в архив.':'Программа восстановлена из архива.');
     }
 
     public function destroyProgram(DpoProgram $program)
