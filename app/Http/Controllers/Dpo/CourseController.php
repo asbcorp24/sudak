@@ -75,7 +75,14 @@ class CourseController extends Controller
             ->whereIn('assignment_id',$lesson->assignments->pluck('id'))
             ->get()->keyBy('assignment_id');
 
-        return view('dpo.lesson',compact('group','lesson','progress','submissions'));
+        $scormAttempts=\App\Models\DpoScormAttempt::where('group_id',$group->id)
+            ->where('user_id',$request->user()->id)
+            ->whereIn('package_id',$lesson->scormPackages->pluck('id'))
+            ->orderByDesc('attempt_no')
+            ->get()
+            ->groupBy('package_id');
+
+        return view('dpo.lesson',compact('group','lesson','progress','submissions','scormAttempts'));
     }
 
     public function complete(Request $request,DpoGroup $group,DpoLesson $lesson)
