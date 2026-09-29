@@ -16,6 +16,33 @@
    <span class="eyebrow">О СОБЫТИИ</span>
    <div class="content-prose">{!! nl2br(e($event->description)) !!}</div>
    @if($event->external_url)<a class="btn-tech mt-4" href="{{ $event->external_url }}" target="_blank" rel="noopener">Перейти к материалам ↗</a>@endif
+
+   @if($event->registration_enabled)
+    <div class="event-registration-box">
+     <span class="eyebrow">REGISTRATION</span><h2>Участие в мероприятии</h2>
+     @if($event->registration_note)<p>{{ $event->registration_note }}</p>@endif
+     <div class="event-registration-stats"><span><b>{{ $registrationCount }}</b> зарегистрировано</span>@if($event->capacity)<span><b>{{ max(0,$event->capacity-$registrationCount) }}</b> свободных мест</span>@endif @if($event->registration_deadline)<span>Запись до <b>{{ $event->registration_deadline->format('d.m.Y H:i') }}</b></span>@endif</div>
+     @if($errors->has('event'))<div class="alert alert-danger">{{ $errors->first('event') }}</div>@endif
+     @if(session('ok'))<div class="alert alert-success">{{ session('ok') }}</div>@endif
+
+     @auth
+      @if(auth()->user()->user_type==='student')
+       @if($registration && $registration->status==='registered')
+        <div class="event-registration-success">✓ Вы зарегистрированы на это мероприятие.</div>
+        <form method="post" action="{{ route('student.events.unregister',$event) }}">@csrf @method('DELETE')<button class="btn-ghost">Отменить регистрацию</button></form>
+       @elseif($event->registrationOpen())
+        <form method="post" action="{{ route('student.events.register',$event) }}">@csrf<button class="btn-tech">Зарегистрироваться</button></form>
+       @else
+        <div class="event-registration-closed">Регистрация закрыта или свободных мест больше нет.</div>
+       @endif
+      @else
+       <a class="btn-tech" href="{{ route('student.login') }}">Войти как студент</a>
+      @endif
+     @else
+      <a class="btn-tech" href="{{ route('student.login') }}">Войти и зарегистрироваться</a>
+     @endauth
+    </div>
+   @endif
   </article>
   <aside class="calendar-detail-aside">
    <div><small>ДАТА</small><b>{{ $event->starts_at->translatedFormat('d F Y') }}</b></div>
