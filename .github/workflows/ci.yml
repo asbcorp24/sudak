@@ -65,12 +65,18 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          # Never let an older cancelled run overwrite assets built by a newer source commit.
+          git fetch origin main
+          if [ "$(git rev-parse origin/main)" != "$GITHUB_SHA" ]; then
+            echo "main moved after this run started; skip publishing stale compiled assets."
+            exit 0
+          fi
+
           git add -f public/build
           if git diff --cached --quiet; then
             echo "Compiled assets are already up to date."
             exit 0
           fi
           git commit -m "build: publish compiled frontend assets"
-          git fetch origin main
-          git rebase origin/main
           git push origin HEAD:main
