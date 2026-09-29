@@ -23,8 +23,9 @@
    @if($document->qualification)<div class="cell"><small>Квалификация</small><b>{{ $document->qualification }}</b></div>@endif
    <div class="cell"><small>Учебная группа</small><b>{{ $document->group->name }}</b></div>
   </div>
-  <div class="verify">Проверка подлинности: код <b>{{ $document->verification_code }}</b><br>{{ route('dpo.document.verify',$document->verification_code) }}</div>
+  <div class="verify" style="display:flex;justify-content:space-between;align-items:center;gap:10mm"><div>Проверка подлинности: код <b>{{ $document->verification_code }}</b><br>{{ route('dpo.document.verify',$document->verification_code) }}<br><small>Итоговый результат: {{ $document->attestation?->final_score !== null ? $document->attestation->final_score.'%' : 'зачтено' }}</small></div><div id="documentQr"></div></div>
  </div>
  <div class="actions"><button onclick="window.print()">Печать / сохранить PDF</button></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script><script>new QRCode(document.getElementById('documentQr'),{text:@json(route('dpo.document.verify',$document->verification_code)),width:110,height:110});</script>
 </body>
 </html>
