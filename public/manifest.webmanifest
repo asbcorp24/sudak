@@ -10,7 +10,9 @@
   "orientation": "any",
   "background_color": "#f4f8ff",
   "theme_color": "#1769d2",
-  "categories": ["education"],
+  "categories": [
+    "education"
+  ],
   "icons": [
     {
       "src": "/pwa/icon.svg",
@@ -40,6 +42,11 @@
       "name": "Новости",
       "short_name": "Новости",
       "url": "/news"
+    },
+    {
+      "name": "Личный кабинет",
+      "short_name": "Кабинет",
+      "url": "/student"
     }
   ]
 }
