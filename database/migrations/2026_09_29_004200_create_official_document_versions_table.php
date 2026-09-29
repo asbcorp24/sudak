@@ -9,6 +9,11 @@ return new class extends Migration
 {
     public function up(): void
     {
+        // MySQL can leave the table behind when CREATE/ALTER fails before
+        // Laravel records the migration. This migration is still pending,
+        // so remove that incomplete first attempt before recreating it.
+        Schema::dropIfExists('official_document_versions');
+
         Schema::create('official_document_versions', function (Blueprint $table) {
             $table->id();
             $table->foreignId('official_document_id')->constrained('official_documents')->cascadeOnDelete();
@@ -19,7 +24,7 @@ return new class extends Migration
             $table->boolean('is_current')->default(false)->index();
             $table->boolean('is_published')->default(true)->index();
             $table->timestamps();
-            $table->index(['official_document_id','effective_date']);
+            $table->index(['official_document_id','effective_date'], 'odv_document_effective_idx');
         });
 
         DB::table('official_documents')->orderBy('id')->get()->each(function ($document) {
