@@ -1,0 +1,76 @@
+@extends('admin.layout')
+@section('heading','ДПО / '.$program->title)
+@section('content')
+<div class="d-flex justify-content-between align-items-center gap-3 flex-wrap mb-4">
+ <a class="btn-ghost" href="{{ route('admin.dpo.index') }}">← Все программы</a>
+ <span class="dpo-status {{ $program->is_published?'active':'draft' }}">{{ $program->is_published?'Опубликована':'Черновик' }}</span>
+</div>
+
+<div class="row g-4">
+ <div class="col-xl-5">
+  <form method="post" action="{{ route('admin.dpo.programs.update',$program) }}" class="glass-panel admin-form">@csrf @method('PUT')
+   <span class="eyebrow">PROGRAM SETTINGS</span><h3 class="mt-2">Параметры программы</h3>
+   <div class="row g-3">
+    <div class="col-md-4 field"><label>Код</label><input class="form-control" name="code" value="{{ $program->code }}"></div>
+    <div class="col-md-8 field"><label>Часы</label><input type="number" min="0" class="form-control" name="hours" value="{{ $program->hours }}" required></div>
+   </div>
+   <div class="field"><label>Название</label><input class="form-control" name="title" value="{{ $program->title }}" required></div>
+   <div class="field"><label>Slug</label><input class="form-control" name="slug" value="{{ $program->slug }}"></div>
+   <div class="field"><label>Описание</label><textarea class="form-control" rows="5" name="description">{{ $program->description }}</textarea></div>
+   <div class="field"><label>Результаты обучения</label><textarea class="form-control" rows="5" name="learning_outcomes">{{ $program->learning_outcomes }}</textarea></div>
+   <div class="field"><label>Порядок</label><input type="number" min="0" class="form-control" name="sort" value="{{ $program->sort }}"></div>
+   <label class="check"><input type="checkbox" name="is_published" value="1" @checked($program->is_published)> Показывать слушателям</label>
+   <button class="btn-tech w-100 justify-content-center">Сохранить программу</button>
+  </form>
+ </div>
+
+ <div class="col-xl-7">
+  <div class="glass-panel mb-4">
+   <span class="eyebrow">GROUPS</span><h3 class="mt-2">Учебные группы</h3>
+   <form method="post" action="{{ route('admin.dpo.groups.store',$program) }}" class="admin-form">@csrf
+    <div class="row g-2">
+     <div class="col-md-5"><input class="form-control" name="name" placeholder="ДПО-26/01" required></div>
+     <div class="col-md-3"><input type="date" class="form-control" name="starts_on"></div>
+     <div class="col-md-3"><input type="date" class="form-control" name="ends_on"></div>
+     <div class="col-md-1"><input type="hidden" name="status" value="draft"><button class="btn-tech w-100 justify-content-center">+</button></div>
+    </div>
+   </form>
+   <div class="dpo-admin-simple-list mt-3">
+    @foreach($program->groups as $group)
+     <a href="{{ route('admin.dpo.groups.show',$group) }}"><span><b>{{ $group->name }}</b><small>{{ $group->starts_on?->format('d.m.Y') }} — {{ $group->ends_on?->format('d.m.Y') }}</small></span><span class="dpo-status {{ $group->status }}">{{ ['draft'=>'Черновик','active'=>'Идёт обучение','completed'=>'Завершена','archived'=>'Архив'][$group->status] }}</span></a>
+    @endforeach
+   </div>
+  </div>
+
+  <div class="glass-panel">
+   <span class="eyebrow">CURRICULUM</span><h3 class="mt-2">Учебная структура</h3>
+   <form method="post" action="{{ route('admin.dpo.modules.store',$program) }}" class="admin-form mb-4">@csrf
+    <div class="row g-2"><div class="col-md-8"><input class="form-control" name="title" placeholder="Название модуля" required></div><div class="col-md-2"><input class="form-control" type="number" min="0" name="sort" value="0"></div><div class="col-md-2"><button class="btn-tech w-100 justify-content-center">Добавить</button></div></div>
+   </form>
+
+   <div class="dpo-module-admin-list">
+    @foreach($program->modules as $module)
+     <section class="dpo-module-admin">
+      <div class="dpo-module-admin-head"><div><span class="eyebrow">MODULE {{ str_pad($loop->iteration,2,'0',STR_PAD_LEFT) }}</span><h4>{{ $module->title }}</h4></div></div>
+      <div class="dpo-admin-simple-list">
+       @foreach($module->lessons as $lesson)
+        <a href="{{ route('admin.dpo.lessons.edit',$lesson) }}"><span><b>{{ $lesson->title }}</b><small>{{ $lesson->duration_minutes }} мин · {{ ['manual'=>'ручное завершение','view'=>'просмотр','resources'=>'материалы','scorm'=>'SCORM'][$lesson->completion_mode] }}</small></span><span>Редактировать →</span></a>
+       @endforeach
+      </div>
+      <form method="post" action="{{ route('admin.dpo.lessons.store',$module) }}" class="admin-form mt-3">@csrf
+       <div class="row g-2">
+        <div class="col-md-5"><input class="form-control" name="title" placeholder="Новый урок" required></div>
+        <div class="col-md-2"><input type="number" class="form-control" name="duration_minutes" value="45" min="0"></div>
+        <div class="col-md-3"><select class="form-select" name="completion_mode"><option value="view">По просмотру</option><option value="manual">Вручную</option><option value="resources">По материалам</option><option value="scorm">SCORM</option></select></div>
+        <div class="col-md-2"><input type="hidden" name="sort" value="{{ $module->lessons->count()*10+10 }}"><button class="btn-ghost w-100 justify-content-center">+ Урок</button></div>
+       </div>
+      </form>
+     </section>
+    @endforeach
+   </div>
+  </div>
+ </div>
+</div>
+
+<form method="post" action="{{ route('admin.dpo.programs.destroy',$program) }}" class="text-end mt-4" onsubmit="return confirm('Удалить программу со всеми группами, уроками и результатами?')">@csrf @method('DELETE')<button class="link-danger">Удалить программу ×</button></form>
+@endsection
