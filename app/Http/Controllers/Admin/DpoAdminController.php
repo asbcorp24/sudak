@@ -50,8 +50,8 @@ class DpoAdminController extends Controller
     {
         $data=$this->programData($request);
         $data['slug']=$data['slug']?:Str::slug($data['title']);
-        DpoProgram::create($data);
-        return back()->with('ok','Программа ДПО создана');
+        $program=DpoProgram::create($data);
+        return redirect()->route('admin.dpo.builder',$program)->with('ok','Программа создана. Теперь соберите структуру курса.');
     }
 
     public function showProgram(DpoProgram $program)
@@ -469,6 +469,38 @@ class DpoAdminController extends Controller
         }
 
         return redirect()->route('admin.dpo.lessons.edit',$lesson)->with('ok','Урок создан');
+    }
+
+    public function duplicateLesson(DpoLesson $lesson)
+    {
+        $lesson->load(['resources','assignments']);
+        $copy=$lesson->replicate();
+        $copy->title=$lesson->title.' — копия';
+        $copy->sort=$lesson->module->lessons()->max('sort')+10;
+        $copy->is_published=false;
+        $copy->save();
+
+        foreach($lesson->resources as $resource){
+            $resourceCopy=$resource->replicate();
+            $resourceCopy->lesson_id=$copy->id;
+            $resourceCopy->save();
+        }
+
+        foreach($lesson->assignments as $assignment){
+            $assignmentCopy=$assignment->replicate();
+            $assignmentCopy->lesson_id=$copy->id;
+            $assignmentCopy->is_published=false;
+            $assignmentCopy->save();
+
+            foreach($lesson->module->program->groups as $group){
+                $assignmentCopy->groups()->attach($group->id);
+            }
+        }
+
+        return redirect()->route('admin.dpo.builder',[
+            'program'=>$lesson->module->program_id,
+            'lesson'=>$copy->id,
+        ])->with('ok','Урок скопирован. SCORM-пакеты не копируются — загрузите отдельный ZIP при необходимости.');
     }
 
     public function editLesson(DpoLesson $lesson)
