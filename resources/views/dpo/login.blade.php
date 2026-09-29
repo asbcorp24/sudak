@@ -6,13 +6,33 @@
   <span class="eyebrow">ZSK / CONTINUING EDUCATION</span>
   <h1>Личный кабинет ДПО</h1>
   <p>Онлайн-обучение, расписание, уроки, домашние работы и результаты тестирования.</p>
+
+  @if(session('dpo_access_error'))
+   <div class="alert alert-info">{{ session('dpo_access_error') }}</div>
+  @endif
+
+  @if(!empty($currentUser))
+   <div class="alert alert-light border">
+    Сейчас вы вошли на сайт как <b>{{ $currentUser->name }}</b>@if($currentUser->user_type==='student') в кабинете студента@endif.
+    Для ДПО можно использовать отдельную учётную запись — вход ниже переключит вас в кабинет ДПО.
+   </div>
+  @endif
+
+  @if($errors->any())
+   <div class="alert alert-danger">{{ $errors->first() }}</div>
+  @endif
+
   <form method="post" action="{{ route('dpo.login.post') }}">@csrf
    <div class="field"><label>Email</label><input type="email" class="form-control" name="email" value="{{ old('email') }}" required autofocus></div>
    <div class="field"><label>Пароль</label><input type="password" class="form-control" name="password" required></div>
    <label class="check"><input type="checkbox" name="remember" value="1"> Запомнить меня</label>
    <button class="btn-tech w-100 justify-content-center">Войти в обучение</button>
   </form>
-  <a class="dpo-back-site" href="{{ route('home') }}">← Вернуться на сайт колледжа</a>
+  @if(!empty($currentUser) && $currentUser->user_type==='student')
+   <a class="dpo-back-site" href="{{ route('student.dashboard') }}">← Вернуться в кабинет студента</a>
+  @else
+   <a class="dpo-back-site" href="{{ route('home') }}">← Вернуться на сайт колледжа</a>
+  @endif
  </div>
 </section>
 @endsection
