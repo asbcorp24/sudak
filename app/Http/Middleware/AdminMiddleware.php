@@ -9,7 +9,16 @@ class AdminMiddleware
     public function handle($request,Closure $next)
     {
         $user=auth()->user();
-        if(!$user || !$user->is_admin) abort(403);
+
+        if(!$user){
+            return redirect()->route('admin.login');
+        }
+
+        if(!$user->is_admin){
+            return redirect()
+                ->route('admin.login')
+                ->with('admin_access_error','Текущая учётная запись не является администратором. Войдите под учётной записью администратора.');
+        }
 
         $scope=$user->adminScope();
         if($scope==='full') return $next($request);
