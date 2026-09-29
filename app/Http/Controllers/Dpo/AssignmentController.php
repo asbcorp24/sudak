@@ -15,6 +15,36 @@ use Illuminate\Validation\ValidationException;
 
 class AssignmentController extends Controller
 {
+    public function review(Request $request,DpoGroup $group,DpoSubmission $submission)
+    {
+        $user=$request->user();
+        abort_unless($submission->group_id===$group->id,404);
+        abort_unless(
+            $user->is_admin || $group->enrollments()->where('user_id',$user->id)->where('role','teacher')->where('status','active')->exists(),
+            403
+        );
+
+        $data=$request->validate([
+            'status'=>['required','in:reviewed,returned'],
+            'score'=>['nullable','numeric','min:0'],
+            'feedback'=>['nullable','string','max:10000'],
+        ]);
+
+        if(isset($data['score']) && $data['score']>$submission->assignment->max_score){
+            throw ValidationException::withMessages(['score'=>'Оценка не может быть выше максимального балла задания.']);
+        }
+
+        $submission->update([
+            'status'=>$data['status'],
+            'score'=>$data['score']??null,
+            'feedback'=>$data['feedback']??null,
+            'reviewed_by'=>$user->id,
+            'reviewed_at'=>now(),
+        ]);
+
+        return back()->with('ok','Проверка домашней работы сохранена');
+    }
+
     public function submit(Request $request,DpoGroup $group,DpoAssignment $assignment,MediaImageProcessor $images)
     {
         $user=$request->user();
