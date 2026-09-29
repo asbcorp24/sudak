@@ -69,7 +69,10 @@ class DpoScormImporter
         $meta=$this->manifestMeta($manifestPath);
 
         $manifestDir=trim(dirname($manifestRelative),'.');
-        $launchRelative=ltrim(($manifestDir?$manifestDir.'/':'').$meta['launch_path'],'/');
+        $launchHref=urldecode($meta['launch_path']);
+        $parsed=parse_url($launchHref);
+        $launchFile=$parsed['path'] ?? $launchHref;
+        $launchRelative=ltrim(($manifestDir?$manifestDir.'/':'').$launchFile,'/');
         $launchRelative=$this->normalizeRelative($launchRelative);
 
         if (!Storage::disk('public')->exists($root.'/'.$launchRelative)) {
@@ -77,9 +80,13 @@ class DpoScormImporter
             throw new RuntimeException('Файл запуска SCORM не найден: '.$launchRelative);
         }
 
+        $launchSuffix='';
+        if(isset($parsed['query'])) $launchSuffix.='?'.$parsed['query'];
+        if(isset($parsed['fragment'])) $launchSuffix.='#'.$parsed['fragment'];
+
         return [
             'storage_path'=>$root,
-            'launch_path'=>$launchRelative,
+            'launch_path'=>$launchRelative.$launchSuffix,
             'scorm_version'=>$meta['version'],
             'manifest_identifier'=>$meta['identifier'],
             'package_hash'=>hash_file('sha256',$file->getRealPath()),
@@ -132,7 +139,7 @@ class DpoScormImporter
         return [
             'identifier'=>$identifier,
             'version'=>$version,
-            'launch_path'=>urldecode($href),
+            'launch_path'=>$href,
         ];
     }
 
