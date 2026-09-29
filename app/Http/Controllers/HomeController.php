@@ -93,6 +93,26 @@ class HomeController extends Controller
             ->orderByDesc('id')
             ->first();
 
+        $homePanoramaHotspots=$homePanorama
+            ? $homePanorama->hotspots->map(function($hotspot){
+                $text=$hotspot->title.($hotspot->description ? ' — '.$hotspot->description : '');
+                $item=[
+                    'id'=>'home-hs-'.$hotspot->id,
+                    'pitch'=>(float)$hotspot->pitch,
+                    'yaw'=>(float)$hotspot->yaw,
+                    'type'=>'info',
+                    'text'=>$text,
+                ];
+
+                if($hotspot->type==='scene' && $hotspot->targetPanorama && $hotspot->targetPanorama->is_published){
+                    $item['URL']=route('panoramas.index').'#panorama-'.$hotspot->targetPanorama->slug;
+                    $item['attributes']=['target'=>'_self'];
+                }
+
+                return $item;
+            })->values()->all()
+            : [];
+
         return view('home',[
             'specialties'=>Specialty::published()->orderBy('sort')->get(),
             'news'=>NewsPost::with('media')->published()->latest('published_at')->take(6)->get(),
@@ -106,6 +126,7 @@ class HomeController extends Controller
             'openDayDate'=>$openDayDate,
             'openDayEvent'=>$openDayEvent,
             'homePanorama'=>$homePanorama,
+            'homePanoramaHotspots'=>$homePanoramaHotspots,
         ]);
     }
 }
