@@ -1,16 +1,64 @@
 <?php
 namespace App\Services;
 
+use App\Models\DpoApplication;
 use App\Models\DpoAssignment;
+use App\Models\DpoAttestation;
 use App\Models\DpoAttendance;
 use App\Models\DpoEnrollment;
 use App\Models\DpoLessonProgress;
 use App\Models\DpoScormAttempt;
 use App\Models\DpoScormPackage;
 use App\Models\DpoSubmission;
+use App\Models\User;
 
 class DpoCompletionService
 {
+    public function sync(DpoEnrollment $enrollment): bool
+    {
+        if($enrollment->role!=='student' || $enrollment->status!=='active') return false;
+
+        $metrics=$this->metrics($enrollment);
+        if(!$metrics['ready']) return false;
+
+        DpoAttestation::updateOrCreate(
+            ['enrollment_id'=>$enrollment->id],
+            [
+                'status'=>'passed',
+                'progress_percent'=>$metrics['progress_percent'],
+                'attendance_percent'=>$metrics['attendance_percent'],
+                'homework_percent'=>$metrics['homework_percent'],
+                'scorm_percent'=>$metrics['scorm_percent'],
+                'final_score'=>$metrics['final_score'],
+                'result_text'=>'Зачтено автоматически',
+                'notes'=>'Все установленные условия завершения программы выполнены.',
+                'assessed_by'=>null,
+                'assessed_at'=>now(),
+            ]
+        );
+
+        $enrollment->update(['status'=>'completed','completed_at'=>now()]);
+        DpoApplication::where('user_id',$enrollment->user_id)
+            ->where('program_id',$enrollment->group->program_id)
+            ->whereIn('status',['approved','enrolled'])
+            ->update(['status'=>'completed']);
+
+        if(!$enrollment->group->enrollments()->where('role','student')->where('status','active')->exists()){
+            $enrollment->group->update(['status'=>'completed']);
+        }
+
+        app(StudentNotificationService::class)->notifyUsers(
+            User::whereKey($enrollment->user_id)->get(),
+            'dpo_completed',
+            'Курс завершён',
+            $enrollment->group->program->title.' — все условия программы выполнены.',
+            route('dpo.dashboard'),
+            'dpo-completed-'.$enrollment->id
+        );
+
+        return true;
+    }
+
     public function metrics(DpoEnrollment $enrollment): array
     {
         $enrollment->loadMissing('group.program.modules.lessons');
