@@ -129,8 +129,9 @@
   button.classList.add('active');
   hint.classList.add('on');
  }));
- viewer.on('mousedown',event=>{
+ document.getElementById('hotspotPanorama').addEventListener('click',event=>{
   if(!placingForm)return;
+  if(event.target.closest('.pnlm-controls-container,.pnlm-hotspot-base'))return;
   const coords=viewer.mouseEventToCoords(event);
   const pitch=Math.round(coords[0]*1000)/1000,yaw=Math.round(coords[1]*1000)/1000;
   placingForm.querySelector('.js-pitch').value=pitch;
