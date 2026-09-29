@@ -74,8 +74,11 @@ class RectorCollegeScheduleImporter
                 $teacherMap[$teacherId]=$employee->id;
             }
 
+            $affectedGroupIds=[];
+
             if ($mode==='replace') {
                 $importedGroupIds=array_values(array_unique($groupMap));
+                $affectedGroupIds=$importedGroupIds;
                 if ($importedGroupIds) {
                     ScheduleEntry::whereIn('group_id',$importedGroupIds)
                         ->whereBetween('lesson_date',[$minDate->format('Y-m-d'),$maxDate->format('Y-m-d')])
@@ -85,6 +88,7 @@ class RectorCollegeScheduleImporter
 
             $created=0;
             $updated=0;
+            $unchanged=0;
             $skipped=0;
 
             foreach ($data['patterns'] as $pattern) {
@@ -168,9 +172,16 @@ class RectorCollegeScheduleImporter
                             'room'=>$room,
                             'lesson_type'=>$studyType,
                             'notes'=>null,
-                        ])->save();
+                        ]);
+                        $changed=!$exists || $entry->isDirty();
+                        $entry->save();
 
-                        $exists ? $updated++ : $created++;
+                        if($changed){
+                            $affectedGroupIds[]=$scheduleGroupId;
+                            $exists ? $updated++ : $created++;
+                        }else{
+                            $unchanged++;
+                        }
                     }
                 }
             }
@@ -179,10 +190,11 @@ class RectorCollegeScheduleImporter
                 'format'=>$data['format_name'],
                 'format_version'=>$data['format_version'],
                 'groups'=>count($groupMap),
-                'group_ids'=>array_values(array_unique($groupMap)),
+                'group_ids'=>array_values(array_unique($affectedGroupIds)),
                 'teachers'=>count($teacherMap),
                 'created'=>$created,
                 'updated'=>$updated,
+                'unchanged'=>$unchanged,
                 'skipped'=>$skipped,
                 'period_from'=>$minDate->format('d.m.Y'),
                 'period_to'=>$maxDate->format('d.m.Y'),
