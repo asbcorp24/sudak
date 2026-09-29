@@ -15,7 +15,7 @@
    <a class="{{ request()->routeIs('dpo.dashboard')?'active':'' }}" href="{{ route('dpo.dashboard') }}">Моё обучение</a>
    <a class="{{ request()->routeIs('dpo.schedule')?'active':'' }}" href="{{ route('dpo.schedule') }}">Расписание</a>
    <a class="{{ request()->routeIs('dpo.profile*')?'active':'' }}" href="{{ route('dpo.profile') }}">Профиль</a>
-   @if(auth()->user()->is_admin)<a href="{{ route('admin.dpo.index') }}">Управление ↗</a>@endif
+   @if(auth()->user()->is_admin && auth()->user()->canAdmin('dpo'))<a href="{{ route('admin.dpo.index') }}">Управление ↗</a>@endif
   </nav>
   <div class="dpo-user">
    <span>{{ auth()->user()->name }}</span>
