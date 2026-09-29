@@ -14,6 +14,16 @@ class DashboardController extends Controller
 {
     public function __invoke()
     {
+        $user=auth()->user();
+
+        if($user->adminScope()==='dpo'){
+            return redirect()->route('admin.dpo.index');
+        }
+
+        if($user->adminScope()==='schedule'){
+            return redirect()->route('admin.schedule.index');
+        }
+
         return view('admin.dashboard',[
             'pagesCount'=>Page::count(),
             'newsCount'=>NewsPost::count(),
