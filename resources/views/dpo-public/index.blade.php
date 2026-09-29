@@ -19,7 +19,7 @@
        <span class="badge text-bg-primary">{{ $program->hours }} ч.</span>
       </div>
       @if($program->qualification)<p class="mb-2"><b>Квалификация:</b> {{ $program->qualification }}</p>@endif
-      <p class="text-secondary">{{ IlluminateSupportStr::limit($program->description,220) }}</p>
+      <p class="text-secondary">{{ \Illuminate\Support\Str::limit($program->description,220) }}</p>
       <div class="small text-secondary mb-4">
        @if($next)<b>Ближайший набор:</b> {{ $next->starts_on?->format('d.m.Y') ?: 'дата уточняется' }} · {{ $next->name }}
        @else Набор формируется. Заявку можно оставить заранее. @endif
