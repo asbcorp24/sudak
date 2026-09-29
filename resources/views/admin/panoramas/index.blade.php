@@ -61,7 +61,7 @@
      </form>
      <div class="d-flex justify-content-between align-items-center mt-2">
       <a class="btn-tech" href="{{ route('admin.panoramas.builder',$panorama) }}">◎ Точки и переходы</a>
-      <span class="small text-secondary">{{ $panorama->hotspots()->count() }} точек</span>
+      <span class="small text-secondary">{{ $panorama->hotspots_count }} точек</span>
      </div>
      <form class="text-end mt-2" method="post" action="{{ route('admin.panoramas.destroy',$panorama) }}" onsubmit="return confirm('Удалить панораму и её файл?')">@csrf @method('DELETE')<button class="p360-delete">Удалить ×</button></form>
     </div>
