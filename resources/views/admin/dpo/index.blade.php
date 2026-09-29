@@ -40,10 +40,10 @@
    <div class="d-flex justify-content-between align-items-center gap-3 mb-3"><div><span class="eyebrow">PROGRAMS</span><h3 class="mt-2 mb-0">Программы обучения</h3></div><a class="btn-ghost" target="_blank" href="{{ route('dpo.catalog') }}">Открыть каталог ↗</a></div>
    <div class="dpo-program-admin-list">
     @forelse($programs as $program)
-     <a class="dpo-program-admin-card" href="{{ route('admin.dpo.programs.show',$program) }}">
+     <a class="dpo-program-admin-card" href="{{ route('admin.dpo.builder',$program) }}">
       <div><span class="eyebrow">{{ $program->code ?: 'ДПО' }}</span><h4>{{ $program->title }}</h4><p>{{ $program->description }}</p></div>
       <div class="dpo-program-admin-meta"><b>{{ $program->hours }}</b><small>часов</small><b>{{ $program->groups_count }}</b><small>групп</small><b>{{ $program->modules_count }}</b><small>модулей</small></div>
-      <span class="dpo-status {{ $program->is_published?'active':'draft' }}">{{ $program->is_published?'Опубликована':'Черновик' }}</span>
+      <div><span class="dpo-status {{ $program->is_published?'active':'draft' }}">{{ $program->is_published?'Опубликована':'Черновик' }}</span><small class="d-block mt-2 text-primary">Открыть конструктор →</small></div>
      </a>
     @empty
      <div class="feedback-empty">Программ ДПО пока нет.</div>
