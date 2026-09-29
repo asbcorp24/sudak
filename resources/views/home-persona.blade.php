@@ -69,8 +69,8 @@
     </div>
 
     <div class="home-persona-actions" data-persona-panel="dpo" hidden>
-     <a href="{{ route('dpo.login') }}"><span>01</span><b>Личный кабинет ДПО</b><small>Курсы, уроки и задания</small></a>
-     <a href="{{ route('calendar.index') }}"><span>02</span><b>Календарь</b><small>Ближайшие события и сроки</small></a>
+     <a href="{{ route('dpo.catalog') }}"><span>01</span><b>Программы ДПО</b><small>Каталог, сроки и подача заявки</small></a>
+     <a href="{{ route('dpo.login') }}"><span>02</span><b>Личный кабинет ДПО</b><small>Курсы, уроки и задания</small></a>
      <a href="{{ route('document-center.index') }}"><span>03</span><b>Документы</b><small>Образовательные документы</small></a>
      <a href="{{ route('contacts.index') }}"><span>04</span><b>Контакты</b><small>Связаться с колледжем</small></a>
     </div>
