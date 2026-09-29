@@ -31,6 +31,7 @@
      'quick_actions'=>['Быстрые действия','Подать заявку / Расписание / Задать вопрос / Контакты'],
      'schedule'=>['Расписание сегодня','Первые занятия текущего дня'],
      'open_day'=>['День открытых дверей','Ближайшая дата и информация'],
+     'events'=>['Календарь колледжа','Ближайшие олимпиады, конкурсы, экзамены, мероприятия и дедлайны'],
      'specialties'=>['Специальности','Инженерные направления подготовки'],
      'admission'=>['Поступление','Большой блок приёмной кампании'],
      'achievements'=>['Последние достижения','Победы и результаты студентов'],
@@ -68,6 +69,7 @@
 
     <div class="col-md-6 field"><label>Заголовок расписания</label><input class="form-control" name="home_schedule_title" value="{{ old('home_schedule_title',$settings['home_schedule_title'] ?? 'Расписание на сегодня') }}"></div>
     <div class="col-md-6 field"><label>Заголовок достижений</label><input class="form-control" name="home_achievements_title" value="{{ old('home_achievements_title',$settings['home_achievements_title'] ?? 'Последние достижения') }}"></div>
+    <div class="col-md-6 field"><label>Заголовок календаря</label><input class="form-control" name="home_events_title" value="{{ old('home_events_title',$settings['home_events_title'] ?? 'Ближайшие события') }}"></div>
 
     <div class="col-md-6 field"><label>Заголовок дня открытых дверей</label><input class="form-control" name="home_open_day_title" value="{{ old('home_open_day_title',$settings['home_open_day_title'] ?? 'Ближайший день открытых дверей') }}"></div>
     <div class="col-md-3 field"><label>Дата</label><input class="form-control" type="date" name="home_open_day_date" value="{{ old('home_open_day_date',$settings['home_open_day_date'] ?? '') }}"></div>
