@@ -4,6 +4,6 @@ use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 class Kernel extends ConsoleKernel{
  protected $commands=[];
- protected function schedule(Schedule $schedule){ $schedule->command('events:send-reminders')->dailyAt('09:00')->withoutOverlapping(); $schedule->command('news:send-published-notifications')->everyFiveMinutes()->withoutOverlapping(); }
+ protected function schedule(Schedule $schedule){ $schedule->command('events:send-reminders')->dailyAt('09:00')->withoutOverlapping(); $schedule->command('news:send-published-notifications')->everyFiveMinutes()->withoutOverlapping(); $schedule->command('dpo:automation')->hourly()->withoutOverlapping(); }
  protected function commands(){ $this->load(__DIR__.'/Commands'); require base_path('routes/console.php'); }
 }
