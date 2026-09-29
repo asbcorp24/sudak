@@ -41,7 +41,7 @@ class MediaAdminController extends Controller
         }
 
         return view('admin.media.index', [
-            'assets' => $query->paginate(36)->withQueryString(),
+            'assets' => $query->paginate(24)->withQueryString(),
         ]);
     }
 
