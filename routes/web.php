@@ -37,6 +37,7 @@ use App\Http\Controllers\Admin\SettingsAdminController;
 use App\Http\Controllers\Admin\EmployeeAdminController;
 use App\Http\Controllers\Admin\OfficialDocumentAdminController;
 use App\Http\Controllers\Admin\DpoAdminController;
+use App\Http\Controllers\Admin\AdminUserController;
 
 Route::get('/',HomeController::class)->name('home');
 
@@ -95,6 +96,11 @@ Route::post('/admin/logout',[AuthController::class,'logout'])->name('admin.logou
 
 Route::prefix('admin')->name('admin.')->middleware(['auth','admin'])->group(function(){
  Route::get('/',DashboardController::class)->name('dashboard');
+
+ Route::get('admins',[AdminUserController::class,'index'])->name('admins.index');
+ Route::post('admins',[AdminUserController::class,'store'])->name('admins.store');
+ Route::put('admins/{user}',[AdminUserController::class,'update'])->name('admins.update');
+ Route::delete('admins/{user}',[AdminUserController::class,'destroy'])->name('admins.destroy');
 
  Route::resource('pages',PageAdminController::class)->except('show');
  Route::resource('news',NewsAdminController::class)->except('show');
