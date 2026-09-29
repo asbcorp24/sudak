@@ -73,7 +73,7 @@ class PanoramaAdminController extends Controller
         if($slug==='') $slug='panorama';
         $base=$slug;
         $i=2;
-        while(Panorama::where('slug',$slug)->when($request->route('panorama'),fn($q,$p)=>$q->whereKeyNot($p->id))->exists()){
+        while(Panorama::where('slug',$slug)->when($request->route('panorama'),fn($q,$p)=>$q->where('id','!=',$p->id))->exists()){
             $slug=$base.'-'.$i++;
         }
 
