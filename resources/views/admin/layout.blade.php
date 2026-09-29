@@ -14,6 +14,8 @@
    <a href="{{ route('admin.media.index') }}">Медиа</a>
    <a href="{{ route('admin.employees.index') }}">Сотрудники</a>
    <a href="{{ route('admin.official-documents.index') }}">Центр документов</a>
+   @php($pendingStudents=\App\Models\User::where('user_type','student')->where('student_approval_status','pending')->count())
+   <a href="{{ route('admin.students.index') }}">Студенты / регистрации @if($pendingStudents)<span class="admin-nav-count">{{ $pendingStudents }}</span>@endif</a>
   @endif
 
   @if($adminUser->canAdmin('schedule'))
