@@ -13,9 +13,14 @@ class EmployeeAdminController extends Controller
     public function index(Request $request)
     {
         $type=$request->string('type')->toString();
+        $scheduleOnly=auth()->user()->adminScope()==='schedule';
 
         $query=Employee::with('media')->withCount('scheduleEntries')->orderBy('sort')->orderBy('full_name');
-        if(in_array($type,['leadership','teacher','staff'],true)){
+
+        if($scheduleOnly){
+            $type='teacher';
+            $query->where('employee_type','teacher');
+        }elseif(in_array($type,['leadership','teacher','staff'],true)){
             $query->where('employee_type',$type);
         }
 
@@ -45,6 +50,7 @@ class EmployeeAdminController extends Controller
 
     public function edit(Employee $employee)
     {
+        $this->guardScheduleAdminEmployee($employee);
         $employee->load('media');
 
         return view('admin.employees.form',[
@@ -56,6 +62,7 @@ class EmployeeAdminController extends Controller
 
     public function update(Request $request,Employee $employee)
     {
+        $this->guardScheduleAdminEmployee($employee);
         [$data,$photo]=$this->data($request);
         $employee->update($data);
         $employee->syncMediaCollection('photo',$photo?[$photo]:[]);
@@ -65,6 +72,7 @@ class EmployeeAdminController extends Controller
 
     public function destroy(Employee $employee)
     {
+        $this->guardScheduleAdminEmployee($employee);
         if($employee->scheduleEntries()->exists()){
             return back()->withErrors(['employee'=>'Нельзя удалить сотрудника, пока он используется в расписании. Можно снять публикацию.']);
         }
@@ -102,6 +110,17 @@ class EmployeeAdminController extends Controller
         $data['sort']=(int)($data['sort']??0);
         $data['is_published']=$request->boolean('is_published');
 
+        if(auth()->user()->adminScope()==='schedule'){
+            $data['employee_type']='teacher';
+        }
+
         return [$data,$photo];
+    }
+
+    private function guardScheduleAdminEmployee(Employee $employee): void
+    {
+        if(auth()->user()->adminScope()==='schedule' && $employee->employee_type!=='teacher'){
+            abort(403,'Администратор расписания может работать только с преподавателями.');
+        }
     }
 }
