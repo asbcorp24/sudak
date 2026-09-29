@@ -30,6 +30,25 @@
       </div>
      </section>
     @endforeach
+
+    @if((auth()->user()->is_admin || $currentEnrollment?->role==='teacher') && $teacherSubmissions->count())
+     <section class="dpo-module">
+      <div class="dpo-module-head"><span class="eyebrow">TEACHER / GRADEBOOK</span><h2>Работы на проверку</h2><p>Проверка домашних заданий слушателей этой группы.</p></div>
+      <div class="dpo-submission-admin-list p-3">
+       @foreach($teacherSubmissions as $submission)
+        <article class="dpo-submission-admin">
+         <div class="d-flex justify-content-between gap-3"><div><span class="eyebrow">{{ $submission->assignment->lesson->title }}</span><h4>{{ $submission->user->name }}</h4><b>{{ $submission->assignment->title }}</b></div><span class="dpo-status {{ $submission->status }}">{{ $submission->status }}</span></div>
+         @if($submission->answer_text)<p>{{ $submission->answer_text }}</p>@endif
+         @if($submission->media)<a class="btn-ghost" target="_blank" href="{{ $submission->media->url }}">Открыть файл ↗</a>@endif
+         <form method="post" action="{{ route('dpo.submissions.review',[$group,$submission]) }}" class="admin-form mt-3">@csrf
+          <div class="row g-2"><div class="col-md-3"><select class="form-select" name="status"><option value="reviewed" @selected($submission->status==='reviewed')>Принято</option><option value="returned" @selected($submission->status==='returned')>На доработку</option></select></div><div class="col-md-3"><input type="number" step="0.01" min="0" max="{{ $submission->assignment->max_score }}" class="form-control" name="score" value="{{ $submission->score }}" placeholder="Балл / {{ $submission->assignment->max_score }}"></div><div class="col-md-6"><input class="form-control" name="feedback" value="{{ $submission->feedback }}" placeholder="Комментарий"></div></div>
+          <button class="btn-tech mt-2">Сохранить проверку</button>
+         </form>
+        </article>
+       @endforeach
+      </div>
+     </section>
+    @endif
    </div>
 
    <aside class="dpo-side-column">
