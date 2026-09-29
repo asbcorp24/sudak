@@ -56,7 +56,7 @@
        <p class="text-secondary">Сегодня занятий нет.</p>
       @endforelse
      </div>
-     <a class="btn-ghost w-100 justify-content-center mt-3" href="{{ route('dpo.schedule') }}">Полное расписание</a>
+     <div class="d-grid gap-2 mt-3"><a class="btn-ghost w-100 justify-content-center" href="{{ route('dpo.calendar') }}">Мой календарь</a><a class="btn-ghost w-100 justify-content-center" href="{{ route('dpo.schedule') }}">Только расписание</a></div>
     </div>
 
     @if($pendingSubmissions->count())
@@ -64,6 +64,14 @@
      <span class="eyebrow">HOMEWORK</span><h3 class="mt-2">Домашние работы</h3>
      @foreach($pendingSubmissions as $submission)
       <div class="dpo-mini-result"><b>{{ $submission->assignment->title }}</b><small>{{ $submission->group->name }} · {{ $submission->status==='returned'?'нужна доработка':'на проверке' }}</small></div>
+     @endforeach
+    </div>
+    @endif
+    @if($notifications->count())
+    <div class="glass-panel mt-4">
+     <span class="eyebrow">NOTIFICATIONS</span><h3 class="mt-2">Уведомления</h3>
+     @foreach($notifications as $notification)
+      <a class="dpo-mini-result d-block text-decoration-none" href="{{ $notification->url ?: route('dpo.dashboard') }}"><b>{{ $notification->title }}</b><small>{{ $notification->body }} · {{ $notification->created_at->format('d.m H:i') }}</small></a>
      @endforeach
     </div>
     @endif
