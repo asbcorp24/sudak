@@ -1,5 +1,10 @@
 @extends('layouts.app')
 @section('title',$homeSettings['seo_title'] ?? 'Зеленодольский судостроительный колледж — технологии будущего')
+@if($homePanorama)
+@push('head')
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pannellum@2.5.7/build/pannellum.css">
+@endpush
+@endif
 @section('content')
 <section class="hero">
  <div id="three-hero" class="three-layer hero-scene" data-scene="shipyard"></div>
@@ -41,6 +46,91 @@
  </div>
 @endforeach
 </div>
+
+@if($homePanorama)
+@php
+ $homeHotspots=$homePanorama->hotspots->map(function($hotspot){
+  $text=$hotspot->title.($hotspot->description ? ' — '.$hotspot->description : '');
+  $item=[
+   'id'=>'home-hs-'.$hotspot->id,
+   'pitch'=>(float)$hotspot->pitch,
+   'yaw'=>(float)$hotspot->yaw,
+   'type'=>'info',
+   'text'=>$text,
+  ];
+  if($hotspot->type==='scene' && $hotspot->targetPanorama && $hotspot->targetPanorama->is_published){
+   $item['URL']=route('panoramas.index').'#panorama-'.$hotspot->targetPanorama->slug;
+   $item['attributes']=['target'=>'_self'];
+  }
+  return $item;
+ })->values();
+@endphp
+<section class="home-panorama-section" id="home-panorama">
+ <style>
+ .home-panorama-section{padding:78px 0 88px;background:linear-gradient(180deg,#f5f9fd 0%,#eaf3fb 100%);border-top:1px solid #dbe8f7}
+ .home-panorama-section .hp-head{display:flex;justify-content:space-between;align-items:end;gap:24px;margin-bottom:22px}
+ .home-panorama-section .hp-kicker{font-size:11px;font-weight:900;letter-spacing:.13em;color:#1769d2;margin-bottom:8px}
+ .home-panorama-section h2{font-size:clamp(28px,4vw,46px);line-height:1.04;color:#082f63;margin:0}
+ .home-panorama-section .hp-copy{max-width:520px;color:#647f99;margin:0}
+ .home-panorama-section .hp-shell{position:relative;height:min(64vh,620px);min-height:430px;border-radius:24px;overflow:hidden;background:#07192d;box-shadow:0 22px 55px rgba(18,62,105,.16);border:1px solid #cbdff3}
+ .home-panorama-section #homePannellum{width:100%;height:100%}
+ .home-panorama-section .hp-label{position:absolute;z-index:20;left:18px;bottom:18px;max-width:min(520px,calc(100% - 36px));background:rgba(4,34,67,.76);border:1px solid rgba(255,255,255,.2);border-radius:15px;padding:11px 14px;color:#fff;backdrop-filter:blur(9px);pointer-events:none}
+ .home-panorama-section .hp-label small{display:block;color:#acd0f3;font-size:10px;font-weight:850;letter-spacing:.08em;text-transform:uppercase}.home-panorama-section .hp-label b{display:block;font-size:16px;margin-top:2px}
+ .home-panorama-section .hp-actions{display:flex;justify-content:center;margin-top:20px}.home-panorama-section .hp-all{display:inline-flex;align-items:center;gap:9px;padding:12px 17px;border-radius:12px;background:#1769d2;color:#fff;text-decoration:none;font-weight:800}.home-panorama-section .hp-all:hover{background:#0b4f9f;color:#fff}
+ .home-panorama-section .pnlm-about-msg{display:none!important}
+ @media(max-width:760px){.home-panorama-section{padding:54px 0 64px}.home-panorama-section .hp-head{align-items:flex-start;flex-direction:column}.home-panorama-section .hp-shell{height:58vh;min-height:390px;border-radius:18px}}
+ </style>
+ <div class="container-xxl">
+  <div class="hp-head">
+   <div><div class="hp-kicker">ВИРТУАЛЬНАЯ ЭКСКУРСИЯ / 360°</div><h2>Оглянитесь вокруг колледжа</h2></div>
+   <p class="hp-copy">Откройте пространство в 360°. Перетаскивайте панораму мышью или пальцем, приближайте детали и используйте интерактивные точки.</p>
+  </div>
+  <div class="hp-shell">
+   <div id="homePannellum"></div>
+   <div class="hp-label">@if($homePanorama->location)<small>{{ $homePanorama->location }}</small>@endif<b>{{ $homePanorama->title }}</b></div>
+  </div>
+  <div class="hp-actions"><a class="hp-all" href="{{ route('panoramas.index') }}">Все панорамы 360° <span>→</span></a></div>
+ </div>
+</section>
+
+@push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/pannellum@2.5.7/build/pannellum.js"></script>
+<script>
+(()=>{
+ const element=document.getElementById('homePannellum');
+ if(!element||typeof pannellum==='undefined')return;
+ let started=false;
+ const start=()=>{
+  if(started)return;started=true;
+  pannellum.viewer(element,{
+   type:'equirectangular',
+   panorama:@json($homePanorama->image_url),
+   autoLoad:true,
+   pitch:{{ (float)$homePanorama->initial_pitch }},
+   yaw:{{ (float)$homePanorama->initial_yaw }},
+   hfov:105,
+   minHfov:40,
+   maxHfov:120,
+   showControls:true,
+   showZoomCtrl:true,
+   showFullscreenCtrl:true,
+   mouseZoom:true,
+   draggable:true,
+   friction:.16,
+   escapeHTML:true,
+   hotSpots:@json($homeHotspots)
+  });
+ };
+ if('IntersectionObserver' in window){
+  const observer=new IntersectionObserver(entries=>{
+   if(entries.some(entry=>entry.isIntersecting)){start();observer.disconnect();}
+  },{rootMargin:'500px 0px'});
+  observer.observe(element);
+ }else start();
+})();
+</script>
+@endpush
+@endif
 
 <script>
 (function(){
