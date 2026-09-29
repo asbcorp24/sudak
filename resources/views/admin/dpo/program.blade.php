@@ -2,7 +2,7 @@
 @section('heading','ДПО / '.$program->title)
 @section('content')
 <div class="d-flex justify-content-between align-items-center gap-3 flex-wrap mb-4">
- <a class="btn-ghost" href="{{ route('admin.dpo.index') }}">← Все программы</a>
+ <div class="d-flex gap-2 flex-wrap"><a class="btn-ghost" href="{{ route('admin.dpo.index') }}">← Все программы</a><a class="btn-tech" href="{{ route('admin.dpo.builder',$program) }}">Конструктор курса →</a></div>
  <span class="dpo-status {{ $program->is_published?'active':'draft' }}">{{ $program->is_published?'Опубликована':'Черновик' }}</span>
 </div>
 
@@ -53,7 +53,7 @@
   </div>
 
   <div class="glass-panel">
-   <span class="eyebrow">CURRICULUM</span><h3 class="mt-2">Учебная структура</h3>
+   <div class="d-flex justify-content-between align-items-center gap-2 flex-wrap"><div><span class="eyebrow">CURRICULUM</span><h3 class="mt-2">Учебная структура</h3></div><a class="btn-tech" href="{{ route('admin.dpo.builder',$program) }}">Открыть конструктор</a></div>
    <form method="post" action="{{ route('admin.dpo.modules.store',$program) }}" class="admin-form mb-4">@csrf
     <div class="row g-2"><div class="col-md-8"><input class="form-control" name="title" placeholder="Название модуля" required></div><div class="col-md-2"><input class="form-control" type="number" min="0" name="sort" value="0"></div><div class="col-md-2"><button class="btn-tech w-100 justify-content-center">Добавить</button></div></div>
    </form>
