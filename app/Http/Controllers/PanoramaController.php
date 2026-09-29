@@ -16,8 +16,13 @@ class PanoramaController extends Controller
 
         $publishedIds=$panoramas->pluck('id')->all();
         $scenes=[];
+        $sceneMeta=[];
 
         foreach($panoramas as $panorama){
+            $sceneMeta[$panorama->slug]=[
+                'title'=>$panorama->title,
+                'location'=>$panorama->location,
+            ];
             $hotSpots=[];
 
             foreach($panorama->hotspots as $hotspot){
@@ -67,6 +72,7 @@ class PanoramaController extends Controller
         return view('panoramas.index',[
             'panoramas'=>$panoramas,
             'pannellumScenes'=>$scenes,
+            'pannellumSceneMeta'=>$sceneMeta,
         ]);
     }
 }
