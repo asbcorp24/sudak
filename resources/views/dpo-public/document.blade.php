@@ -20,6 +20,7 @@
     <tr><th>Документ</th><td>{{ $document->document_type }}</td></tr>
     <tr><th>Серия / номер</th><td>{{ trim(($document->series ?: '').' '.$document->number) }}</td></tr>
     <tr><th>Дата выдачи</th><td>{{ $document->issued_at->format('d.m.Y') }}</td></tr>
+    <tr><th>Итоговый результат</th><td>{{ $document->attestation?->final_score !== null ? $document->attestation->final_score.'%' : ($document->attestation?->result_text ?: 'Зачтено') }}</td></tr>
     <tr><th>Код проверки</th><td><code>{{ $document->verification_code }}</code></td></tr>
    </table>
   </div>
