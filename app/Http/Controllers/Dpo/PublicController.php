@@ -73,7 +73,10 @@ class PublicController extends Controller
     public function applicationStatus(string $token)
     {
         $application=DpoApplication::with(['program','group'])->where('public_token',$token)->firstOrFail();
-        return view('dpo-public.application-status',compact('application'));
+        $document=$application->user_id
+            ? DpoIssuedDocument::where('user_id',$application->user_id)->where('program_id',$application->program_id)->latest('issued_at')->first()
+            : null;
+        return view('dpo-public.application-status',compact('application','document'));
     }
 
     public function verifyDocument(string $code)
