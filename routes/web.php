@@ -12,6 +12,7 @@ use App\Http\Controllers\CooperationController;
 use App\Http\Controllers\QuestionController;
 use App\Http\Controllers\CompetitionController;
 use App\Http\Controllers\QuizController;
+use App\Http\Controllers\PanoramaController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\OfficialDocumentController;
 use App\Http\Controllers\CollegeCalendarController;
@@ -39,6 +40,7 @@ use App\Http\Controllers\Admin\CooperationAdminController;
 use App\Http\Controllers\Admin\QuestionAdminController;
 use App\Http\Controllers\Admin\CompetitionAdminController;
 use App\Http\Controllers\Admin\QuizAdminController;
+use App\Http\Controllers\Admin\PanoramaAdminController;
 use App\Http\Controllers\Admin\SettingsAdminController;
 use App\Http\Controllers\Admin\EmployeeAdminController;
 use App\Http\Controllers\Admin\OfficialDocumentAdminController;
@@ -75,6 +77,7 @@ Route::get('/question',[QuestionController::class,'create'])->name('questions.cr
 Route::post('/question',[QuestionController::class,'store'])->name('questions.store');
 
 Route::get('/competitions',[CompetitionController::class,'index'])->name('competitions.index');
+Route::get('/panoramas',[PanoramaController::class,'index'])->name('panoramas.index');
 Route::get('/quizzes',[QuizController::class,'index'])->name('quizzes.index');
 Route::get('/quizzes/{quiz}',[QuizController::class,'show'])->name('quizzes.show');
 Route::post('/quizzes/{quiz}',[QuizController::class,'submit'])->name('quizzes.submit');
@@ -244,6 +247,11 @@ Route::prefix('admin')->name('admin.')->middleware(['auth','admin'])->group(func
  Route::post('achievements',[CompetitionAdminController::class,'storeAchievement'])->name('achievements.store');
  Route::put('achievements/{achievement}',[CompetitionAdminController::class,'updateAchievement'])->name('achievements.update');
  Route::delete('achievements/{achievement}',[CompetitionAdminController::class,'destroyAchievement'])->name('achievements.destroy');
+
+ Route::get('panoramas',[PanoramaAdminController::class,'index'])->name('panoramas.index');
+ Route::post('panoramas',[PanoramaAdminController::class,'store'])->name('panoramas.store');
+ Route::put('panoramas/{panorama}',[PanoramaAdminController::class,'update'])->name('panoramas.update');
+ Route::delete('panoramas/{panorama}',[PanoramaAdminController::class,'destroy'])->name('panoramas.destroy');
 
  Route::get('quizzes',[QuizAdminController::class,'index'])->name('quizzes.index');
  Route::post('quizzes',[QuizAdminController::class,'store'])->name('quizzes.store');
