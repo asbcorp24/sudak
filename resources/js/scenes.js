@@ -245,7 +245,7 @@ function shipyard(api){
  // Existing shipyard environment remains: water, slipway, cranes and CAD markers.
  const water=new THREE.Mesh(
   new THREE.PlaneGeometry(18,9,32,16),
-  new THREE.MeshStandardMaterial({color:0x9cc8ff,metalness:.12,roughness:.42,transparent:true,opacity:.22,wireframe:true})
+  new THREE.MeshStandardMaterial({color:0x9cc8ff,metalness:.12,roughness:.42,transparent:true,opacity:.10,wireframe:true})
  );
  water.rotation.x=-Math.PI/2;
  water.position.set(1,-2.18,0);
@@ -293,22 +293,22 @@ function shipyard(api){
   canvas.height=128;
   const ctx=canvas.getContext('2d');
   ctx.clearRect(0,0,canvas.width,canvas.height);
-  ctx.fillStyle='rgba(255,255,255,.94)';
-  ctx.strokeStyle='rgba(23,105,210,.42)';
+  ctx.fillStyle='rgba(7,36,72,.82)';
+  ctx.strokeStyle='rgba(105,184,255,.62)';
   ctx.lineWidth=4;
   ctx.beginPath();
   ctx.roundRect(4,4,504,120,22);
   ctx.fill();
   ctx.stroke();
-  ctx.fillStyle='#0b3f86';
-  ctx.font='700 44px Arial, sans-serif';
+  ctx.fillStyle='#d9edff';
+  ctx.font='600 36px Arial, sans-serif';
   ctx.textAlign='center';
   ctx.textBaseline='middle';
   ctx.fillText(text,256,66);
   const texture=new THREE.CanvasTexture(canvas);
   texture.colorSpace=THREE.SRGBColorSpace;
   const sprite=new THREE.Sprite(new THREE.SpriteMaterial({map:texture,transparent:true,depthTest:false}));
-  sprite.scale.set(1.28,.32,1);
+  sprite.scale.set(1.05,.26,1);
   sprite.renderOrder=20;
   return sprite;
  };
