@@ -30,7 +30,7 @@
    <div class="col-4 col-lg-2"><label>Порядок</label><input class="form-control" type="number" min="0" name="sort" value="0"></div>
    <div class="col-4 col-lg-1"><label>Старт °</label><input class="form-control" type="number" min="-180" max="180" name="initial_yaw" value="0"></div>
    <div class="col-4 col-lg-2"><label>Наклон °</label><input class="form-control" type="number" min="-80" max="80" name="initial_pitch" value="0"></div>
-   <div class="col-md-6 d-flex align-items-center"><label class="check mb-0"><input type="checkbox" name="is_published" value="1" checked> Сразу опубликовать</label></div>
+   <div class="col-md-6 d-flex align-items-center gap-4"><label class="check mb-0"><input type="checkbox" name="is_published" value="1" checked> Сразу опубликовать</label><label class="check mb-0"><input type="checkbox" name="is_home" value="1"> На главной</label></div>
    <div class="col-md-6 text-md-end"><button class="btn-tech">Добавить панораму</button></div>
   </div>
  </form>
@@ -52,10 +52,17 @@
       </div>
       <div class="p360-meta mt-2">{{ $panorama->image_width }}×{{ $panorama->image_height }} · {{ number_format($panorama->image_size/1048576,1,',',' ') }} МБ</div>
       <div class="p360-actions">
-       <label class="check mb-0"><input type="checkbox" name="is_published" value="1" @checked($panorama->is_published)> Опубликована</label>
+       <div class="d-flex flex-wrap gap-3">
+        <label class="check mb-0"><input type="checkbox" name="is_published" value="1" @checked($panorama->is_published)> Опубликована</label>
+        <label class="check mb-0"><input type="checkbox" name="is_home" value="1" @checked($panorama->is_home)> На главной</label>
+       </div>
        <button class="btn-ghost">Сохранить</button>
       </div>
      </form>
+     <div class="d-flex justify-content-between align-items-center mt-2">
+      <a class="btn-tech" href="{{ route('admin.panoramas.builder',$panorama) }}">◎ Точки и переходы</a>
+      <span class="small text-secondary">{{ $panorama->hotspots()->count() }} точек</span>
+     </div>
      <form class="text-end mt-2" method="post" action="{{ route('admin.panoramas.destroy',$panorama) }}" onsubmit="return confirm('Удалить панораму и её файл?')">@csrf @method('DELETE')<button class="p360-delete">Удалить ×</button></form>
     </div>
    </article>
