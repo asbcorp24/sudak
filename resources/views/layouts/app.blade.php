@@ -52,9 +52,11 @@ try{
 
    <div class="dropdown"><a class="dropdown-toggle" data-bs-toggle="dropdown" href="#">Активности</a>
     <div class="dropdown-menu tech-dropdown">
+     <a class="dropdown-item" href="{{ route('news.index') }}">Новости</a>
      <a class="dropdown-item" href="{{ route('calendar.index') }}">Календарь колледжа</a>
      <a class="dropdown-item" href="{{ route('competitions.index') }}">Конкурсы и достижения</a>
      <a class="dropdown-item" href="{{ route('quizzes.index') }}">Викторины</a>
+     <a class="dropdown-item" href="{{ route('document-center.index') }}">Документы</a>
     </div>
    </div>
 
@@ -67,10 +69,6 @@ try{
     </div>
    </div>
 
-   <a href="{{ route('news.index') }}">Новости</a>
-   <a href="{{ route('document-center.index') }}">Документы</a>
-   <a href="{{ auth()->check() && auth()->user()->user_type==='student' ? route('student.dashboard') : route('student.login') }}">{{ auth()->check() && auth()->user()->user_type==='student' ? 'Мой кабинет' : 'Студенту' }}</a>
-   <a href="{{ route('dpo.login') }}">ДПО</a>
   </nav>
  </div>
 </header>
