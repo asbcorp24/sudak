@@ -131,6 +131,8 @@ Route::prefix('admin')->name('admin.')->middleware(['auth','admin'])->group(func
  Route::post('dpo/assignments/{assignment}/groups/{group}',[DpoAdminController::class,'updateAssignmentGroup'])->name('dpo.assignments.group');
  Route::post('dpo/groups/{group}/schedule',[DpoAdminController::class,'storeSchedule'])->name('dpo.schedule.store');
  Route::delete('dpo/schedule/{entry}',[DpoAdminController::class,'destroySchedule'])->name('dpo.schedule.destroy');
+ Route::get('dpo/schedule/{entry}/attendance',[DpoAdminController::class,'attendance'])->name('dpo.attendance.edit');
+ Route::post('dpo/schedule/{entry}/attendance',[DpoAdminController::class,'updateAttendance'])->name('dpo.attendance.update');
  Route::post('dpo/groups/{group}/announcements',[DpoAdminController::class,'storeAnnouncement'])->name('dpo.announcements.store');
  Route::post('dpo/lessons/{lesson}/scorm',[DpoAdminController::class,'uploadScorm'])->name('dpo.scorm.store');
  Route::delete('dpo/scorm/{package}',[DpoAdminController::class,'destroyScorm'])->name('dpo.scorm.destroy');
