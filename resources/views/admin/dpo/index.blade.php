@@ -1,6 +1,7 @@
 @extends('admin.layout')
 @section('heading','ДПО / LMS')
 @section('content')
+<div class="d-flex justify-content-end mb-3"><a class="btn-ghost" href="{{ route('admin.dpo.users.index') }}">Пользователи ДПО →</a></div>
 <div class="dpo-admin-stats mb-4">
  <a class="admin-stat" href="#programs"><span>Программы</span><b>{{ $programs->count() }}</b><small>учебные программы ДПО</small></a>
  <div class="admin-stat"><span>Активные группы</span><b>{{ $activeGroups }}</b><small>идёт обучение</small></div>
