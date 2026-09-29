@@ -45,6 +45,11 @@ class CollegeCalendarController extends Controller
     public function show($slug)
     {
         $event=CollegeEvent::published()->where('slug',$slug)->firstOrFail();
-        return view('calendar.show',compact('event'));
+        $registrationCount=$event->registrations()->where('status','registered')->count();
+        $registration=null;
+        if(auth()->check() && auth()->user()->user_type==='student'){
+            $registration=$event->registrations()->where('user_id',auth()->id())->first();
+        }
+        return view('calendar.show',compact('event','registrationCount','registration'));
     }
 }
