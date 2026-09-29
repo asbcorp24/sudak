@@ -836,6 +836,10 @@ class DpoAdminController extends Controller
             );
         }
 
+        foreach($entry->group->enrollments()->where('role','student')->where('status','active')->get() as $enrollment){
+            app(DpoCompletionService::class)->sync($enrollment);
+        }
+
         return back()->with('ok','Посещаемость сохранена');
     }
 
