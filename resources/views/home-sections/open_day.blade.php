@@ -10,13 +10,15 @@
    </div>
    <div class="home-open-day-copy">
     <span class="eyebrow">OPEN DAY</span>
-    <h2>{{ $homeSettings['home_open_day_title'] ?? 'Ближайший день открытых дверей' }}</h2>
-    <p>{{ $homeSettings['home_open_day_text'] ?? 'Познакомьтесь со специальностями, лабораториями, преподавателями и условиями поступления.' }}</p>
-    @if(!empty($homeSettings['home_open_day_time']))<strong>{{ $homeSettings['home_open_day_time'] }}</strong>@endif
+    <h2>{{ $openDayEvent?->title ?: ($homeSettings['home_open_day_title'] ?? 'Ближайший день открытых дверей') }}</h2>
+    <p>{{ $openDayEvent?->excerpt ?: ($homeSettings['home_open_day_text'] ?? 'Познакомьтесь со специальностями, лабораториями, преподавателями и условиями поступления.') }}</p>
+    @if($openDayEvent && !$openDayEvent->all_day)<strong>{{ $openDayEvent->starts_at->format('H:i') }}</strong>
+    @elseif(!empty($homeSettings['home_open_day_time']))<strong>{{ $homeSettings['home_open_day_time'] }}</strong>@endif
    </div>
    <div class="home-open-day-actions">
     <a class="btn-tech" href="{{ route('admission.create') }}">Подать заявку</a>
-    <a class="btn-ghost" href="{{ route('contacts.index') }}">Как добраться</a>
+    @if($openDayEvent)<a class="btn-ghost" href="{{ route('calendar.show',$openDayEvent->slug) }}">Подробнее</a>
+    @else<a class="btn-ghost" href="{{ route('contacts.index') }}">Как добраться</a>@endif
    </div>
   </div>
  </div>
