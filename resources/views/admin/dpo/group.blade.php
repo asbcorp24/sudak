@@ -3,7 +3,10 @@
 @section('content')
 <div class="d-flex justify-content-between align-items-center gap-3 flex-wrap mb-4">
  <a class="btn-ghost" href="{{ route('admin.dpo.programs.show',$group->program) }}">← {{ $group->program->title }}</a>
- <span class="dpo-status {{ $group->status }}">{{ ['draft'=>'Черновик','active'=>'Идёт обучение','completed'=>'Завершена','archived'=>'Архив'][$group->status] }}</span>
+ <div class="d-flex gap-2 align-items-center flex-wrap">
+  <a class="btn-ghost" href="{{ route('admin.dpo.groups.journal',$group) }}">Ведомость группы</a>
+  <span class="dpo-status {{ $group->status }}">{{ ['draft'=>'Черновик','active'=>'Идёт обучение','completed'=>'Завершена','archived'=>'Архив'][$group->status] }}</span>
+ </div>
 </div>
 
 <div class="row g-4">
