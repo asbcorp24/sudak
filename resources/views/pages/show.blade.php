@@ -9,6 +9,18 @@
 </section>
 <section class="section-space"><div class="container-xxl"><div class="row g-5">
  <div class="col-lg-8"><article class="content-prose">{!! $page->content !!}</article>@include('partials.media-block',['items'=>$page->getMedia('content')])</div>
- <div class="col-lg-4">@if($page->children->count())<aside class="side-nav"><b>В этом разделе</b>@foreach($page->children as $child)<a href="{{ route('pages.show',$child->slug) }}">{{ $child->title }} <span>↗</span></a>@endforeach</aside>@endif</div>
+ <div class="col-lg-4">
+  @if($children->count())
+   <aside class="side-nav">
+    <b>В этом разделе</b>
+    @foreach($children as $child)
+     <a href="{{ route('pages.show',$child->slug) }}">{{ $child->title }} <span>↗</span></a>
+    @endforeach
+    @if($children->hasPages())
+     <div class="section-children-pagination mt-3">{{ $children->links() }}</div>
+    @endif
+   </aside>
+  @endif
+ </div>
 </div></div></section>
 @endsection
