@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { STLLoader } from 'three/examples/jsm/loaders/STLLoader.js';
 
 const mount=document.getElementById('three-hero');
 
@@ -241,49 +242,176 @@ function shipyard(api){
  const dock=new THREE.Group();
  g.add(dock);
 
+ // Existing shipyard environment remains: water, slipway, cranes and CAD markers.
  const water=new THREE.Mesh(
   new THREE.PlaneGeometry(18,9,32,16),
-  new THREE.MeshStandardMaterial({color:0x9cc8ff,metalness:.12,roughness:.42,transparent:true,opacity:.34,wireframe:true})
+  new THREE.MeshStandardMaterial({color:0x9cc8ff,metalness:.12,roughness:.42,transparent:true,opacity:.22,wireframe:true})
  );
  water.rotation.x=-Math.PI/2;
- water.position.set(1,-1.72,0);
+ water.position.set(1,-2.18,0);
  dock.add(water);
 
- const hull=new THREE.Group();
- hull.position.set(1.25,-.2,.3);
- hull.rotation.y=-.28;
- dock.add(hull);
+ // Slipway / launching ways under the real STL vessel.
+ const slipway=new THREE.Group();
+ slipway.position.set(1.1,0,.3);
+ slipway.rotation.y=-.22;
+ dock.add(slipway);
 
- const keel=markPart(api,new THREE.Mesh(new THREE.BoxGeometry(5.9,.18,.18),solid(a,.8,.12)),[0,-1,0],1);
- keel.position.y=-.74;
- keel.userData.basePosition=keel.position.clone();
- hull.add(keel);
+ [-.64,.64].forEach(z=>{
+  const rail=new THREE.Mesh(new THREE.BoxGeometry(8.5,.09,.10),solid(0x1769d2,.78,.06));
+  rail.position.set(0,-1.90,z);
+  slipway.add(rail);
+ });
+ for(let i=0;i<15;i++){
+  const x=-4.05+i*.58;
+  const sleeper=new THREE.Mesh(new THREE.BoxGeometry(.13,.08,1.72),solid(0x0b3f86,.58,.025));
+  sleeper.position.set(x,-1.95,0);
+  slipway.add(sleeper);
 
- for(let i=0;i<18;i++){
-  const scale=1-Math.abs(i-8.5)/20;
-  const rib=markPart(api,new THREE.Mesh(new THREE.TorusGeometry(1.02*scale,.025,5,36,Math.PI),wire(a,.7)),[0,(i%2?.5:-.5),i<9?-1:1],1.2);
-  rib.rotation.set(0,Math.PI/2,Math.PI/2);
-  rib.position.x=(i-8.5)*.34;
-  rib.userData.basePosition=rib.position.clone();
-  hull.add(rib);
+  if(i>1&&i<13&&i%2===0){
+   [-.38,.38].forEach(z=>{
+    const block=new THREE.Mesh(new THREE.BoxGeometry(.22,.42,.20),solid(0x6f8fb4,.48,.02));
+    block.position.set(x,-1.69,z);
+    block.rotation.z=(z>0?-.10:.10);
+    slipway.add(block);
+   });
+  }
  }
 
- const deck=markPart(api,new THREE.Mesh(new THREE.BoxGeometry(5.2,.12,1.55),solid(a,.18,.05)),[0,1,0],1.15);
- deck.position.y=.55;
- deck.userData.basePosition=deck.position.clone();
- hull.add(deck);
+ const ship=new THREE.Group();
+ ship.position.set(1.1,-.55,.3);
+ ship.rotation.y=-.22;
+ dock.add(ship);
 
- const bow=markPart(api,new THREE.Mesh(new THREE.ConeGeometry(1.02,2.05,5),wire(a,.82)),[1,.1,0],1.35);
- bow.rotation.z=-Math.PI/2;
- bow.position.x=3.86;
- bow.userData.basePosition=bow.position.clone();
- hull.add(bow);
+ const makeLabel=(text)=>{
+  const canvas=document.createElement('canvas');
+  canvas.width=512;
+  canvas.height=128;
+  const ctx=canvas.getContext('2d');
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  ctx.fillStyle='rgba(255,255,255,.94)';
+  ctx.strokeStyle='rgba(23,105,210,.42)';
+  ctx.lineWidth=4;
+  ctx.beginPath();
+  ctx.roundRect(4,4,504,120,22);
+  ctx.fill();
+  ctx.stroke();
+  ctx.fillStyle='#0b3f86';
+  ctx.font='700 44px Arial, sans-serif';
+  ctx.textAlign='center';
+  ctx.textBaseline='middle';
+  ctx.fillText(text,256,66);
+  const texture=new THREE.CanvasTexture(canvas);
+  texture.colorSpace=THREE.SRGBColorSpace;
+  const sprite=new THREE.Sprite(new THREE.SpriteMaterial({map:texture,transparent:true,depthTest:false}));
+  sprite.scale.set(1.55,.39,1);
+  sprite.renderOrder=20;
+  return sprite;
+ };
 
- const bridge=markPart(api,new THREE.Mesh(new THREE.BoxGeometry(1.2,.8,.95),solid(0xd9f7ff,.16,.05)),[0,1,.2],1.5);
- bridge.position.set(-.5,1,.05);
- bridge.userData.basePosition=bridge.position.clone();
- hull.add(bridge);
+ const addDimension=(from,to,label,labelOffset=new THREE.Vector3())=>{
+  const group=new THREE.Group();
+  const material=new THREE.LineBasicMaterial({color:a,transparent:true,opacity:.72,depthTest:false});
+  const main=new THREE.Line(new THREE.BufferGeometry().setFromPoints([from,to]),material);
+  main.renderOrder=18;
+  group.add(main);
 
+  const direction=to.clone().sub(from).normalize();
+  const tickAxis=Math.abs(direction.x)>.8
+   ? new THREE.Vector3(0,.16,0)
+   : Math.abs(direction.y)>.8
+    ? new THREE.Vector3(.16,0,0)
+    : new THREE.Vector3(0,.16,0);
+  [from,to].forEach(point=>{
+   const tick=new THREE.Line(
+    new THREE.BufferGeometry().setFromPoints([point.clone().sub(tickAxis),point.clone().add(tickAxis)]),
+    material
+   );
+   tick.renderOrder=18;
+   group.add(tick);
+  });
+
+  const sprite=makeLabel(label);
+  sprite.position.copy(from).lerp(to,.5).add(labelOffset);
+  group.add(sprite);
+  ship.add(group);
+ };
+
+ const loader=new STLLoader();
+ loader.load('/models/home-ship.stl',geometry=>{
+  geometry.computeVertexNormals();
+  geometry.computeBoundingBox();
+
+  const box=geometry.boundingBox;
+  const size=new THREE.Vector3();
+  const center=new THREE.Vector3();
+  box.getSize(size);
+  box.getCenter(center);
+
+  // Source STL uses Z as vertical axis. Center it and convert to Three.js Y-up.
+  geometry.translate(-center.x,-center.y,-center.z);
+  geometry.rotateX(-Math.PI/2);
+
+  const targetLength=7.1;
+  const modelScale=targetLength/size.x;
+
+  const vesselMaterial=new THREE.MeshStandardMaterial({
+   color:0x1769d2,
+   metalness:.58,
+   roughness:.28,
+   transparent:true,
+   opacity:.88,
+   emissive:0x1769d2,
+   emissiveIntensity:.035,
+   side:THREE.DoubleSide
+  });
+  const vessel=new THREE.Mesh(geometry,vesselMaterial);
+  vessel.scale.setScalar(modelScale);
+  vessel.castShadow=false;
+  vessel.receiveShadow=false;
+  ship.add(vessel);
+
+  const edges=new THREE.LineSegments(
+   new THREE.EdgesGeometry(geometry,18),
+   new THREE.LineBasicMaterial({color:0xd7eaff,transparent:true,opacity:.58})
+  );
+  edges.scale.setScalar(modelScale);
+  ship.add(edges);
+
+  // Actual dimensions calculated from the uploaded STL.
+  const length=size.x*modelScale;
+  const width=size.y*modelScale;
+  const height=size.z*modelScale;
+  const halfL=length/2,halfW=width/2,halfH=height/2;
+
+  addDimension(
+   new THREE.Vector3(-halfL,-halfH-.30,halfW+.34),
+   new THREE.Vector3(halfL,-halfH-.30,halfW+.34),
+   'Длина 37,19 м',
+   new THREE.Vector3(0,-.23,0)
+  );
+  addDimension(
+   new THREE.Vector3(halfL+.22,-halfH-.15,-halfW),
+   new THREE.Vector3(halfL+.22,-halfH-.15,halfW),
+   'Ширина 5,32 м',
+   new THREE.Vector3(.12,-.28,0)
+  );
+  addDimension(
+   new THREE.Vector3(-halfL-.18,-halfH,halfW+.28),
+   new THREE.Vector3(-halfL-.18,halfH,halfW+.28),
+   'Высота 12,96 м',
+   new THREE.Vector3(-.18,0,0)
+  );
+ },undefined,error=>{
+  console.error('Homepage ship STL failed to load',error);
+  const fallback=new THREE.Mesh(
+   new THREE.BoxGeometry(6.8,1.15,1.05),
+   new THREE.MeshStandardMaterial({color:a,wireframe:true,transparent:true,opacity:.5})
+  );
+  ship.add(fallback);
+ });
+
+ // Shipyard cranes are deliberately retained around the new vessel.
  for(let i=0;i<3;i++){
   const crane=new THREE.Group();
   const mast=new THREE.Mesh(new THREE.BoxGeometry(.11,4.4,.11),wire(a,.5));
@@ -304,12 +432,9 @@ function shipyard(api){
  }
 
  rings(dock,a,5,2.1);
- t.push((x,s)=>{
-  if(s.explode<.2){
-   hull.position.y=-.2+Math.sin(x*.8)*.055;
-   hull.rotation.y=-.28+Math.sin(x*.24)*.04;
-  }
+ t.push((x)=>{
   water.position.z=Math.sin(x*.4)*.04;
+  ship.position.y=-.55+Math.sin(x*.45)*.012;
  });
 }
 
