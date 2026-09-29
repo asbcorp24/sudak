@@ -23,7 +23,7 @@
         @php($lp=$progress->get($lesson->id))
         <a class="dpo-lesson-row {{ $lp?->status==='completed'?'completed':'' }}" href="{{ route('dpo.lessons.show',[$group,$lesson]) }}">
          <span class="dpo-lesson-state">{{ $lp?->status==='completed'?'✓':str_pad($loop->iteration,2,'0',STR_PAD_LEFT) }}</span>
-         <div><h3>{{ $lesson->title }}</h3><p>{{ $lesson->description }}</p><small>{{ $lesson->duration_minutes }} мин@if($lesson->resources->count()) · {{ $lesson->resources->count() }} материалов@endif @if($lesson->assignments->count()) · домашнее задание@endif @if($lesson->scormPackages->count()) · SCORM@endif</small></div>
+         <div><h3>{{ $lesson->title }}</h3><p>{{ $lesson->description }}</p><small>@if($lesson->lesson_type==='offline_practice')<b>Офлайн-практика</b> · @endif{{ $lesson->duration_minutes }} мин@if($lesson->resources->count()) · {{ $lesson->resources->count() }} материалов@endif @if($lesson->assignments->count()) · домашнее задание@endif @if($lesson->scormPackages->count()) · SCORM@endif</small></div>
          <span>Открыть →</span>
         </a>
        @endforeach
