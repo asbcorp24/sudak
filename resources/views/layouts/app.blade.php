@@ -71,13 +71,13 @@ try{
     <div class="dropdown-menu tech-dropdown">
      <a class="dropdown-item" href="{{ route('news.index') }}">Новости</a>
      <a class="dropdown-item" href="{{ route('document-center.index') }}">Документы</a>
+     <a class="dropdown-item" href="{{ route('dpo.catalog') }}">Программы ДПО</a>
     </div>
    </div>
 
    <div class="dropdown"><a class="dropdown-toggle" data-bs-toggle="dropdown" href="#">Личный кабинет</a>
     <div class="dropdown-menu tech-dropdown dropdown-menu-end">
      <a class="dropdown-item" href="{{ auth()->check() && auth()->user()->user_type==='student' ? route('student.dashboard') : route('student.login') }}">{{ auth()->check() && auth()->user()->user_type==='student' ? 'Мой кабинет студента' : 'Кабинет студента' }}</a>
-     <a class="dropdown-item" href="{{ route('dpo.catalog') }}">Программы ДПО</a>
      <a class="dropdown-item" href="{{ route('dpo.login') }}">Кабинет ДПО</a>
     </div>
    </div>
