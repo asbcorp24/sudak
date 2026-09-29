@@ -9,6 +9,7 @@ use App\Models\OfficialDocument;
 use App\Models\Page;
 use App\Models\ScheduleEntry;
 use App\Models\Specialty;
+use App\Models\User;
 
 class DashboardController extends Controller
 {
@@ -32,6 +33,7 @@ class DashboardController extends Controller
             'employeesCount'=>Employee::count(),
             'documentsCount'=>OfficialDocument::count(),
             'scheduleCount'=>ScheduleEntry::whereDate('lesson_date',now()->toDateString())->count(),
+            'pendingStudentsCount'=>User::where('user_type','student')->where('student_approval_status','pending')->count(),
         ]);
     }
 }
