@@ -11,8 +11,12 @@ use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
-    public function showLogin()
+    public function showLogin(Request $request)
     {
+        $redirect=$request->query('redirect');
+        if(is_string($redirect) && str_starts_with($redirect,url('/'))){
+            $request->session()->put('url.intended',$redirect);
+        }
         if(Auth::check() && Auth::user()->user_type==='student') return redirect()->route('student.dashboard');
         return view('student.login');
     }
