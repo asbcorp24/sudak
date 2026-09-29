@@ -52,11 +52,9 @@ try{
 
    <div class="dropdown"><a class="dropdown-toggle" data-bs-toggle="dropdown" href="#">Активности</a>
     <div class="dropdown-menu tech-dropdown">
-     <a class="dropdown-item" href="{{ route('news.index') }}">Новости</a>
      <a class="dropdown-item" href="{{ route('calendar.index') }}">Календарь колледжа</a>
      <a class="dropdown-item" href="{{ route('competitions.index') }}">Конкурсы и достижения</a>
      <a class="dropdown-item" href="{{ route('quizzes.index') }}">Викторины</a>
-     <a class="dropdown-item" href="{{ route('document-center.index') }}">Документы</a>
     </div>
    </div>
 
@@ -66,6 +64,20 @@ try{
      <a class="dropdown-item" href="{{ route('admission.create') }}">Заявка на поступление</a>
      <a class="dropdown-item" href="{{ route('cooperation.index') }}">Сотрудничество</a>
      <a class="dropdown-item" href="{{ route('questions.create') }}">Задать вопрос</a>
+    </div>
+   </div>
+
+   <div class="dropdown"><a class="dropdown-toggle" data-bs-toggle="dropdown" href="#">Информация</a>
+    <div class="dropdown-menu tech-dropdown">
+     <a class="dropdown-item" href="{{ route('news.index') }}">Новости</a>
+     <a class="dropdown-item" href="{{ route('document-center.index') }}">Документы</a>
+    </div>
+   </div>
+
+   <div class="dropdown"><a class="dropdown-toggle" data-bs-toggle="dropdown" href="#">Личный кабинет</a>
+    <div class="dropdown-menu tech-dropdown dropdown-menu-end">
+     <a class="dropdown-item" href="{{ auth()->check() && auth()->user()->user_type==='student' ? route('student.dashboard') : route('student.login') }}">{{ auth()->check() && auth()->user()->user_type==='student' ? 'Мой кабинет студента' : 'Кабинет студента' }}</a>
+     <a class="dropdown-item" href="{{ route('dpo.login') }}">Кабинет ДПО</a>
     </div>
    </div>
 
