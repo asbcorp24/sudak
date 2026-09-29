@@ -1,6 +1,9 @@
 @extends('admin.layout')
 @section('heading','ДПО / Посещаемость / '.$entry->group->name)
 @section('content')
+@if($entry->lesson?->lesson_type==='offline_practice')
+<div class="alert alert-primary"><b>Офлайн-практика.</b> Статусы «Присутствовал» и «Опоздал» автоматически засчитывают этот урок слушателю как завершённый. При смене на «Отсутствовал» или «Уважительная причина» зачёт урока снимается.</div>
+@endif
 <div class="d-flex justify-content-between align-items-center gap-3 flex-wrap mb-4">
  <a class="btn-ghost" href="{{ route('admin.dpo.groups.show',$entry->group) }}">← К группе</a>
  <span class="dpo-status active">{{ $entry->starts_at->format('d.m.Y H:i') }}–{{ $entry->ends_at->format('H:i') }}</span>
