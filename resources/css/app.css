@@ -842,3 +842,22 @@ html.a11y-high-contrast body{background:#000!important;color:#fff!important}
 @media(max-width:480px){
  .dpo-admin-stats{grid-template-columns:1fr}.dpo-login-card{padding:26px}.dpo-course-meta>span{width:100%}
 }
+
+
+/* Scoped administrators */
+.admin-scope-badge{
+ display:inline-flex;align-items:center;justify-content:center;
+ min-height:24px;padding:0 8px;border:1px solid rgba(23,105,210,.18);
+ background:#edf4ff;color:#315e91;font-size:.56rem;font-weight:900;
+ text-transform:uppercase;letter-spacing:.05em;white-space:nowrap;border-radius:999px
+}
+.admin-scope-badge.scope-full{background:#e9f8ef;border-color:#a9d9ba;color:#237349}
+.admin-scope-badge.scope-site{background:#edf4ff;border-color:#a9c9f2;color:#1769d2}
+.admin-scope-badge.scope-schedule{background:#fff5df;border-color:#efcf88;color:#9b6200}
+.admin-scope-badge.scope-dpo{background:#f1edff;border-color:#c9b9f4;color:#6746b8}
+.admin-scope-help{display:grid;gap:12px}
+.admin-scope-help p{margin:0;padding:12px;border:1px solid rgba(23,105,210,.1);background:#f8fbff}
+.admin-scope-help b,.admin-scope-help span{display:block}
+.admin-scope-help b{color:#0b2b55;margin-bottom:4px}
+.admin-scope-help span{font-size:.7rem;color:#687f97;line-height:1.5}
+.admin-account-card{padding:16px;margin-bottom:8px;border:1px solid rgba(23,105,210,.12);background:#fff}
