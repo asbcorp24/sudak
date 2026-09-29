@@ -50,6 +50,7 @@ try{
 
    <div class="dropdown"><a class="dropdown-toggle" data-bs-toggle="dropdown" href="#">Активности</a>
     <div class="dropdown-menu tech-dropdown">
+     <a class="dropdown-item" href="{{ route('calendar.index') }}">Календарь колледжа</a>
      <a class="dropdown-item" href="{{ route('competitions.index') }}">Конкурсы и достижения</a>
      <a class="dropdown-item" href="{{ route('quizzes.index') }}">Викторины</a>
     </div>
@@ -80,6 +81,7 @@ try{
    <a href="{{ route('pages.show',$item->slug) }}">{{ $item->menu_title ?: $item->title }}</a>
    @if($item->childrenRecursive->count()) @include('partials.menu-tree',['items'=>$item->childrenRecursive,'depth'=>1,'mobile'=>true]) @endif
   @endforeach
+  <a href="{{ route('calendar.index') }}">Календарь колледжа</a>
   <a href="{{ route('competitions.index') }}">Конкурсы и достижения</a>
   <a href="{{ route('quizzes.index') }}">Викторины</a>
   <a href="{{ route('contacts.index') }}">Контакты и карта</a>
@@ -130,7 +132,7 @@ try{
  <div class="col-lg-5"><div class="brand mb-3"><span class="brand-mark">ЗСК</span><span><b>Зеленодольский судостроительный колледж</b></span></div><p class="text-secondary mb-0">Инженерное образование. Цифровое производство. Судостроение будущего.</p></div>
  <div class="col-lg-3"><h6>Контакты</h6><p class="small text-secondary">422542, Республика Татарстан,<br>г. Зеленодольск, ул. Гастелло, 4<br>+7 (84371) 4-26-17<br>GAPOU.ZSK@tatar.ru</p><a href="{{ route('contacts.index') }}">Контакты и карта →</a></div>
  <div class="col-lg-2"><h6>Поступление</h6><a href="{{ route('admission.create') }}">Подать заявку</a><br><a href="{{ route('pages.show','applicant') }}">Абитуриенту</a><br><a href="{{ route('questions.create') }}">Задать вопрос</a></div>
- <div class="col-lg-2"><h6>Колледж</h6><a href="{{ route('employees.index') }}">Сотрудники</a><br><a href="{{ route('official-documents.index') }}">Документы</a><br><a href="{{ route('cooperation.index') }}">Сотрудничество</a><br><a href="{{ route('competitions.index') }}">Достижения</a><br><a href="{{ route('pages.show','sveden') }}">Сведения</a></div>
+ <div class="col-lg-2"><h6>Колледж</h6><a href="{{ route('employees.index') }}">Сотрудники</a><br><a href="{{ route('calendar.index') }}">Календарь</a><br><a href="{{ route('official-documents.index') }}">Документы</a><br><a href="{{ route('cooperation.index') }}">Сотрудничество</a><br><a href="{{ route('competitions.index') }}">Достижения</a><br><a href="{{ route('pages.show','sveden') }}">Сведения</a></div>
 </div></div></footer>
 @stack('scripts')
 </body></html>
