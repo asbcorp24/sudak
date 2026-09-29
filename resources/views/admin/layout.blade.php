@@ -11,6 +11,7 @@
   <a href="{{ route('admin.employees.index') }}">Сотрудники</a>
   <a href="{{ route('admin.schedule.index') }}">Расписание</a>
   <a href="{{ route('admin.official-documents.index') }}">Официальные документы</a>
+  <a href="{{ route('admin.dpo.index') }}">ДПО / LMS</a>
 
   <span class="admin-nav-group">ОБРАТНАЯ СВЯЗЬ</span>
   <a href="{{ route('admin.contacts') }}">Контакты и карта</a>
