@@ -20,7 +20,7 @@
 
 <div class="glass-panel mb-4">
  <div class="d-flex justify-content-between align-items-start gap-3 flex-wrap">
-  <div><span class="eyebrow">EXCEL IMPORT</span><h3 class="mt-2">Массовый импорт слушателей</h3><p class="text-secondary mb-0">XLSX или CSV. Колонки: ФИО, Email, Телефон, Организация, Должность, Группа, Пароль. Если Email или Пароль не указаны — они будут сформированы автоматически.</p></div>
+  <div><span class="eyebrow">EXCEL IMPORT</span><h3 class="mt-2">Массовый импорт слушателей</h3><p class="text-secondary mb-2">XLSX или CSV. Колонки: ФИО, Email, Телефон, Организация, Должность, Группа, Пароль. Если Email или Пароль не указаны — они будут сформированы автоматически.</p><a class="btn-ghost" href="{{ asset('templates/dpo-students-import.csv') }}" download>Скачать шаблон CSV</a></div>
  </div>
  <form method="post" enctype="multipart/form-data" action="{{ route('admin.dpo.import.students') }}" class="admin-form mt-3">@csrf
   <div class="row g-2"><div class="col-md-5"><input type="file" class="form-control" name="file" accept=".xlsx,.csv,text/csv" required></div><div class="col-md-5"><select class="form-select" name="group_id"><option value="">Группа берётся из Excel</option>@foreach($importGroups as $group)<option value="{{ $group->id }}">{{ $group->program->title }} / {{ $group->name }}</option>@endforeach</select></div><div class="col-md-2"><button class="btn-tech w-100 justify-content-center">Импорт</button></div></div>
