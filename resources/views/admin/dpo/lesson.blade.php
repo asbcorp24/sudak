@@ -29,6 +29,16 @@
 
   <div class="glass-panel mt-4">
    <span class="eyebrow">MATERIALS</span><h3 class="mt-2">PDF, документы и видеоссылки</h3>
+   <div class="inline-media-upload mb-3"
+        data-media-inline-upload
+        data-upload-url="{{ route('admin.media.store') }}"
+        data-csrf="{{ csrf_token() }}">
+    <div class="inline-media-upload-main">
+     <input type="file" class="form-control" data-media-upload-input multiple>
+     <button type="button" class="btn-tech" data-media-upload-button>Загрузить файл</button>
+    </div>
+    <small data-media-upload-status>Новый файл сразу появится в списке ниже.</small>
+   </div>
    <form method="post" action="{{ route('admin.dpo.resources.store',$lesson) }}" class="admin-form">@csrf
     <div class="row g-2">
      <div class="col-md-3"><select class="form-select" name="type" data-dpo-resource-type><option value="file">Файл / PDF</option><option value="video">Видео</option><option value="link">Ссылка</option></select></div>
