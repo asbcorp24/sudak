@@ -11,7 +11,7 @@ use Illuminate\Validation\ValidationException;
 
 class PageAdminController extends Controller
 {
-    public function index(){return view('admin.pages.index',['pages'=>Page::with('parent')->orderBy('sort')->orderBy('title')->paginate(30)]);}
+    public function index(){return view('admin.pages.index',['pages'=>Page::with('parent')->orderBy('sort')->orderBy('title')->paginate(15)->withQueryString()]);}
 
     public function create()
     {
