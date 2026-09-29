@@ -2,8 +2,10 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
@@ -13,11 +15,7 @@ class AuthController extends Controller
             return redirect()->route(Auth::user()->adminHomeRouteName());
         }
 
-        if(Auth::check()){
-            Auth::logout();
-        }
-
-        return view('admin.login');
+        return view('admin.login',['currentUser'=>Auth::user()]);
     }
 
     public function login(Request $request)
@@ -27,24 +25,22 @@ class AuthController extends Controller
             'password'=>'required',
         ]);
 
-        if(!Auth::attempt($credentials,$request->boolean('remember'))){
+        $user=User::where('email',$credentials['email'])->first();
+
+        if(!$user || !Hash::check($credentials['password'],$user->password)){
             return back()->withErrors(['email'=>'Неверный логин или пароль'])->onlyInput('email');
         }
 
-        $request->session()->regenerate();
-        $user=Auth::user();
-
         if(!$user->is_admin){
-            Auth::logout();
-            $request->session()->invalidate();
-            $request->session()->regenerateToken();
-
             return back()->withErrors([
                 'email'=>'У этой учётной записи нет доступа к административной панели.',
             ])->onlyInput('email');
         }
 
-        return redirect()->intended(route($user->adminHomeRouteName()));
+        Auth::login($user,$request->boolean('remember'));
+        $request->session()->regenerate();
+
+        return redirect()->route($user->adminHomeRouteName());
     }
 
     public function logout(Request $request)
