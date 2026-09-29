@@ -8,6 +8,13 @@ return new class extends Migration
 {
     public function up(): void
     {
+        // MySQL DDL is not transactional on all supported hosting versions.
+        // If a previous run failed halfway, remove only the incomplete DPO schema
+        // so the migration can be safely started again.
+        if (Schema::hasTable('dpo_profiles') && !Schema::hasTable('dpo_scorm_values')) {
+            $this->dropDpoTables();
+        }
+
         Schema::create('dpo_profiles', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->unique()->constrained()->cascadeOnDelete();
@@ -50,8 +57,8 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->enum('role', ['student','teacher'])->default('student')->index();
             $table->enum('status', ['active','completed','expelled'])->default('active')->index();
-            $table->timestamp('enrolled_at')->nullable();
-            $table->timestamp('completed_at')->nullable();
+            $table->dateTime('enrolled_at')->nullable();
+            $table->dateTime('completed_at')->nullable();
             $table->timestamps();
 
             $table->unique(['group_id','user_id','role'], 'dpo_enrollment_unique');
@@ -99,9 +106,9 @@ return new class extends Migration
             $table->foreignId('group_id')->constrained('dpo_groups')->cascadeOnDelete();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->enum('status', ['not_started','in_progress','completed'])->default('not_started')->index();
-            $table->timestamp('started_at')->nullable();
-            $table->timestamp('completed_at')->nullable();
-            $table->timestamp('last_seen_at')->nullable();
+            $table->dateTime('started_at')->nullable();
+            $table->dateTime('completed_at')->nullable();
+            $table->dateTime('last_seen_at')->nullable();
             $table->timestamps();
 
             $table->unique(['lesson_id','group_id','user_id'], 'dpo_lesson_progress_unique');
@@ -123,8 +130,8 @@ return new class extends Migration
             $table->id();
             $table->foreignId('assignment_id')->constrained('dpo_assignments')->cascadeOnDelete();
             $table->foreignId('group_id')->constrained('dpo_groups')->cascadeOnDelete();
-            $table->timestamp('available_from')->nullable();
-            $table->timestamp('due_at')->nullable();
+            $table->dateTime('available_from')->nullable();
+            $table->dateTime('due_at')->nullable();
             $table->timestamps();
 
             $table->unique(['assignment_id','group_id']);
@@ -141,8 +148,8 @@ return new class extends Migration
             $table->unsignedDecimal('score', 6, 2)->nullable();
             $table->text('feedback')->nullable();
             $table->foreignId('reviewed_by')->nullable()->constrained('users')->nullOnDelete();
-            $table->timestamp('submitted_at')->nullable();
-            $table->timestamp('reviewed_at')->nullable();
+            $table->dateTime('submitted_at')->nullable();
+            $table->dateTime('reviewed_at')->nullable();
             $table->timestamps();
 
             $table->unique(['assignment_id','group_id','user_id'], 'dpo_submission_unique');
@@ -154,8 +161,8 @@ return new class extends Migration
             $table->foreignId('lesson_id')->nullable()->constrained('dpo_lessons')->nullOnDelete();
             $table->foreignId('teacher_user_id')->nullable()->constrained('users')->nullOnDelete();
             $table->string('title');
-            $table->timestamp('starts_at')->index();
-            $table->timestamp('ends_at');
+            $table->dateTime('starts_at')->index();
+            $table->dateTime('ends_at');
             $table->string('room')->nullable();
             $table->text('online_url')->nullable();
             $table->text('notes')->nullable();
@@ -168,7 +175,7 @@ return new class extends Migration
             $table->foreignId('program_id')->nullable()->constrained('dpo_programs')->cascadeOnDelete();
             $table->string('title');
             $table->longText('body')->nullable();
-            $table->timestamp('published_at')->nullable()->index();
+            $table->dateTime('published_at')->nullable()->index();
             $table->timestamps();
         });
 
@@ -203,9 +210,9 @@ return new class extends Migration
             $table->longText('suspend_data')->nullable();
             $table->string('session_time', 80)->nullable();
             $table->string('total_time', 80)->nullable();
-            $table->timestamp('started_at')->nullable();
-            $table->timestamp('completed_at')->nullable();
-            $table->timestamp('last_accessed_at')->nullable();
+            $table->dateTime('started_at')->nullable();
+            $table->dateTime('completed_at')->nullable();
+            $table->dateTime('last_accessed_at')->nullable();
             $table->timestamps();
 
             $table->unique(['package_id','group_id','user_id','attempt_no'], 'dpo_scorm_attempt_unique');
@@ -224,21 +231,32 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::dropIfExists('dpo_scorm_values');
-        Schema::dropIfExists('dpo_scorm_attempts');
-        Schema::dropIfExists('dpo_scorm_packages');
-        Schema::dropIfExists('dpo_announcements');
-        Schema::dropIfExists('dpo_schedule_entries');
-        Schema::dropIfExists('dpo_submissions');
-        Schema::dropIfExists('dpo_group_assignments');
-        Schema::dropIfExists('dpo_assignments');
-        Schema::dropIfExists('dpo_lesson_progress');
-        Schema::dropIfExists('dpo_lesson_resources');
-        Schema::dropIfExists('dpo_lessons');
-        Schema::dropIfExists('dpo_modules');
-        Schema::dropIfExists('dpo_enrollments');
-        Schema::dropIfExists('dpo_groups');
-        Schema::dropIfExists('dpo_programs');
-        Schema::dropIfExists('dpo_profiles');
+        $this->dropDpoTables();
+    }
+
+    private function dropDpoTables(): void
+    {
+        Schema::disableForeignKeyConstraints();
+
+        try {
+            Schema::dropIfExists('dpo_scorm_values');
+            Schema::dropIfExists('dpo_scorm_attempts');
+            Schema::dropIfExists('dpo_scorm_packages');
+            Schema::dropIfExists('dpo_announcements');
+            Schema::dropIfExists('dpo_schedule_entries');
+            Schema::dropIfExists('dpo_submissions');
+            Schema::dropIfExists('dpo_group_assignments');
+            Schema::dropIfExists('dpo_assignments');
+            Schema::dropIfExists('dpo_lesson_progress');
+            Schema::dropIfExists('dpo_lesson_resources');
+            Schema::dropIfExists('dpo_lessons');
+            Schema::dropIfExists('dpo_modules');
+            Schema::dropIfExists('dpo_enrollments');
+            Schema::dropIfExists('dpo_groups');
+            Schema::dropIfExists('dpo_programs');
+            Schema::dropIfExists('dpo_profiles');
+        } finally {
+            Schema::enableForeignKeyConstraints();
+        }
     }
 };
