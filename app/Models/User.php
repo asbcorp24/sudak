@@ -23,6 +23,8 @@ class User extends Authenticatable
     public function dpoEnrollments(){return $this->hasMany(DpoEnrollment::class);}
     public function dpoGroups(){return $this->belongsToMany(DpoGroup::class,'dpo_enrollments','user_id','group_id')->withPivot(['role','status','enrolled_at','completed_at'])->withTimestamps();}
     public function dpoScheduleEntries(){return $this->hasMany(DpoScheduleEntry::class,'teacher_user_id');}
+    public function dpoApplications(){return $this->hasMany(DpoApplication::class);}
+    public function dpoIssuedDocuments(){return $this->hasMany(DpoIssuedDocument::class);}
 
     public function adminScope(): string
     {
