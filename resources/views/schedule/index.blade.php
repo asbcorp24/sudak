@@ -1,22 +1,26 @@
 @extends('layouts.app')
 @section('title','Расписание — Зеленодольский судостроительный колледж')
-@section('description','Расписание занятий Зеленодольского судостроительного колледжа с фильтрами по дате, группе и преподавателю.')
+@section('description','Расписание занятий Зеленодольского судостроительного колледжа с фильтрами по периоду, группе и преподавателю.')
 @section('content')
 <section class="page-hero compact schedule-hero">
  <div id="three-hero" class="three-layer" data-scene="network"></div>
  <div class="container-xxl position-relative">
   <span class="eyebrow">ACADEMIC SCHEDULE</span>
   <h1>Расписание</h1>
-  <p>Актуальное расписание занятий. Выберите дату, учебную группу или преподавателя.</p>
+  <p>Выберите период, учебную группу или преподавателя. Расписание разделено по дням недели.</p>
  </div>
 </section>
 
 <section class="schedule-section">
  <div class="container-xxl">
-  <form class="schedule-filters" method="get" action="{{ route('schedule.index') }}">
+  <form class="schedule-filters schedule-range-filters" method="get" action="{{ route('schedule.index') }}">
    <div class="schedule-filter-field">
-    <label>Дата</label>
-    <input class="form-control" type="date" name="date" value="{{ $date }}">
+    <label>Дата от</label>
+    <input class="form-control" type="date" name="date_from" value="{{ $dateFrom }}">
+   </div>
+   <div class="schedule-filter-field">
+    <label>Дата до</label>
+    <input class="form-control" type="date" name="date_to" value="{{ $dateTo }}">
    </div>
    <div class="schedule-filter-field">
     <label>Группа</label>
@@ -38,45 +42,70 @@
    </div>
    <div class="schedule-filter-actions">
     <button class="btn-tech">Показать</button>
-    <a class="btn-ghost" href="{{ route('schedule.index',['date'=>$date]) }}">Сбросить</a>
+    <a class="btn-ghost" href="{{ route('schedule.index') }}">Сбросить</a>
    </div>
   </form>
 
-  <div class="schedule-date-nav">
-   <a href="{{ route('schedule.index',array_filter(['date'=>$previousDate,'group_id'=>$groupId,'teacher_id'=>$teacherId])) }}">← Предыдущий день</a>
-   <strong>{{ $displayDate }}</strong>
-   <a href="{{ route('schedule.index',array_filter(['date'=>$nextDate,'group_id'=>$groupId,'teacher_id'=>$teacherId])) }}">Следующий день →</a>
+  @if($errors->any())
+   <div class="schedule-filter-error mt-3">{{ $errors->first() }}</div>
+  @endif
+
+  <div class="schedule-date-nav schedule-period-nav">
+   <a href="{{ route('schedule.index',array_filter(['date_from'=>$previousFrom,'date_to'=>$previousTo,'group_id'=>$groupId,'teacher_id'=>$teacherId])) }}">← Предыдущий период</a>
+   <strong>{{ $displayRange }}</strong>
+   <a href="{{ route('schedule.index',array_filter(['date_from'=>$nextFrom,'date_to'=>$nextTo,'group_id'=>$groupId,'teacher_id'=>$teacherId])) }}">Следующий период →</a>
   </div>
 
-  <div class="schedule-table-wrap">
-   <table class="schedule-table">
-    <thead>
-     <tr>
-      <th>№</th>
-      <th>Время</th>
-      <th>Группа</th>
-      <th>Дисциплина</th>
-      <th>Преподаватель</th>
-      <th>Кабинет</th>
-      <th>Тип</th>
-     </tr>
-    </thead>
-    <tbody>
-     @forelse($entries as $entry)
-      <tr>
-       <td class="schedule-number">{{ $entry->lesson_number ?: '—' }}</td>
-       <td class="schedule-time"><b>{{ substr($entry->starts_at,0,5) }}</b><span>{{ substr($entry->ends_at,0,5) }}</span></td>
-       <td><b>{{ $entry->group->name }}</b>@if($entry->subgroup)<small>{{ $entry->subgroup }}</small>@endif</td>
-       <td><b>{{ $entry->subject }}</b>@if($entry->notes)<small>{{ $entry->notes }}</small>@endif</td>
-       <td>{{ $entry->teacher?->full_name ?: '—' }}</td>
-       <td>{{ $entry->room ?: '—' }}</td>
-       <td>{{ $entry->lesson_type ?: '—' }}</td>
-      </tr>
-     @empty
-      <tr><td colspan="7" class="schedule-empty">На выбранную дату занятий по этим фильтрам нет.</td></tr>
-     @endforelse
-    </tbody>
-   </table>
+  <div class="schedule-range-summary">
+   <span>Период: <b>{{ $displayRange }}</b></span>
+   <span>Занятий: <b>{{ $entries->count() }}</b></span>
+  </div>
+
+  <div class="schedule-day-list">
+   @foreach($dayBlocks as $block)
+    <section class="schedule-day-block {{ $block['entries']->isEmpty() ? 'is-empty' : '' }} {{ $block['is_today'] ? 'is-today' : '' }}">
+     <header class="schedule-day-head">
+      <div>
+       <span>{{ $block['day_name'] }}</span>
+       <h2>{{ $block['display_date'] }}</h2>
+      </div>
+      <small>{{ $block['entries']->count() }} {{ $block['entries']->count()===1 ? 'занятие' : 'занятий' }}</small>
+     </header>
+
+     @if($block['entries']->count())
+      <div class="schedule-table-wrap">
+       <table class="schedule-table">
+        <thead>
+         <tr>
+          <th>№</th>
+          <th>Время</th>
+          <th>Группа</th>
+          <th>Дисциплина</th>
+          <th>Преподаватель</th>
+          <th>Кабинет</th>
+          <th>Тип</th>
+         </tr>
+        </thead>
+        <tbody>
+         @foreach($block['entries'] as $entry)
+          <tr>
+           <td class="schedule-number">{{ $entry->lesson_number ?: '—' }}</td>
+           <td class="schedule-time"><b>{{ substr($entry->starts_at,0,5) }}</b><span>{{ substr($entry->ends_at,0,5) }}</span></td>
+           <td><b>{{ $entry->group->name }}</b>@if($entry->subgroup)<small>{{ $entry->subgroup }}</small>@endif</td>
+           <td><b>{{ $entry->subject }}</b>@if($entry->notes)<small>{{ $entry->notes }}</small>@endif</td>
+           <td>{{ $entry->teacher?->full_name ?: '—' }}</td>
+           <td>{{ $entry->room ?: '—' }}</td>
+           <td>{{ $entry->lesson_type ?: '—' }}</td>
+          </tr>
+         @endforeach
+        </tbody>
+       </table>
+      </div>
+     @else
+      <div class="schedule-day-empty">На этот день занятий по выбранным фильтрам нет.</div>
+     @endif
+    </section>
+   @endforeach
   </div>
  </div>
 </section>
