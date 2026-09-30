@@ -3,7 +3,7 @@
 @php($adminUser=auth()->user())
 @php($adminScope=$adminUser?->adminScope() ?? 'none')
 @php($pendingStudents=\Illuminate\Support\Facades\Schema::hasColumn('users','student_approval_status') ? \App\Models\User::where('user_type','student')->where('student_approval_status','pending')->count() : 0)
-@php($contentOpen=request()->routeIs('admin.menu.*') || request()->routeIs('admin.pages.*') || request()->routeIs('admin.specialties.*') || request()->routeIs('admin.news.*') || request()->routeIs('admin.media.*') || request()->routeIs('admin.panoramas.*') || request()->routeIs('admin.employees.*') || request()->routeIs('admin.official-documents.*'))
+@php($contentOpen=request()->routeIs('admin.menu.*') || request()->routeIs('admin.pages.*') || request()->routeIs('admin.specialties.*') || request()->routeIs('admin.news.*') || request()->routeIs('admin.media.*') || request()->routeIs('admin.music.*') || request()->routeIs('admin.panoramas.*') || request()->routeIs('admin.employees.*') || request()->routeIs('admin.official-documents.*'))
 @php($studyOpen=request()->routeIs('admin.students.*') || request()->routeIs('admin.schedule.*') || request()->routeIs('admin.dpo.*'))
 @php($feedbackOpen=request()->routeIs('admin.contacts') || request()->routeIs('admin.applications.*') || request()->routeIs('admin.cooperation.*') || request()->routeIs('admin.questions.*'))
 @php($activityOpen=request()->routeIs('admin.calendar.*') || request()->routeIs('admin.competitions.*') || request()->routeIs('admin.quizzes.*'))
@@ -23,6 +23,7 @@
      <a class="{{ request()->routeIs('admin.specialties.*')?'active':'' }}" href="{{ route('admin.specialties.index') }}">Специальности + 3D</a>
      <a class="{{ request()->routeIs('admin.news.*')?'active':'' }}" href="{{ route('admin.news.index') }}">Новости</a>
      <a class="{{ request()->routeIs('admin.media.*')?'active':'' }}" href="{{ route('admin.media.index') }}">Медиатека</a>
+     <a class="{{ request()->routeIs('admin.music.*')?'active':'' }}" href="{{ route('admin.music.index') }}">Музыка сайта</a>
      <a class="{{ request()->routeIs('admin.panoramas.*')?'active':'' }}" href="{{ route('admin.panoramas.index') }}">Панорамы 360°</a>
      <a class="{{ request()->routeIs('admin.employees.*')?'active':'' }}" href="{{ route('admin.employees.index') }}">Сотрудники</a>
      <a class="{{ request()->routeIs('admin.official-documents.*')?'active':'' }}" href="{{ route('admin.official-documents.index') }}">Центр документов</a>
