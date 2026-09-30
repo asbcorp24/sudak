@@ -36,6 +36,59 @@
 @media(max-width:850px){.pano360 .pano-grid{grid-template-columns:1fr}.pano360 .pano-head{align-items:flex-start;flex-direction:column}.pano360 .pano-thumb{height:240px}.pano360 .pano-hero{padding:55px 0 48px}}
 @media(max-width:560px){.pano-viewer .pv-top{padding:12px 12px 45px}.pano-viewer .pv-title b{font-size:16px}.pano-viewer .pv-engine{right:10px;bottom:10px}}
 html.a11y-no-motion .pano360 .pano-card,html.a11y-no-motion .pano360 .pano-thumb img{transition:none!important}
+
+/* Follow the global site theme without recoloring the panorama image itself. */
+html:not(.a11y-high-contrast)[data-theme]:not([data-theme="standard"]) .pano360{
+ --p-blue:var(--theme-accent);--p-dark:var(--theme-text);--p-line:var(--theme-line);color:var(--theme-text)
+}
+html:not(.a11y-high-contrast)[data-theme]:not([data-theme="standard"]) .pano360 .pano-hero{
+ background:linear-gradient(125deg,var(--theme-bg) 0%,var(--theme-panel2) 58%,color-mix(in srgb,var(--theme-accent) 38%,var(--theme-bg)) 100%)!important;
+ color:var(--theme-text)!important
+}
+html:not(.a11y-high-contrast)[data-theme]:not([data-theme="standard"]) .pano360 .pano-hero:before{
+ background:radial-gradient(circle at 75% 50%,color-mix(in srgb,var(--theme-accent) 24%,transparent),transparent 30%),
+ linear-gradient(color-mix(in srgb,var(--theme-accent) 7%,transparent) 1px,transparent 1px),
+ linear-gradient(90deg,color-mix(in srgb,var(--theme-accent) 7%,transparent) 1px,transparent 1px)!important;
+ background-size:auto,42px 42px,42px 42px!important
+}
+html:not(.a11y-high-contrast)[data-theme]:not([data-theme="standard"]) .pano360 .pano-hero h1{color:var(--theme-text)!important}
+html:not(.a11y-high-contrast)[data-theme]:not([data-theme="standard"]) .pano360 .pano-hero p{color:var(--theme-muted)!important}
+html:not(.a11y-high-contrast)[data-theme]:not([data-theme="standard"]) .pano360 .pano-badge{
+ border-color:var(--theme-line)!important;background:color-mix(in srgb,var(--theme-accent) 9%,transparent)!important;color:var(--theme-accent)!important
+}
+html:not(.a11y-high-contrast)[data-theme]:not([data-theme="standard"]) .pano360 .pano-section{
+ background:linear-gradient(180deg,var(--theme-bg2),var(--theme-bg))!important
+}
+html:not(.a11y-high-contrast)[data-theme]:not([data-theme="standard"]) .pano360 .pano-head h2,
+html:not(.a11y-high-contrast)[data-theme]:not([data-theme="standard"]) .pano360 .pano-card h3{color:var(--theme-text)!important}
+html:not(.a11y-high-contrast)[data-theme]:not([data-theme="standard"]) .pano360 .pano-head p,
+html:not(.a11y-high-contrast)[data-theme]:not([data-theme="standard"]) .pano360 .pano-card p{color:var(--theme-muted)!important}
+html:not(.a11y-high-contrast)[data-theme]:not([data-theme="standard"]) .pano360 .pano-location{color:var(--theme-accent)!important}
+html:not(.a11y-high-contrast)[data-theme]:not([data-theme="standard"]) .pano360 .pano-card,
+html:not(.a11y-high-contrast)[data-theme]:not([data-theme="standard"]) .pano360 .pano-empty{
+ background:var(--theme-panel)!important;border-color:var(--theme-line)!important;color:var(--theme-text)!important;
+ box-shadow:0 14px 38px var(--theme-shadow)!important
+}
+html:not(.a11y-high-contrast)[data-theme]:not([data-theme="standard"]) .pano360 .pano-open{
+ background:color-mix(in srgb,var(--theme-accent) 12%,var(--theme-panel))!important;color:var(--theme-accent)!important
+}
+html:not(.a11y-high-contrast)[data-theme]:not([data-theme="standard"]) .pano360 .pano-open:hover{
+ background:var(--theme-accent)!important;color:var(--theme-bg)!important
+}
+html:not(.a11y-high-contrast)[data-theme]:not([data-theme="standard"]) .pano-viewer .pv-close:hover{
+ background:var(--theme-accent)!important;color:var(--theme-bg)!important
+}
+html:not(.a11y-high-contrast)[data-theme]:not([data-theme="standard"]) .pano-viewer .pv-engine{
+ border-color:var(--theme-line)!important;color:var(--theme-accent)!important
+}
+html:not(.a11y-high-contrast)[data-theme="hitech"] .pano360 .pano-card{
+ box-shadow:0 0 28px color-mix(in srgb,var(--theme-accent) 8%,transparent)!important
+}
+html:not(.a11y-high-contrast)[data-theme="glamour"] .pano360 .pano-card{border-radius:24px}
+html:not(.a11y-high-contrast)[data-theme="urban"] .pano360 .pano-card,
+html:not(.a11y-high-contrast)[data-theme="urban"] .pano360 .pano-open,
+html:not(.a11y-high-contrast)[data-theme="urban"] .pano360 .pano-badge{border-radius:0!important}
+
 </style>
 
 <div class="pano360">
