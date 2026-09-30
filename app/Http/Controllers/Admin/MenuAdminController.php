@@ -71,9 +71,9 @@ class MenuAdminController extends Controller
             'title'=>'required|string|max:255',
             'parent_id'=>['nullable','integer',Rule::exists('menu_items','id')],
             'link_type'=>['required',Rule::in(['route','page','url','none'])],
-            'page_id'=>'nullable|integer|exists:pages,id',
-            'route_name'=>'nullable|string|max:191',
-            'url'=>'nullable|string|max:1000',
+            'page_id'=>'nullable|required_if:link_type,page|integer|exists:pages,id',
+            'route_name'=>'nullable|required_if:link_type,route|string|max:191',
+            'url'=>'nullable|required_if:link_type,url|string|max:1000',
             'sort'=>'nullable|integer|min:0|max:999999',
         ]);
         $d['parent_id']=$d['parent_id'] ?? null;
