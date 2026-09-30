@@ -44,7 +44,7 @@ return new class extends Migration {
             foreach ($pages as $page) {
                 $pageMap[$page->id] = $insert(['title'=>$page->menu_title ?: $page->title,'link_type'=>'page','route_name'=>null,'page_id'=>$page->id,'sort'=>40 + (int)$page->sort]);
             }
-            $pending = DB::table('pages')->whereNotNull('parent_id')->where('show_in_menu',1)->where('is_published',1)->orderBy('sort')->get();
+            $pending = DB::table('pages')->whereNotNull('parent_id')->where('is_published',1)->orderBy('sort')->get();
             do {
                 $added = false;
                 foreach ($pending as $key=>$page) {
