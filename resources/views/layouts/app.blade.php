@@ -34,7 +34,9 @@ try{
 </script>
 @vite(['resources/css/app.css','resources/js/app.js'])
 <link rel="stylesheet" href="{{ asset('css/themes.css') }}">
+<link rel="stylesheet" href="{{ asset('css/music-player.css') }}">
 <script src="{{ asset('js/theme-switcher.js') }}" defer></script>
+<script src="{{ asset('js/music-player.js') }}" defer></script>
 @stack('head')
 </head>
 <body>
@@ -90,6 +92,8 @@ try{
 </div>
 
 <div class="offline-status" data-offline-status hidden>Нет сети · показаны сохранённые данные</div>
+
+@include('partials.music-player')
 
 <main>@yield('content')</main>
 
