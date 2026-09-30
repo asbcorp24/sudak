@@ -18,7 +18,8 @@
    <details class="admin-nav-section" @if($contentOpen) open @endif>
     <summary><span><i>▦</i> Контент сайта</span><b>⌄</b></summary>
     <div>
-     <a class="{{ request()->routeIs('admin.pages.*')?'active':'' }}" href="{{ route('admin.pages.index') }}">Разделы и страницы</a>\n     <a class="{{ request()->routeIs('admin.menu.*')?'active':'' }}" href="{{ route('admin.menu.index') }}">Редактор меню</a>
+     <a class="{{ request()->routeIs('admin.pages.*')?'active':'' }}" href="{{ route('admin.pages.index') }}">Разделы и страницы</a>
+     <a class="{{ request()->routeIs('admin.menu.*')?'active':'' }}" href="{{ route('admin.menu.index') }}">Редактор меню</a>
      <a class="{{ request()->routeIs('admin.specialties.*')?'active':'' }}" href="{{ route('admin.specialties.index') }}">Специальности + 3D</a>
      <a class="{{ request()->routeIs('admin.news.*')?'active':'' }}" href="{{ route('admin.news.index') }}">Новости</a>
      <a class="{{ request()->routeIs('admin.media.*')?'active':'' }}" href="{{ route('admin.media.index') }}">Медиатека</a>
