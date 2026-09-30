@@ -23,11 +23,14 @@
 <link rel="apple-touch-icon" href="/pwa/icon.svg">
 <script>
 try{
- const a=JSON.parse(localStorage.getItem('zsk-a11y')||'{}');
  const r=document.documentElement;
+ const themes=['standard','light','dark','hitech','glamour','urban'];
+ const savedTheme=localStorage.getItem('zsk-theme')||'standard';
+ r.dataset.theme=themes.includes(savedTheme)?savedTheme:'standard';
+ const a=JSON.parse(localStorage.getItem('zsk-a11y')||'{}');
  if(a.font)r.dataset.a11yFont=a.font;
  ['contrast','grayscale','spacing','images','motion'].forEach(k=>{if(a[k])r.classList.add('a11y-'+(k==='contrast'?'high-contrast':k==='spacing'?'wide-spacing':k==='images'?'hide-images':k==='motion'?'no-motion':'grayscale'))});
-}catch(e){}
+}catch(e){document.documentElement.dataset.theme='standard';}
 </script>
 @vite(['resources/css/app.css','resources/js/app.js'])
 @stack('head')
@@ -35,6 +38,7 @@ try{
 <body>
 <div class="noise"></div>
 @include('partials.accessibility-panel')
+@include('partials.theme-panel')
 <header class="site-header">
  <div class="container-xxl d-flex align-items-center gap-3 py-3">
   <a class="brand" href="{{ route('home') }}"><span class="brand-mark">ЗСК</span><span><b>Зеленодольский</b><small>судостроительный колледж</small></span></a>
