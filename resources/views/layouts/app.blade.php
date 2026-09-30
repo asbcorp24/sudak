@@ -33,6 +33,8 @@ try{
 }catch(e){document.documentElement.dataset.theme='standard';}
 </script>
 @vite(['resources/css/app.css','resources/js/app.js'])
+<link rel="stylesheet" href="{{ asset('css/themes.css') }}">
+<script src="{{ asset('js/theme-switcher.js') }}" defer></script>
 @stack('head')
 </head>
 <body>
