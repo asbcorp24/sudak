@@ -12,6 +12,61 @@
 .home-persona .home-persona-switch button.active{background:linear-gradient(145deg,#e8f4ff,#f8fbff)!important;box-shadow:inset 0 -4px 0 #1769d2!important}
 .home-persona .home-persona-result-copy{background:#f5faff!important}
 .home-persona .home-persona-reset{background:#fff!important;color:#527087!important;border-color:#c9dce9!important}
+
+/* Theme-aware palette: must live after the critical default rules above. */
+html:not(.a11y-high-contrast)[data-theme]:not([data-theme="standard"]) .home-persona{
+ background:linear-gradient(180deg,var(--theme-bg2),var(--theme-bg))!important;
+ color:var(--theme-text)!important;border-color:var(--theme-line)!important
+}
+html:not(.a11y-high-contrast)[data-theme]:not([data-theme="standard"]) .home-persona .home-persona-shell{
+ background:var(--theme-panel)!important;border-color:var(--theme-line)!important;
+ box-shadow:0 18px 55px var(--theme-shadow)!important
+}
+html:not(.a11y-high-contrast)[data-theme]:not([data-theme="standard"]) .home-persona .home-persona-heading{
+ background:linear-gradient(135deg,var(--theme-panel),var(--theme-panel2))!important;border-color:var(--theme-line)!important
+}
+html:not(.a11y-high-contrast)[data-theme]:not([data-theme="standard"]) .home-persona .home-persona-heading h2,
+html:not(.a11y-high-contrast)[data-theme]:not([data-theme="standard"]) .home-persona .home-persona-result-copy h3,
+html:not(.a11y-high-contrast)[data-theme]:not([data-theme="standard"]) .home-persona .home-persona-switch b,
+html:not(.a11y-high-contrast)[data-theme]:not([data-theme="standard"]) .home-persona .home-persona-actions a>b{color:var(--theme-text)!important}
+html:not(.a11y-high-contrast)[data-theme]:not([data-theme="standard"]) .home-persona .home-persona-heading p,
+html:not(.a11y-high-contrast)[data-theme]:not([data-theme="standard"]) .home-persona .home-persona-result-copy p,
+html:not(.a11y-high-contrast)[data-theme]:not([data-theme="standard"]) .home-persona .home-persona-switch small,
+html:not(.a11y-high-contrast)[data-theme]:not([data-theme="standard"]) .home-persona .home-persona-actions a>small{color:var(--theme-muted)!important}
+html:not(.a11y-high-contrast)[data-theme]:not([data-theme="standard"]) .home-persona .eyebrow,
+html:not(.a11y-high-contrast)[data-theme]:not([data-theme="standard"]) .home-persona .home-persona-switch button.active>span,
+html:not(.a11y-high-contrast)[data-theme]:not([data-theme="standard"]) .home-persona .home-persona-actions a>span{color:var(--theme-accent)!important}
+html:not(.a11y-high-contrast)[data-theme]:not([data-theme="standard"]) .home-persona .home-persona-switch,
+html:not(.a11y-high-contrast)[data-theme]:not([data-theme="standard"]) .home-persona .home-persona-result,
+html:not(.a11y-high-contrast)[data-theme]:not([data-theme="standard"]) .home-persona .home-persona-actions{background:var(--theme-line)!important}
+html:not(.a11y-high-contrast)[data-theme]:not([data-theme="standard"]) .home-persona .home-persona-switch button,
+html:not(.a11y-high-contrast)[data-theme]:not([data-theme="standard"]) .home-persona .home-persona-actions a{
+ background:var(--theme-panel)!important;color:var(--theme-text)!important
+}
+html:not(.a11y-high-contrast)[data-theme]:not([data-theme="standard"]) .home-persona .home-persona-switch button:hover,
+html:not(.a11y-high-contrast)[data-theme]:not([data-theme="standard"]) .home-persona .home-persona-actions a:hover{
+ background:var(--theme-panel2)!important;color:var(--theme-accent)!important
+}
+html:not(.a11y-high-contrast)[data-theme]:not([data-theme="standard"]) .home-persona .home-persona-switch button.active{
+ background:linear-gradient(145deg,var(--theme-panel2),var(--theme-panel))!important;
+ box-shadow:inset 0 -4px 0 var(--theme-accent)!important
+}
+html:not(.a11y-high-contrast)[data-theme]:not([data-theme="standard"]) .home-persona .home-persona-result-copy{
+ background:var(--theme-panel2)!important
+}
+html:not(.a11y-high-contrast)[data-theme]:not([data-theme="standard"]) .home-persona .home-persona-reset{
+ background:var(--theme-panel)!important;color:var(--theme-muted)!important;border-color:var(--theme-line)!important
+}
+html:not(.a11y-high-contrast)[data-theme="hitech"] .home-persona .home-persona-shell{
+ box-shadow:0 0 36px color-mix(in srgb,var(--theme-accent) 10%,transparent)!important
+}
+html:not(.a11y-high-contrast)[data-theme="glamour"] .home-persona .home-persona-shell{border-radius:20px}
+html:not(.a11y-high-contrast)[data-theme="glamour"] .home-persona .home-persona-switch button,
+html:not(.a11y-high-contrast)[data-theme="glamour"] .home-persona .home-persona-actions a{border-radius:12px}
+html:not(.a11y-high-contrast)[data-theme="urban"] .home-persona .home-persona-shell,
+html:not(.a11y-high-contrast)[data-theme="urban"] .home-persona .home-persona-switch button,
+html:not(.a11y-high-contrast)[data-theme="urban"] .home-persona .home-persona-actions a{border-radius:0!important}
+
 </style>
 <section class="home-persona" data-home-persona @if(auth()->check() && auth()->user()->user_type==='student') data-default-persona="student" @endif>
  <div class="container-xxl">
