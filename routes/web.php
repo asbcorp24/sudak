@@ -29,6 +29,7 @@ use App\Http\Controllers\Dpo\PublicController as DpoPublicController;
 use App\Http\Controllers\Admin\AuthController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\PageAdminController;
+use App\Http\Controllers\Admin\MenuAdminController;
 use App\Http\Controllers\Admin\NewsAdminController;
 use App\Http\Controllers\Admin\SpecialtyAdminController;
 use App\Http\Controllers\Admin\ScheduleAdminController;
@@ -149,6 +150,12 @@ Route::prefix('admin')->name('admin.')->middleware(['auth','admin'])->group(func
  Route::delete('admins/{user}',[AdminUserController::class,'destroy'])->name('admins.destroy');
 
  Route::resource('pages',PageAdminController::class)->except('show');
+
+ Route::get('menu',[MenuAdminController::class,'index'])->name('menu.index');
+ Route::post('menu',[MenuAdminController::class,'store'])->name('menu.store');
+ Route::put('menu/{menuItem}',[MenuAdminController::class,'update'])->name('menu.update');
+ Route::patch('menu/{menuItem}/move/{direction}',[MenuAdminController::class,'move'])->name('menu.move');
+ Route::delete('menu/{menuItem}',[MenuAdminController::class,'destroy'])->name('menu.destroy');
  Route::resource('news',NewsAdminController::class)->except('show');
  Route::resource('specialties',SpecialtyAdminController::class)->except('show');
  Route::resource('employees',EmployeeAdminController::class)->except('show');
