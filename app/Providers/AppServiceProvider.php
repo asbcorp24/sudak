@@ -1,7 +1,7 @@
 <?php
 namespace App\Providers;
 
-use App\Models\Page;
+use App\Models\MenuItem;
 use App\Models\Setting;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Schema;
@@ -19,12 +19,12 @@ class AppServiceProvider extends ServiceProvider
 
         View::composer('layouts.app',function($view){
             try{
-                $menu=Page::query()
+                $menu=MenuItem::query()
                     ->whereNull('parent_id')
-                    ->where('show_in_menu',1)
-                    ->where('is_published',1)
-                    ->with('childrenRecursive')
+                    ->where('is_active',1)
+                    ->with(['page','childrenRecursive'])
                     ->orderBy('sort')
+                    ->orderBy('id')
                     ->get();
             }catch(\Throwable $e){
                 $menu=collect();
