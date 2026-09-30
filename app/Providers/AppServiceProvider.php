@@ -2,6 +2,7 @@
 namespace App\Providers;
 
 use App\Models\MenuItem;
+use App\Models\MusicTrack;
 use App\Models\Setting;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Schema;
@@ -36,7 +37,17 @@ class AppServiceProvider extends ServiceProvider
                 $siteSettings=[];
             }
 
-            $view->with('mainMenu',$menu)->with('siteSettings',$siteSettings);
+            try{
+                $musicTracks=Schema::hasTable('music_tracks')
+                    ? MusicTrack::where('is_active',1)->orderBy('sort_order')->orderBy('id')->get()
+                    : collect();
+            }catch(\Throwable $e){
+                $musicTracks=collect();
+            }
+
+            $view->with('mainMenu',$menu)
+                ->with('siteSettings',$siteSettings)
+                ->with('musicTracks',$musicTracks);
         });
     }
 }
