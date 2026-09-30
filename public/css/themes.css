@@ -2,6 +2,8 @@
    PUBLIC THEME SWITCHER
    Browser preference: localStorage["zsk-theme"]
    ========================================================= */
+.a11y-launcher{border-color:rgba(23,105,210,.2)!important;background:rgba(255,255,255,.94)!important;color:#0b3f86!important;box-shadow:0 8px 28px rgba(19,61,116,.14)!important}
+.a11y-launcher>span:first-child{color:#1769d2!important}
 .theme-launcher{
  position:fixed;right:18px;top:calc(var(--header) + 66px);z-index:1040;
  min-height:42px;padding:0 14px;border:1px solid rgba(23,105,210,.2);
