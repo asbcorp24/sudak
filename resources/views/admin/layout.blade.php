@@ -3,7 +3,7 @@
 @php($adminUser=auth()->user())
 @php($adminScope=$adminUser?->adminScope() ?? 'none')
 @php($pendingStudents=\Illuminate\Support\Facades\Schema::hasColumn('users','student_approval_status') ? \App\Models\User::where('user_type','student')->where('student_approval_status','pending')->count() : 0)
-@php($contentOpen=request()->routeIs('admin.pages.*') || request()->routeIs('admin.specialties.*') || request()->routeIs('admin.news.*') || request()->routeIs('admin.media.*') || request()->routeIs('admin.panoramas.*') || request()->routeIs('admin.employees.*') || request()->routeIs('admin.official-documents.*'))
+@php($contentOpen=request()->routeIs('admin.menu.*') || request()->routeIs('admin.pages.*') || request()->routeIs('admin.specialties.*') || request()->routeIs('admin.news.*') || request()->routeIs('admin.media.*') || request()->routeIs('admin.panoramas.*') || request()->routeIs('admin.employees.*') || request()->routeIs('admin.official-documents.*'))
 @php($studyOpen=request()->routeIs('admin.students.*') || request()->routeIs('admin.schedule.*') || request()->routeIs('admin.dpo.*'))
 @php($feedbackOpen=request()->routeIs('admin.contacts') || request()->routeIs('admin.applications.*') || request()->routeIs('admin.cooperation.*') || request()->routeIs('admin.questions.*'))
 @php($activityOpen=request()->routeIs('admin.calendar.*') || request()->routeIs('admin.competitions.*') || request()->routeIs('admin.quizzes.*'))
@@ -18,7 +18,7 @@
    <details class="admin-nav-section" @if($contentOpen) open @endif>
     <summary><span><i>▦</i> Контент сайта</span><b>⌄</b></summary>
     <div>
-     <a class="{{ request()->routeIs('admin.pages.*')?'active':'' }}" href="{{ route('admin.pages.index') }}">Разделы и страницы</a>
+     <a class="{{ request()->routeIs('admin.pages.*')?'active':'' }}" href="{{ route('admin.pages.index') }}">Разделы и страницы</a>\n     <a class="{{ request()->routeIs('admin.menu.*')?'active':'' }}" href="{{ route('admin.menu.index') }}">Редактор меню</a>
      <a class="{{ request()->routeIs('admin.specialties.*')?'active':'' }}" href="{{ route('admin.specialties.index') }}">Специальности + 3D</a>
      <a class="{{ request()->routeIs('admin.news.*')?'active':'' }}" href="{{ route('admin.news.index') }}">Новости</a>
      <a class="{{ request()->routeIs('admin.media.*')?'active':'' }}" href="{{ route('admin.media.index') }}">Медиатека</a>
