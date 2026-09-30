@@ -61,6 +61,34 @@
  .home-panorama-section .hp-label small{display:block;color:#acd0f3;font-size:10px;font-weight:850;letter-spacing:.08em;text-transform:uppercase}.home-panorama-section .hp-label b{display:block;font-size:16px;margin-top:2px}
  .home-panorama-section .hp-actions{display:flex;justify-content:center;margin-top:20px}.home-panorama-section .hp-all{display:inline-flex;align-items:center;gap:9px;padding:12px 17px;border-radius:12px;background:#1769d2;color:#fff;text-decoration:none;font-weight:800}.home-panorama-section .hp-all:hover{background:#0b4f9f;color:#fff}
  .home-panorama-section .pnlm-about-msg{display:none!important}
+ /* Selected site theme */
+ html:not(.a11y-high-contrast)[data-theme]:not([data-theme="standard"]) .home-panorama-section{
+  background:linear-gradient(180deg,var(--theme-bg2),var(--theme-bg))!important;border-color:var(--theme-line)!important
+ }
+ html:not(.a11y-high-contrast)[data-theme]:not([data-theme="standard"]) .home-panorama-section .hp-kicker{color:var(--theme-accent)!important}
+ html:not(.a11y-high-contrast)[data-theme]:not([data-theme="standard"]) .home-panorama-section h2{color:var(--theme-text)!important}
+ html:not(.a11y-high-contrast)[data-theme]:not([data-theme="standard"]) .home-panorama-section .hp-copy{color:var(--theme-muted)!important}
+ html:not(.a11y-high-contrast)[data-theme]:not([data-theme="standard"]) .home-panorama-section .hp-shell{
+  background:var(--theme-panel)!important;border-color:var(--theme-line)!important;box-shadow:0 22px 55px var(--theme-shadow)!important
+ }
+ html:not(.a11y-high-contrast)[data-theme]:not([data-theme="standard"]) .home-panorama-section .hp-label{
+  background:color-mix(in srgb,var(--theme-panel) 82%,transparent)!important;border-color:var(--theme-line)!important;color:var(--theme-text)!important
+ }
+ html:not(.a11y-high-contrast)[data-theme]:not([data-theme="standard"]) .home-panorama-section .hp-label small{color:var(--theme-accent)!important}
+ html:not(.a11y-high-contrast)[data-theme]:not([data-theme="standard"]) .home-panorama-section .hp-all{
+  background:var(--theme-accent)!important;color:var(--theme-bg)!important
+ }
+ html:not(.a11y-high-contrast)[data-theme]:not([data-theme="standard"]) .home-panorama-section .hp-all:hover{
+  background:var(--theme-accent2)!important;color:var(--theme-bg)!important
+ }
+ html:not(.a11y-high-contrast)[data-theme="hitech"] .home-panorama-section .hp-shell{
+  box-shadow:0 0 42px color-mix(in srgb,var(--theme-accent) 12%,transparent)!important
+ }
+ html:not(.a11y-high-contrast)[data-theme="glamour"] .home-panorama-section .hp-shell{border-radius:28px}
+ html:not(.a11y-high-contrast)[data-theme="urban"] .home-panorama-section .hp-shell,
+ html:not(.a11y-high-contrast)[data-theme="urban"] .home-panorama-section .hp-label,
+ html:not(.a11y-high-contrast)[data-theme="urban"] .home-panorama-section .hp-all{border-radius:0!important}
+
  @media(max-width:760px){.home-panorama-section{padding:54px 0 64px}.home-panorama-section .hp-head{align-items:flex-start;flex-direction:column}.home-panorama-section .hp-shell{height:58vh;min-height:390px;border-radius:18px}}
  </style>
  <div class="container-xxl">
