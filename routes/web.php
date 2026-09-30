@@ -35,6 +35,7 @@ use App\Http\Controllers\Admin\SpecialtyAdminController;
 use App\Http\Controllers\Admin\ScheduleAdminController;
 use App\Http\Controllers\Admin\ScheduleGroupAdminController;
 use App\Http\Controllers\Admin\MediaAdminController;
+use App\Http\Controllers\Admin\MusicAdminController;
 use App\Http\Controllers\Admin\ContactAdminController;
 use App\Http\Controllers\Admin\AdmissionAdminController;
 use App\Http\Controllers\Admin\CooperationAdminController;
@@ -156,6 +157,12 @@ Route::prefix('admin')->name('admin.')->middleware(['auth','admin'])->group(func
  Route::put('menu/{menuItem}',[MenuAdminController::class,'update'])->name('menu.update');
  Route::patch('menu/{menuItem}/move/{direction}',[MenuAdminController::class,'move'])->name('menu.move');
  Route::delete('menu/{menuItem}',[MenuAdminController::class,'destroy'])->name('menu.destroy');
+ Route::get('music',[MusicAdminController::class,'index'])->name('music.index');
+ Route::post('music',[MusicAdminController::class,'store'])->name('music.store');
+ Route::get('music/{track}/edit',[MusicAdminController::class,'edit'])->name('music.edit');
+ Route::put('music/{track}',[MusicAdminController::class,'update'])->name('music.update');
+ Route::delete('music/{track}',[MusicAdminController::class,'destroy'])->name('music.destroy');
+
  Route::resource('news',NewsAdminController::class)->except('show');
  Route::resource('specialties',SpecialtyAdminController::class)->except('show');
  Route::resource('employees',EmployeeAdminController::class)->except('show');
